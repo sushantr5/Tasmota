@@ -208,7 +208,7 @@ class Matter_Plugin_Root : Matter_Plugin
     elif cluster == 0x0028              # ========== Basic Information Cluster cluster 11.1 p.565 ==========
 
       if   attribute == 0x0000          #  ---------- DataModelRevision / CommissioningWindowStatus ----------
-        return TLV.create_TLV(TLV.U2, 0)
+        return TLV.create_TLV(TLV.U2, 1)
       elif attribute == 0x0001          #  ---------- VendorName / string ----------
         return TLV.create_TLV(TLV.UTF1, "Tasmota")
       elif attribute == 0x0002          #  ---------- VendorID / vendor-id ----------
@@ -228,7 +228,10 @@ class Matter_Plugin_Root : Matter_Plugin
       elif attribute == 0x0009          #  ---------- SoftwareVersion / u32 ----------
         return TLV.create_TLV(TLV.U2, 1)
       elif attribute == 0x000A          #  ---------- SoftwareVersionString / string ----------
-        return TLV.create_TLV(TLV.UTF1, tasmota.cmd("Status 2", true)['StatusFWR']['Version'])
+        var version_full = tasmota.cmd("Status 2", true)['StatusFWR']['Version']
+        var version_end = string.find(version_full, '(')
+        if version_end > 0    version_full = version_full[0..version_end - 1]   end
+        return TLV.create_TLV(TLV.UTF1, version_full)
       elif attribute == 0x000F          #  ---------- SerialNumber / string ----------
         return TLV.create_TLV(TLV.UTF1, tasmota.wifi().find("mac", ""))
       elif attribute == 0x0012          #  ---------- UniqueID / string 32 max ----------
@@ -485,7 +488,7 @@ class Matter_Plugin_Root : Matter_Plugin
         var hk = crypto.HKDF_SHA256()
         var fabric_rev = fabric_id.copy().reverse()
         var k_fabric = hk.derive(root_ca, fabric_rev, info, 8)
-        session.set_fabric_device(fabric_id, deviceid, k_fabric)
+        session.set_fabric_device(fabric_id, deviceid, k_fabric, self.device.commissioning_admin_fabric)
 
         # We have a candidate fabric, add it as expirable for 2 minutes
         session.persist_to_fabric()       # fabric object is completed, persist it

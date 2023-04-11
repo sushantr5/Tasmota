@@ -47,6 +47,7 @@ class Matter_Fabric : Matter_Expirable
   var created
   # fabric-index
   var fabric_index                # index number for fabrics, starts with `1`
+  var fabric_parent               # index of the parent fabric, i.e. the fabric that triggered the provisioning (if nested)
   # list of active sessions
   var _sessions                   # only active CASE sessions that need to be persisted
   # our own private key
@@ -375,13 +376,19 @@ class Matter_Session : Matter_Expirable
   def is_CASE()   return self.mode == self._CASE    end
   
   #############################################################
-  # Register the frabric as complete (end of commissioning)
-  def fabric_completed()
-    self._fabric.set_no_expiration()
-    self._fabric.set_persist(true)
+  # Assign a new fabric index
+  def assign_fabric_index()
     if (self._fabric.get_fabric_index() == nil)
       self._fabric.set_fabric_index(self._store.next_fabric_idx())
     end
+  end
+
+  #############################################################
+  # Register the fabric as complete (end of commissioning)
+  def fabric_completed()
+    self._fabric.set_no_expiration()
+    self._fabric.set_persist(true)
+    self.assign_fabric_index()
     self._store.add_fabric(self._fabric)
   end
 
@@ -389,6 +396,7 @@ class Matter_Session : Matter_Expirable
   # Register the frabric as complete (end of commissioning)
   def fabric_candidate()
     self._fabric.set_expire_in_seconds(120)       # expire in 2 minutes
+    self.assign_fabric_index()
     self._store.add_fabric(self._fabric)
   end
 
@@ -450,10 +458,11 @@ class Matter_Session : Matter_Expirable
     self._fabric.admin_vendor = admin_vendor
   end
 
-  def set_fabric_device(fabric_id, device_id, fc)
+  def set_fabric_device(fabric_id, device_id, fc, fabric_parent)
     self._fabric.fabric_id = fabric_id
     self._fabric.device_id = device_id
     self._fabric.fabric_compressed = fc
+    self._fabric.fabric_parent = (fabric_parent != nil) ? fabric_parent.get_fabric_index() : nil
   end
   def set_fabric_label(s)
     if type(s) == 'string'
@@ -712,6 +721,51 @@ class Matter_Session_Store
   end
 
   #############################################################
+  # Find fabric by index number
+  #
+  def find_fabric_by_index(fabric_index)
+    for fab : self.active_fabrics()
+      if fab.get_fabric_index() == fabric_index
+        return fab
+      end
+    end
+    return nil
+  end
+
+  #############################################################
+  # Find children fabrics
+  #
+  # Find all children fabrics recursively and collate in array
+  # includes the parent fabric as first element
+  #
+  # Ex:
+  # matter_device.sessions.fabrics[1].fabric_parent = 1
+  # matter_device.sessions.find_children_fabrics(1)
+  # 
+  def find_children_fabrics(parent_index)
+    if parent_index == nil  return []   end
+    var ret = [ parent_index ]
+
+    def find_children_fabrics_inner(index)
+      for fab: self.active_fabrics()
+        if fab.fabric_parent == index
+          # protect against infinite loops
+          if ret.find() == nil
+            var sub_index = fab.fabric_index
+            ret.push(sub_index)
+            find_children_fabrics_inner(sub_index)
+          end
+        end
+      end
+    end
+
+    find_children_fabrics_inner(parent_index)
+
+    # ret contains a list of indices
+    return ret
+  end
+
+  #############################################################
   # Next fabric-idx
   #
   # starts at `1`, computes the next available fabric-idx
@@ -840,12 +894,15 @@ class Matter_Session_Store
   #############################################################
   # find session by resumption id
   def find_session_by_resumption_id(resumption_id)
+    import string
     if !resumption_id  return nil end
     var i = 0
     var sessions = self.sessions
     while i < size(sessions)
       var session = sessions[i]
+      tasmota.log(string.format("MTR: session.resumption_id=%s vs %s", str(session.resumption_id), str(resumption_id)))
       if session.resumption_id == resumption_id && session.shared_secret != nil
+        tasmota.log(string.format("MTR: session.shared_secret=%s", str(session.shared_secret)))
         session.update()
         return session
       end
