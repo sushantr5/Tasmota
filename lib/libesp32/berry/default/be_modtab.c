@@ -204,6 +204,8 @@ be_extern_native_class(Wire);
 be_extern_native_class(I2C_Driver);
 be_extern_native_class(AXP192);
 be_extern_native_class(AXP202);
+be_extern_native_class(ezie_ws2812_configurator);
+be_extern_native_class(ezie_home_assistant_discovery);
 be_extern_native_class(OneWire);
 be_extern_native_class(Leds_ntv);
 be_extern_native_class(Leds);
@@ -250,6 +252,7 @@ BERRY_LOCAL bclass_array be_class_table = {
     &be_native_class(ctypes_bytes),
     &be_native_class(ctypes_bytes_dyn),
     &be_native_class(tasmota_log_reader),
+    &be_native_class(ezie_home_assistant_discovery),
 #ifdef USE_LIGHT
     &be_native_class(light_state),
 #endif
@@ -275,6 +278,7 @@ BERRY_LOCAL bclass_array be_class_table = {
     &be_native_class(Leds_ntv),
     &be_native_class(Leds),
     &be_native_class(Leds_animator),
+    &be_native_class(ezie_ws2812_configurator),
 #endif // USE_WS2812
 #ifdef USE_ENERGY_SENSOR
     &be_native_class(energy_struct),

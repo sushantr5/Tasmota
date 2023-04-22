@@ -149,6 +149,7 @@ extern const bclass be_class_Matter_TLV;   // need to declare it upfront because
 #include "solidify/solidified_Matter_Base38.h"
 #include "solidify/solidified_Matter_UI.h"
 #include "solidify/solidified_Matter_Device.h"
+#include "solidify/solidified_Matter_Device_Ezie.h"
 
 #include "../generate/be_matter_certs.h"
 
