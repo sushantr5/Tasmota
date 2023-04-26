@@ -7,11 +7,50 @@
 extern const bclass be_class_ezie_ws2812_configurator;
 
 /********************************************************************
-** Solidified function: get_LIGHTS_timeout
+** Solidified function: init
 ********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_LIGHTS_timeout,   /* name */
+be_local_closure(ezie_ws2812_configurator_init,   /* name */
   be_nested_proto(
-    2,                          /* nstack */
+    8,                          /* nstack */
+    5,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 6]) {     /* constants */
+    /* K0   */  be_nested_str_weak(action_on_state_col),
+    /* K1   */  be_nested_str_weak(normal_off_state_col),
+    /* K2   */  be_nested_str_weak(speed_bar_col),
+    /* K3   */  be_nested_str_weak(lights_timeout),
+    /* K4   */  be_nested_str_weak(tasmota),
+    /* K5   */  be_nested_str_weak(add_driver),
+    }),
+    be_str_weak(init),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 9]) {  /* code */
+      0x90020001,  //  0000  SETMBR	R0	K0	R1
+      0x90020202,  //  0001  SETMBR	R0	K1	R2
+      0x90020403,  //  0002  SETMBR	R0	K2	R3
+      0x90020604,  //  0003  SETMBR	R0	K3	R4
+      0xB8160800,  //  0004  GETNGBL	R5	K4
+      0x8C140B05,  //  0005  GETMET	R5	R5	K5
+      0x5C1C0000,  //  0006  MOVE	R7	R0
+      0x7C140400,  //  0007  CALL	R5	2
+      0x80000000,  //  0008  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: page_part_ctl
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_page_part_ctl,   /* name */
+  be_nested_proto(
+    15,                          /* nstack */
     1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
@@ -19,14 +58,147 @@ be_local_closure(ezie_ws2812_configurator_get_LIGHTS_timeout,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(lights_timeout),
+    ( &(const bvalue[34]) {     /* constants */
+    /* K0   */  be_nested_str_weak(webserver),
+    /* K1   */  be_nested_str_weak(check_privileged_access),
+    /* K2   */  be_nested_str_weak(string),
+    /* K3   */  be_nested_str_weak(partition_core),
+    /* K4   */  be_nested_str_weak(persist),
+    /* K5   */  be_nested_str_weak(Partition),
+    /* K6   */  be_nested_str_weak(has_arg),
+    /* K7   */  be_nested_str_weak(on_color),
+    /* K8   */  be_nested_str_weak(action_on_state_col),
+    /* K9   */  be_nested_str_weak(replace),
+    /* K10  */  be_nested_str_weak(arg),
+    /* K11  */  be_nested_str_weak(_X23),
+    /* K12  */  be_nested_str_weak(0x),
+    /* K13  */  be_nested_str_weak(off_color),
+    /* K14  */  be_nested_str_weak(normal_off_state_col),
+    /* K15  */  be_nested_str_weak(bar_color),
+    /* K16  */  be_nested_str_weak(speed_bar_col),
+    /* K17  */  be_nested_str_weak(lights_timeout),
+    /* K18  */  be_nested_str_weak(tasmota),
+    /* K19  */  be_nested_str_weak(publish_result),
+    /* K20  */  be_nested_str_weak(_X7B_X22EZIE_X22_X3A_X7B_X22WS2812_Updated_X22_X3A1_X7D_X7D),
+    /* K21  */  be_nested_str_weak(EZIE),
+    /* K22  */  be_nested_str_weak(log),
+    /* K23  */  be_nested_str_weak(format),
+    /* K24  */  be_nested_str_weak(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
+    /* K25  */  be_const_int(2),
+    /* K26  */  be_nested_str_weak(content_start),
+    /* K27  */  be_nested_str_weak(Parameter_X20error),
+    /* K28  */  be_nested_str_weak(content_send_style),
+    /* K29  */  be_nested_str_weak(content_send),
+    /* K30  */  be_nested_str_weak(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
+    /* K31  */  be_nested_str_weak(content_button),
+    /* K32  */  be_nested_str_weak(BUTTON_MANAGEMENT),
+    /* K33  */  be_nested_str_weak(content_stop),
     }),
-    be_str_weak(get_LIGHTS_timeout),
+    be_str_weak(page_part_ctl),
     &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
+    ( &(const binstruction[102]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0x8C080301,  //  0001  GETMET	R2	R1	K1
+      0x7C080200,  //  0002  CALL	R2	1
+      0x740A0001,  //  0003  JMPT	R2	#0006
+      0x4C080000,  //  0004  LDNIL	R2
+      0x80040400,  //  0005  RET	1	R2
+      0xA40A0400,  //  0006  IMPORT	R2	K2
+      0xA40E0600,  //  0007  IMPORT	R3	K3
+      0xA4120800,  //  0008  IMPORT	R4	K4
+      0x8C140705,  //  0009  GETMET	R5	R3	K5
+      0x7C140200,  //  000A  CALL	R5	1
+      0xA802003A,  //  000B  EXBLK	0	#0047
+      0x8C180306,  //  000C  GETMET	R6	R1	K6
+      0x58200007,  //  000D  LDCONST	R8	K7
+      0x7C180400,  //  000E  CALL	R6	2
+      0x781A0009,  //  000F  JMPF	R6	#001A
+      0x60180009,  //  0010  GETGBL	R6	G9
+      0x8C1C0509,  //  0011  GETMET	R7	R2	K9
+      0x8C24030A,  //  0012  GETMET	R9	R1	K10
+      0x582C0007,  //  0013  LDCONST	R11	K7
+      0x7C240400,  //  0014  CALL	R9	2
+      0x5828000B,  //  0015  LDCONST	R10	K11
+      0x582C000C,  //  0016  LDCONST	R11	K12
+      0x7C1C0800,  //  0017  CALL	R7	4
+      0x7C180200,  //  0018  CALL	R6	1
+      0x90021006,  //  0019  SETMBR	R0	K8	R6
+      0x8C180306,  //  001A  GETMET	R6	R1	K6
+      0x5820000D,  //  001B  LDCONST	R8	K13
+      0x7C180400,  //  001C  CALL	R6	2
+      0x781A0009,  //  001D  JMPF	R6	#0028
+      0x60180009,  //  001E  GETGBL	R6	G9
+      0x8C1C0509,  //  001F  GETMET	R7	R2	K9
+      0x8C24030A,  //  0020  GETMET	R9	R1	K10
+      0x582C000D,  //  0021  LDCONST	R11	K13
+      0x7C240400,  //  0022  CALL	R9	2
+      0x5828000B,  //  0023  LDCONST	R10	K11
+      0x582C000C,  //  0024  LDCONST	R11	K12
+      0x7C1C0800,  //  0025  CALL	R7	4
+      0x7C180200,  //  0026  CALL	R6	1
+      0x90021C06,  //  0027  SETMBR	R0	K14	R6
+      0x8C180306,  //  0028  GETMET	R6	R1	K6
+      0x5820000F,  //  0029  LDCONST	R8	K15
+      0x7C180400,  //  002A  CALL	R6	2
+      0x781A0009,  //  002B  JMPF	R6	#0036
+      0x60180009,  //  002C  GETGBL	R6	G9
+      0x8C1C0509,  //  002D  GETMET	R7	R2	K9
+      0x8C24030A,  //  002E  GETMET	R9	R1	K10
+      0x582C000F,  //  002F  LDCONST	R11	K15
+      0x7C240400,  //  0030  CALL	R9	2
+      0x5828000B,  //  0031  LDCONST	R10	K11
+      0x582C000C,  //  0032  LDCONST	R11	K12
+      0x7C1C0800,  //  0033  CALL	R7	4
+      0x7C180200,  //  0034  CALL	R6	1
+      0x90022006,  //  0035  SETMBR	R0	K16	R6
+      0x8C180306,  //  0036  GETMET	R6	R1	K6
+      0x58200011,  //  0037  LDCONST	R8	K17
+      0x7C180400,  //  0038  CALL	R6	2
+      0x781A0005,  //  0039  JMPF	R6	#0040
+      0x60180009,  //  003A  GETGBL	R6	G9
+      0x8C1C030A,  //  003B  GETMET	R7	R1	K10
+      0x58240011,  //  003C  LDCONST	R9	K17
+      0x7C1C0400,  //  003D  CALL	R7	2
+      0x7C180200,  //  003E  CALL	R6	1
+      0x90022206,  //  003F  SETMBR	R0	K17	R6
+      0xB81A2400,  //  0040  GETNGBL	R6	K18
+      0x8C180D13,  //  0041  GETMET	R6	R6	K19
+      0x58200014,  //  0042  LDCONST	R8	K20
+      0x58240015,  //  0043  LDCONST	R9	K21
+      0x7C180600,  //  0044  CALL	R6	3
+      0xA8040001,  //  0045  EXBLK	1	1
+      0x7002001D,  //  0046  JMP		#0065
+      0xAC180002,  //  0047  CATCH	R6	0	2
+      0x7002001A,  //  0048  JMP		#0064
+      0xB8222400,  //  0049  GETNGBL	R8	K18
+      0x8C201116,  //  004A  GETMET	R8	R8	K22
+      0x8C280517,  //  004B  GETMET	R10	R2	K23
+      0x58300018,  //  004C  LDCONST	R12	K24
+      0x5C340C00,  //  004D  MOVE	R13	R6
+      0x5C380E00,  //  004E  MOVE	R14	R7
+      0x7C280800,  //  004F  CALL	R10	4
+      0x582C0019,  //  0050  LDCONST	R11	K25
+      0x7C200600,  //  0051  CALL	R8	3
+      0x8C20031A,  //  0052  GETMET	R8	R1	K26
+      0x5828001B,  //  0053  LDCONST	R10	K27
+      0x7C200400,  //  0054  CALL	R8	2
+      0x8C20031C,  //  0055  GETMET	R8	R1	K28
+      0x7C200200,  //  0056  CALL	R8	1
+      0x8C20031D,  //  0057  GETMET	R8	R1	K29
+      0x8C280517,  //  0058  GETMET	R10	R2	K23
+      0x5830001E,  //  0059  LDCONST	R12	K30
+      0x5C340C00,  //  005A  MOVE	R13	R6
+      0x5C380E00,  //  005B  MOVE	R14	R7
+      0x7C280800,  //  005C  CALL	R10	4
+      0x7C200400,  //  005D  CALL	R8	2
+      0x8C20031F,  //  005E  GETMET	R8	R1	K31
+      0x88280320,  //  005F  GETMBR	R10	R1	K32
+      0x7C200400,  //  0060  CALL	R8	2
+      0x8C200321,  //  0061  GETMET	R8	R1	K33
+      0x7C200200,  //  0062  CALL	R8	1
+      0x70020000,  //  0063  JMP		#0065
+      0xB0080000,  //  0064  RAISE	2	R0	R0
+      0x80000000,  //  0065  RET	0
     })
   )
 );
@@ -123,40 +295,162 @@ be_local_closure(ezie_ws2812_configurator_web_add_handler,   /* name */
 
 
 /********************************************************************
-** Solidified function: init
+** Solidified function: show_timeout_settings
 ********************************************************************/
-be_local_closure(ezie_ws2812_configurator_init,   /* name */
+be_local_closure(ezie_ws2812_configurator_show_timeout_settings,   /* name */
   be_nested_proto(
-    9,                          /* nstack */
-    6,                          /* argc */
+    10,                          /* nstack */
+    1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
     NULL,                       /* no upvals */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 7]) {     /* constants */
-    /* K0   */  be_nested_str_weak(action_on_state_col),
-    /* K1   */  be_nested_str_weak(normal_off_state_col),
-    /* K2   */  be_nested_str_weak(speed_bar_col),
-    /* K3   */  be_nested_str_weak(lights_timeout),
-    /* K4   */  be_nested_str_weak(notify_sink),
-    /* K5   */  be_nested_str_weak(tasmota),
-    /* K6   */  be_nested_str_weak(add_driver),
+    ( &(const bvalue[ 9]) {     /* constants */
+    /* K0   */  be_nested_str_weak(webserver),
+    /* K1   */  be_nested_str_weak(string),
+    /* K2   */  be_nested_str_weak(content_send),
+    /* K3   */  be_nested_str_weak(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20Lights_X20Timeout_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K4   */  be_nested_str_weak(_X3Cp_X3ELights_X20Timeout_X20_X28seconds_X29_X3A_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str_weak(format),
+    /* K6   */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27range_X27_X20name_X3D_X27lights_timeout_X27_X20min_X3D_X270_X27_X20max_X3D_X27600_X27_X20step_X3D_X275_X27_X20value_X3D_X27_X25i_X27oninput_X3D_X27this_X2EnextElementSibling_X2Evalue_X20_X3D_X20this_X2Evalue_X27_X3E_X3Coutput_X3E_X25i_X3C_X2Foutput_X3E),
+    /* K7   */  be_nested_str_weak(lights_timeout),
+    /* K8   */  be_nested_str_weak(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
     }),
-    be_str_weak(init),
+    be_str_weak(show_timeout_settings),
     &be_const_str_solidified,
-    ( &(const binstruction[10]) {  /* code */
-      0x90020002,  //  0000  SETMBR	R0	K0	R2
-      0x90020203,  //  0001  SETMBR	R0	K1	R3
-      0x90020404,  //  0002  SETMBR	R0	K2	R4
-      0x90020605,  //  0003  SETMBR	R0	K3	R5
-      0x90020801,  //  0004  SETMBR	R0	K4	R1
-      0xB81A0A00,  //  0005  GETNGBL	R6	K5
-      0x8C180D06,  //  0006  GETMET	R6	R6	K6
-      0x5C200000,  //  0007  MOVE	R8	R0
-      0x7C180400,  //  0008  CALL	R6	2
-      0x80000000,  //  0009  RET	0
+    ( &(const binstruction[22]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0xA40A0200,  //  0001  IMPORT	R2	K1
+      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
+      0x58140003,  //  0003  LDCONST	R5	K3
+      0x7C0C0400,  //  0004  CALL	R3	2
+      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
+      0x58140004,  //  0006  LDCONST	R5	K4
+      0x7C0C0400,  //  0007  CALL	R3	2
+      0x8C0C0302,  //  0008  GETMET	R3	R1	K2
+      0x58140004,  //  0009  LDCONST	R5	K4
+      0x7C0C0400,  //  000A  CALL	R3	2
+      0x8C0C0302,  //  000B  GETMET	R3	R1	K2
+      0x8C140505,  //  000C  GETMET	R5	R2	K5
+      0x581C0006,  //  000D  LDCONST	R7	K6
+      0x88200107,  //  000E  GETMBR	R8	R0	K7
+      0x88240107,  //  000F  GETMBR	R9	R0	K7
+      0x7C140800,  //  0010  CALL	R5	4
+      0x7C0C0400,  //  0011  CALL	R3	2
+      0x8C0C0302,  //  0012  GETMET	R3	R1	K2
+      0x58140008,  //  0013  LDCONST	R5	K8
+      0x7C0C0400,  //  0014  CALL	R3	2
+      0x80000000,  //  0015  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_SPEED_indicator_bar_color
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str_weak(speed_bar_col),
+    }),
+    be_str_weak(get_SPEED_indicator_bar_color),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_ACTION_or_ON_state_color
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str_weak(action_on_state_col),
+    }),
+    be_str_weak(get_ACTION_or_ON_state_color),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_LIGHTS_timeout
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_LIGHTS_timeout,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str_weak(lights_timeout),
+    }),
+    be_str_weak(get_LIGHTS_timeout),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_NORMAL_or_OFF_state_color
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str_weak(normal_off_state_col),
+    }),
+    be_str_weak(get_NORMAL_or_OFF_state_color),
+    &be_const_str_solidified,
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
     })
   )
 );
@@ -285,33 +579,6 @@ be_local_closure(ezie_ws2812_configurator_web_add_config_button,   /* name */
 
 
 /********************************************************************
-** Solidified function: get_ACTION_or_ON_state_color
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(action_on_state_col),
-    }),
-    be_str_weak(get_ACTION_or_ON_state_color),
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
 ** Solidified function: page_part_mgr
 ********************************************************************/
 be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
@@ -378,300 +645,28 @@ be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
 
 
 /********************************************************************
-** Solidified function: page_part_ctl
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_page_part_ctl,   /* name */
-  be_nested_proto(
-    15,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[33]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(check_privileged_access),
-    /* K2   */  be_nested_str_weak(string),
-    /* K3   */  be_nested_str_weak(partition_core),
-    /* K4   */  be_nested_str_weak(persist),
-    /* K5   */  be_nested_str_weak(Partition),
-    /* K6   */  be_nested_str_weak(has_arg),
-    /* K7   */  be_nested_str_weak(on_color),
-    /* K8   */  be_nested_str_weak(action_on_state_col),
-    /* K9   */  be_nested_str_weak(replace),
-    /* K10  */  be_nested_str_weak(arg),
-    /* K11  */  be_nested_str_weak(_X23),
-    /* K12  */  be_nested_str_weak(0x),
-    /* K13  */  be_nested_str_weak(off_color),
-    /* K14  */  be_nested_str_weak(normal_off_state_col),
-    /* K15  */  be_nested_str_weak(bar_color),
-    /* K16  */  be_nested_str_weak(speed_bar_col),
-    /* K17  */  be_nested_str_weak(lights_timeout),
-    /* K18  */  be_nested_str_weak(notify_sink),
-    /* K19  */  be_nested_str_weak(event_ws2812),
-    /* K20  */  be_nested_str_weak(tasmota),
-    /* K21  */  be_nested_str_weak(log),
-    /* K22  */  be_nested_str_weak(format),
-    /* K23  */  be_nested_str_weak(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
-    /* K24  */  be_const_int(2),
-    /* K25  */  be_nested_str_weak(content_start),
-    /* K26  */  be_nested_str_weak(Parameter_X20error),
-    /* K27  */  be_nested_str_weak(content_send_style),
-    /* K28  */  be_nested_str_weak(content_send),
-    /* K29  */  be_nested_str_weak(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
-    /* K30  */  be_nested_str_weak(content_button),
-    /* K31  */  be_nested_str_weak(BUTTON_MANAGEMENT),
-    /* K32  */  be_nested_str_weak(content_stop),
-    }),
-    be_str_weak(page_part_ctl),
-    &be_const_str_solidified,
-    ( &(const binstruction[105]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0x8C080301,  //  0001  GETMET	R2	R1	K1
-      0x7C080200,  //  0002  CALL	R2	1
-      0x740A0001,  //  0003  JMPT	R2	#0006
-      0x4C080000,  //  0004  LDNIL	R2
-      0x80040400,  //  0005  RET	1	R2
-      0xA40A0400,  //  0006  IMPORT	R2	K2
-      0xA40E0600,  //  0007  IMPORT	R3	K3
-      0xA4120800,  //  0008  IMPORT	R4	K4
-      0x8C140705,  //  0009  GETMET	R5	R3	K5
-      0x7C140200,  //  000A  CALL	R5	1
-      0xA802003D,  //  000B  EXBLK	0	#004A
-      0x8C180306,  //  000C  GETMET	R6	R1	K6
-      0x58200007,  //  000D  LDCONST	R8	K7
-      0x7C180400,  //  000E  CALL	R6	2
-      0x781A0009,  //  000F  JMPF	R6	#001A
-      0x60180009,  //  0010  GETGBL	R6	G9
-      0x8C1C0509,  //  0011  GETMET	R7	R2	K9
-      0x8C24030A,  //  0012  GETMET	R9	R1	K10
-      0x582C0007,  //  0013  LDCONST	R11	K7
-      0x7C240400,  //  0014  CALL	R9	2
-      0x5828000B,  //  0015  LDCONST	R10	K11
-      0x582C000C,  //  0016  LDCONST	R11	K12
-      0x7C1C0800,  //  0017  CALL	R7	4
-      0x7C180200,  //  0018  CALL	R6	1
-      0x90021006,  //  0019  SETMBR	R0	K8	R6
-      0x8C180306,  //  001A  GETMET	R6	R1	K6
-      0x5820000D,  //  001B  LDCONST	R8	K13
-      0x7C180400,  //  001C  CALL	R6	2
-      0x781A0009,  //  001D  JMPF	R6	#0028
-      0x60180009,  //  001E  GETGBL	R6	G9
-      0x8C1C0509,  //  001F  GETMET	R7	R2	K9
-      0x8C24030A,  //  0020  GETMET	R9	R1	K10
-      0x582C000D,  //  0021  LDCONST	R11	K13
-      0x7C240400,  //  0022  CALL	R9	2
-      0x5828000B,  //  0023  LDCONST	R10	K11
-      0x582C000C,  //  0024  LDCONST	R11	K12
-      0x7C1C0800,  //  0025  CALL	R7	4
-      0x7C180200,  //  0026  CALL	R6	1
-      0x90021C06,  //  0027  SETMBR	R0	K14	R6
-      0x8C180306,  //  0028  GETMET	R6	R1	K6
-      0x5820000F,  //  0029  LDCONST	R8	K15
-      0x7C180400,  //  002A  CALL	R6	2
-      0x781A0009,  //  002B  JMPF	R6	#0036
-      0x60180009,  //  002C  GETGBL	R6	G9
-      0x8C1C0509,  //  002D  GETMET	R7	R2	K9
-      0x8C24030A,  //  002E  GETMET	R9	R1	K10
-      0x582C000F,  //  002F  LDCONST	R11	K15
-      0x7C240400,  //  0030  CALL	R9	2
-      0x5828000B,  //  0031  LDCONST	R10	K11
-      0x582C000C,  //  0032  LDCONST	R11	K12
-      0x7C1C0800,  //  0033  CALL	R7	4
-      0x7C180200,  //  0034  CALL	R6	1
-      0x90022006,  //  0035  SETMBR	R0	K16	R6
-      0x8C180306,  //  0036  GETMET	R6	R1	K6
-      0x58200011,  //  0037  LDCONST	R8	K17
-      0x7C180400,  //  0038  CALL	R6	2
-      0x781A0005,  //  0039  JMPF	R6	#0040
-      0x60180009,  //  003A  GETGBL	R6	G9
-      0x8C1C030A,  //  003B  GETMET	R7	R1	K10
-      0x58240011,  //  003C  LDCONST	R9	K17
-      0x7C1C0400,  //  003D  CALL	R7	2
-      0x7C180200,  //  003E  CALL	R6	1
-      0x90022206,  //  003F  SETMBR	R0	K17	R6
-      0x88180112,  //  0040  GETMBR	R6	R0	K18
-      0x4C1C0000,  //  0041  LDNIL	R7
-      0x20180C07,  //  0042  NE	R6	R6	R7
-      0x781A0003,  //  0043  JMPF	R6	#0048
-      0x88180112,  //  0044  GETMBR	R6	R0	K18
-      0x8C180D13,  //  0045  GETMET	R6	R6	K19
-      0x5C200000,  //  0046  MOVE	R8	R0
-      0x7C180400,  //  0047  CALL	R6	2
-      0xA8040001,  //  0048  EXBLK	1	1
-      0x7002001D,  //  0049  JMP		#0068
-      0xAC180002,  //  004A  CATCH	R6	0	2
-      0x7002001A,  //  004B  JMP		#0067
-      0xB8222800,  //  004C  GETNGBL	R8	K20
-      0x8C201115,  //  004D  GETMET	R8	R8	K21
-      0x8C280516,  //  004E  GETMET	R10	R2	K22
-      0x58300017,  //  004F  LDCONST	R12	K23
-      0x5C340C00,  //  0050  MOVE	R13	R6
-      0x5C380E00,  //  0051  MOVE	R14	R7
-      0x7C280800,  //  0052  CALL	R10	4
-      0x582C0018,  //  0053  LDCONST	R11	K24
-      0x7C200600,  //  0054  CALL	R8	3
-      0x8C200319,  //  0055  GETMET	R8	R1	K25
-      0x5828001A,  //  0056  LDCONST	R10	K26
-      0x7C200400,  //  0057  CALL	R8	2
-      0x8C20031B,  //  0058  GETMET	R8	R1	K27
-      0x7C200200,  //  0059  CALL	R8	1
-      0x8C20031C,  //  005A  GETMET	R8	R1	K28
-      0x8C280516,  //  005B  GETMET	R10	R2	K22
-      0x5830001D,  //  005C  LDCONST	R12	K29
-      0x5C340C00,  //  005D  MOVE	R13	R6
-      0x5C380E00,  //  005E  MOVE	R14	R7
-      0x7C280800,  //  005F  CALL	R10	4
-      0x7C200400,  //  0060  CALL	R8	2
-      0x8C20031E,  //  0061  GETMET	R8	R1	K30
-      0x8828031F,  //  0062  GETMBR	R10	R1	K31
-      0x7C200400,  //  0063  CALL	R8	2
-      0x8C200320,  //  0064  GETMET	R8	R1	K32
-      0x7C200200,  //  0065  CALL	R8	1
-      0x70020000,  //  0066  JMP		#0068
-      0xB0080000,  //  0067  RAISE	2	R0	R0
-      0x80000000,  //  0068  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: get_NORMAL_or_OFF_state_color
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(normal_off_state_col),
-    }),
-    be_str_weak(get_NORMAL_or_OFF_state_color),
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: show_timeout_settings
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_show_timeout_settings,   /* name */
-  be_nested_proto(
-    10,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 9]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(string),
-    /* K2   */  be_nested_str_weak(content_send),
-    /* K3   */  be_nested_str_weak(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20Lights_X20Timeout_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K4   */  be_nested_str_weak(_X3Cp_X3ELights_X20Timeout_X20_X28seconds_X29_X3A_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str_weak(format),
-    /* K6   */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27range_X27_X20name_X3D_X27lights_timeout_X27_X20min_X3D_X270_X27_X20max_X3D_X27600_X27_X20step_X3D_X275_X27_X20value_X3D_X27_X25i_X27oninput_X3D_X27this_X2EnextElementSibling_X2Evalue_X20_X3D_X20this_X2Evalue_X27_X3E_X3Coutput_X3E_X25i_X3C_X2Foutput_X3E),
-    /* K7   */  be_nested_str_weak(lights_timeout),
-    /* K8   */  be_nested_str_weak(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    }),
-    be_str_weak(show_timeout_settings),
-    &be_const_str_solidified,
-    ( &(const binstruction[22]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0xA40A0200,  //  0001  IMPORT	R2	K1
-      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
-      0x58140003,  //  0003  LDCONST	R5	K3
-      0x7C0C0400,  //  0004  CALL	R3	2
-      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
-      0x58140004,  //  0006  LDCONST	R5	K4
-      0x7C0C0400,  //  0007  CALL	R3	2
-      0x8C0C0302,  //  0008  GETMET	R3	R1	K2
-      0x58140004,  //  0009  LDCONST	R5	K4
-      0x7C0C0400,  //  000A  CALL	R3	2
-      0x8C0C0302,  //  000B  GETMET	R3	R1	K2
-      0x8C140505,  //  000C  GETMET	R5	R2	K5
-      0x581C0006,  //  000D  LDCONST	R7	K6
-      0x88200107,  //  000E  GETMBR	R8	R0	K7
-      0x88240107,  //  000F  GETMBR	R9	R0	K7
-      0x7C140800,  //  0010  CALL	R5	4
-      0x7C0C0400,  //  0011  CALL	R3	2
-      0x8C0C0302,  //  0012  GETMET	R3	R1	K2
-      0x58140008,  //  0013  LDCONST	R5	K8
-      0x7C0C0400,  //  0014  CALL	R3	2
-      0x80000000,  //  0015  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: get_SPEED_indicator_bar_color
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(speed_bar_col),
-    }),
-    be_str_weak(get_SPEED_indicator_bar_color),
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
 ** Solidified class: ezie_ws2812_configurator
 ********************************************************************/
 be_local_class(ezie_ws2812_configurator,
-    5,
+    4,
     NULL,
-    be_nested_map(16,
+    be_nested_map(15,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key_weak(speed_bar_col, -1), be_const_var(2) },
-        { be_const_key_weak(get_LIGHTS_timeout, -1), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_timeout_closure) },
-        { be_const_key_weak(web_add_handler, 13), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
-        { be_const_key_weak(init, -1), be_const_closure(ezie_ws2812_configurator_init_closure) },
-        { be_const_key_weak(show_color_settings, 6), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
+        { be_const_key_weak(init, 5), be_const_closure(ezie_ws2812_configurator_init_closure) },
+        { be_const_key_weak(page_part_ctl, 13), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
+        { be_const_key_weak(web_add_handler, -1), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
+        { be_const_key_weak(normal_off_state_col, -1), be_const_var(1) },
+        { be_const_key_weak(page_part_mgr, -1), be_const_closure(ezie_ws2812_configurator_page_part_mgr_closure) },
         { be_const_key_weak(web_add_config_button, -1), be_const_closure(ezie_ws2812_configurator_web_add_config_button_closure) },
         { be_const_key_weak(get_ACTION_or_ON_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color_closure) },
-        { be_const_key_weak(page_part_mgr, 10), be_const_closure(ezie_ws2812_configurator_page_part_mgr_closure) },
-        { be_const_key_weak(page_part_ctl, -1), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
-        { be_const_key_weak(get_NORMAL_or_OFF_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
-        { be_const_key_weak(get_SPEED_indicator_bar_color, -1), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
         { be_const_key_weak(lights_timeout, -1), be_const_var(3) },
-        { be_const_key_weak(show_timeout_settings, 11), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
+        { be_const_key_weak(get_SPEED_indicator_bar_color, 6), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
+        { be_const_key_weak(get_LIGHTS_timeout, 10), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_timeout_closure) },
         { be_const_key_weak(action_on_state_col, -1), be_const_var(0) },
-        { be_const_key_weak(notify_sink, -1), be_const_var(4) },
-        { be_const_key_weak(normal_off_state_col, 0), be_const_var(1) },
+        { be_const_key_weak(get_NORMAL_or_OFF_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
+        { be_const_key_weak(show_color_settings, -1), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
+        { be_const_key_weak(speed_bar_col, -1), be_const_var(2) },
+        { be_const_key_weak(show_timeout_settings, 4), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
     })),
     be_str_weak(ezie_ws2812_configurator)
 );

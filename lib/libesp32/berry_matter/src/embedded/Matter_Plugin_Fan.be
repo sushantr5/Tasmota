@@ -45,6 +45,13 @@ class Matter_Plugin_Fan : Matter_Plugin
     self.fanspeed = 0
   end
 
+  # every_second
+  def every_second()
+    var payload_json = tasmota.cmd("fanspeed")
+    var status_json = payload_json.find("fanspeed")
+    var speed = int(status_json)                  # force reading value and sending subscriptions
+  end
+
   #############################################################
   # Update shadow
   #

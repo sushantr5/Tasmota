@@ -76,6 +76,7 @@
       "solidified_ezie_ws2812_configurator.h": "c",
       "solidified_ezie_home_assistant_discovery.h": "c",
       "solidified_matter_control_message.h": "c",
-      "solidified_matter_plugin_light2.h": "c"
+      "solidified_matter_plugin_light2.h": "c",
+      "solidified_matter_plugin_light0.h": "c"
     }
   }
