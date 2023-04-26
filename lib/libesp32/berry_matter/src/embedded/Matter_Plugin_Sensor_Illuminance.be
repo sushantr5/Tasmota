@@ -22,9 +22,11 @@
 # dummy declaration for solidification
 class Matter_Plugin_Sensor end
 
-#@ solidify:Matter_Plugin_Sensor_Light,weak
+#@ solidify:Matter_Plugin_Sensor_Illuminance,weak
 
-class Matter_Plugin_Sensor_Light : Matter_Plugin_Sensor
+class Matter_Plugin_Sensor_Illuminance : Matter_Plugin_Sensor
+  static var TYPE = "illuminance"                   # name of the plug-in in json
+  static var NAME = "Illuminance"                   # display name of the plug-in
   static var CLUSTERS  = {
     0x0400: [0,1,2,0xFFFC,0xFFFD],                  # Illuminance Measurement p.95 - no writable
   }
@@ -43,9 +45,9 @@ class Matter_Plugin_Sensor_Light : Matter_Plugin_Sensor
   # Called when the value changed compared to shadow value
   #
   # This must be overriden.
-  # This is where you call `self.attribute_updated(nil, <cluster>, <attribute>)`
-  def valued_changed(val)
-    self.attribute_updated(nil, 0x0400, 0x0000)
+  # This is where you call `self.attribute_updated(<cluster>, <attribute>)`
+  def value_changed(val)
+    self.attribute_updated(0x0400, 0x0000)
   end
 
   #############################################################
@@ -81,4 +83,4 @@ class Matter_Plugin_Sensor_Light : Matter_Plugin_Sensor
   end
 
 end
-matter.Plugin_Sensor_Pressure = Matter_Plugin_Sensor_Pressure
+matter.Plugin_Sensor_Illuminance = Matter_Plugin_Sensor_Illuminance

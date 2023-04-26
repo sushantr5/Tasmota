@@ -25,16 +25,19 @@ class Matter_Plugin_Device end
 #@ solidify:Matter_Plugin_Sensor,weak
 
 class Matter_Plugin_Sensor : Matter_Plugin_Device
+  static var ARG  = "filter"                        # additional argument name (or empty if none)
   var tasmota_sensor_filter                         # Rule-type filter to the value, like "ESP32#Temperature"
   var tasmota_sensor_matcher                        # Actual matcher object
   var shadow_value                                  # Last known value
 
   #############################################################
   # Constructor
-  def init(device, endpoint, sensor_filter)
-    super(self).init(device, endpoint)
-    self.tasmota_sensor_filter = sensor_filter
-    self.tasmota_sensor_matcher = tasmota.Rule_Matcher.parse(sensor_filter)
+  def init(device, endpoint, arguments)
+    super(self).init(device, endpoint, arguments)
+    self.tasmota_sensor_filter = arguments.find(self.ARG#-'filter'-#)
+    if self.tasmota_sensor_filter
+      self.tasmota_sensor_matcher = tasmota.Rule_Matcher.parse(self.tasmota_sensor_filter)
+    end
   end
 
   #############################################################
@@ -47,7 +50,7 @@ class Matter_Plugin_Sensor : Matter_Plugin_Device
       var val = self.pre_value(real(self.tasmota_sensor_matcher.match(payload)))
       if val != nil
         if val != self.shadow_value
-          self.valued_changed(val)
+          self.value_changed(val)
         end
         self.shadow_value = val
       end
@@ -58,9 +61,9 @@ class Matter_Plugin_Sensor : Matter_Plugin_Device
   # Called when the value changed compared to shadow value
   #
   # This must be overriden.
-  # This is where you call `self.attribute_updated(nil, <cluster>, <attribute>)`
-  def valued_changed(val)
-    # self.attribute_updated(nil, 0x0402, 0x0000)
+  # This is where you call `self.attribute_updated(<cluster>, <attribute>)`
+  def value_changed(val)
+    # self.attribute_updated(0x0402, 0x0000)
   end
 
   #############################################################

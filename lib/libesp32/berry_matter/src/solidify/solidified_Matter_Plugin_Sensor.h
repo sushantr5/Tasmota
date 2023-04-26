@@ -31,6 +31,59 @@ be_local_closure(Matter_Plugin_Sensor_pre_value,   /* name */
 
 
 /********************************************************************
+** Solidified function: init
+********************************************************************/
+be_local_closure(Matter_Plugin_Sensor_init,   /* name */
+  be_nested_proto(
+    9,                          /* nstack */
+    4,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 8]) {     /* constants */
+    /* K0   */  be_nested_str_weak(init),
+    /* K1   */  be_nested_str_weak(tasmota_sensor_filter),
+    /* K2   */  be_nested_str_weak(find),
+    /* K3   */  be_nested_str_weak(ARG),
+    /* K4   */  be_nested_str_weak(tasmota_sensor_matcher),
+    /* K5   */  be_nested_str_weak(tasmota),
+    /* K6   */  be_nested_str_weak(Rule_Matcher),
+    /* K7   */  be_nested_str_weak(parse),
+    }),
+    be_str_weak(init),
+    &be_const_str_solidified,
+    ( &(const binstruction[21]) {  /* code */
+      0x60100003,  //  0000  GETGBL	R4	G3
+      0x5C140000,  //  0001  MOVE	R5	R0
+      0x7C100200,  //  0002  CALL	R4	1
+      0x8C100900,  //  0003  GETMET	R4	R4	K0
+      0x5C180200,  //  0004  MOVE	R6	R1
+      0x5C1C0400,  //  0005  MOVE	R7	R2
+      0x5C200600,  //  0006  MOVE	R8	R3
+      0x7C100800,  //  0007  CALL	R4	4
+      0x8C100702,  //  0008  GETMET	R4	R3	K2
+      0x88180103,  //  0009  GETMBR	R6	R0	K3
+      0x7C100400,  //  000A  CALL	R4	2
+      0x90020204,  //  000B  SETMBR	R0	K1	R4
+      0x88100101,  //  000C  GETMBR	R4	R0	K1
+      0x78120005,  //  000D  JMPF	R4	#0014
+      0xB8120A00,  //  000E  GETNGBL	R4	K5
+      0x88100906,  //  000F  GETMBR	R4	R4	K6
+      0x8C100907,  //  0010  GETMET	R4	R4	K7
+      0x88180101,  //  0011  GETMBR	R6	R0	K1
+      0x7C100400,  //  0012  CALL	R4	2
+      0x90020804,  //  0013  SETMBR	R0	K4	R4
+      0x80000000,  //  0014  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
 ** Solidified function: parse_sensors
 ********************************************************************/
 be_local_closure(Matter_Plugin_Sensor_parse_sensors,   /* name */
@@ -48,7 +101,7 @@ be_local_closure(Matter_Plugin_Sensor_parse_sensors,   /* name */
     /* K1   */  be_nested_str_weak(pre_value),
     /* K2   */  be_nested_str_weak(match),
     /* K3   */  be_nested_str_weak(shadow_value),
-    /* K4   */  be_nested_str_weak(valued_changed),
+    /* K4   */  be_nested_str_weak(value_changed),
     }),
     be_str_weak(parse_sensors),
     &be_const_str_solidified,
@@ -81,9 +134,9 @@ be_local_closure(Matter_Plugin_Sensor_parse_sensors,   /* name */
 
 
 /********************************************************************
-** Solidified function: valued_changed
+** Solidified function: value_changed
 ********************************************************************/
-be_local_closure(Matter_Plugin_Sensor_valued_changed,   /* name */
+be_local_closure(Matter_Plugin_Sensor_value_changed,   /* name */
   be_nested_proto(
     2,                          /* nstack */
     2,                          /* argc */
@@ -94,55 +147,10 @@ be_local_closure(Matter_Plugin_Sensor_valued_changed,   /* name */
     NULL,                       /* no sub protos */
     0,                          /* has constants */
     NULL,                       /* no const */
-    be_str_weak(valued_changed),
+    be_str_weak(value_changed),
     &be_const_str_solidified,
     ( &(const binstruction[ 1]) {  /* code */
       0x80000000,  //  0000  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: init
-********************************************************************/
-be_local_closure(Matter_Plugin_Sensor_init,   /* name */
-  be_nested_proto(
-    8,                          /* nstack */
-    4,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 6]) {     /* constants */
-    /* K0   */  be_nested_str_weak(init),
-    /* K1   */  be_nested_str_weak(tasmota_sensor_filter),
-    /* K2   */  be_nested_str_weak(tasmota_sensor_matcher),
-    /* K3   */  be_nested_str_weak(tasmota),
-    /* K4   */  be_nested_str_weak(Rule_Matcher),
-    /* K5   */  be_nested_str_weak(parse),
-    }),
-    be_str_weak(init),
-    &be_const_str_solidified,
-    ( &(const binstruction[15]) {  /* code */
-      0x60100003,  //  0000  GETGBL	R4	G3
-      0x5C140000,  //  0001  MOVE	R5	R0
-      0x7C100200,  //  0002  CALL	R4	1
-      0x8C100900,  //  0003  GETMET	R4	R4	K0
-      0x5C180200,  //  0004  MOVE	R6	R1
-      0x5C1C0400,  //  0005  MOVE	R7	R2
-      0x7C100600,  //  0006  CALL	R4	3
-      0x90020203,  //  0007  SETMBR	R0	K1	R3
-      0xB8120600,  //  0008  GETNGBL	R4	K3
-      0x88100904,  //  0009  GETMBR	R4	R4	K4
-      0x8C100905,  //  000A  GETMET	R4	R4	K5
-      0x5C180600,  //  000B  MOVE	R6	R3
-      0x7C100400,  //  000C  CALL	R4	2
-      0x90020404,  //  000D  SETMBR	R0	K2	R4
-      0x80000000,  //  000E  RET	0
     })
   )
 );
@@ -156,15 +164,16 @@ extern const bclass be_class_Matter_Plugin_Device;
 be_local_class(Matter_Plugin_Sensor,
     3,
     &be_class_Matter_Plugin_Device,
-    be_nested_map(7,
+    be_nested_map(8,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key_weak(tasmota_sensor_matcher, -1), be_const_var(1) },
-        { be_const_key_weak(pre_value, 2), be_const_closure(Matter_Plugin_Sensor_pre_value_closure) },
-        { be_const_key_weak(parse_sensors, -1), be_const_closure(Matter_Plugin_Sensor_parse_sensors_closure) },
+        { be_const_key_weak(pre_value, -1), be_const_closure(Matter_Plugin_Sensor_pre_value_closure) },
         { be_const_key_weak(shadow_value, -1), be_const_var(2) },
-        { be_const_key_weak(tasmota_sensor_filter, 3), be_const_var(0) },
-        { be_const_key_weak(init, -1), be_const_closure(Matter_Plugin_Sensor_init_closure) },
-        { be_const_key_weak(valued_changed, 0), be_const_closure(Matter_Plugin_Sensor_valued_changed_closure) },
+        { be_const_key_weak(tasmota_sensor_matcher, 6), be_const_var(1) },
+        { be_const_key_weak(init, 1), be_const_closure(Matter_Plugin_Sensor_init_closure) },
+        { be_const_key_weak(parse_sensors, -1), be_const_closure(Matter_Plugin_Sensor_parse_sensors_closure) },
+        { be_const_key_weak(value_changed, -1), be_const_closure(Matter_Plugin_Sensor_value_changed_closure) },
+        { be_const_key_weak(tasmota_sensor_filter, -1), be_const_var(0) },
+        { be_const_key_weak(ARG, -1), be_nested_str_weak(filter) },
     })),
     be_str_weak(Matter_Plugin_Sensor)
 );
