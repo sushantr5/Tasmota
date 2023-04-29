@@ -25,6 +25,8 @@ class Matter_Plugin end
 #@ solidify:Matter_Plugin_Fan,weak
 
 class Matter_Plugin_Fan : Matter_Plugin
+  static var TYPE = "fan"                                # name of the plug-in in json
+  static var NAME = "Fan"  
   static var CLUSTERS  = {
     # 0x001D: inherited                             # Descriptor Cluster 9.5 p.453
     0x0003: [0,1,0xFFFC,0xFFFD],                    # Identify 1.2 p.16

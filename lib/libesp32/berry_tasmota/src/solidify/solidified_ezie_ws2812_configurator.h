@@ -19,26 +19,29 @@ be_local_closure(ezie_ws2812_configurator_init,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 6]) {     /* constants */
+    ( &(const bvalue[ 7]) {     /* constants */
     /* K0   */  be_nested_str_weak(action_on_state_col),
     /* K1   */  be_nested_str_weak(normal_off_state_col),
     /* K2   */  be_nested_str_weak(speed_bar_col),
     /* K3   */  be_nested_str_weak(lights_timeout),
-    /* K4   */  be_nested_str_weak(tasmota),
-    /* K5   */  be_nested_str_weak(add_driver),
+    /* K4   */  be_nested_str_weak(web_add_handler),
+    /* K5   */  be_nested_str_weak(tasmota),
+    /* K6   */  be_nested_str_weak(add_driver),
     }),
     be_str_weak(init),
     &be_const_str_solidified,
-    ( &(const binstruction[ 9]) {  /* code */
+    ( &(const binstruction[11]) {  /* code */
       0x90020001,  //  0000  SETMBR	R0	K0	R1
       0x90020202,  //  0001  SETMBR	R0	K1	R2
       0x90020403,  //  0002  SETMBR	R0	K2	R3
       0x90020604,  //  0003  SETMBR	R0	K3	R4
-      0xB8160800,  //  0004  GETNGBL	R5	K4
-      0x8C140B05,  //  0005  GETMET	R5	R5	K5
-      0x5C1C0000,  //  0006  MOVE	R7	R0
-      0x7C140400,  //  0007  CALL	R5	2
-      0x80000000,  //  0008  RET	0
+      0x8C140104,  //  0004  GETMET	R5	R0	K4
+      0x7C140200,  //  0005  CALL	R5	1
+      0xB8160A00,  //  0006  GETNGBL	R5	K5
+      0x8C140B06,  //  0007  GETMET	R5	R5	K6
+      0x5C1C0000,  //  0008  MOVE	R7	R0
+      0x7C140400,  //  0009  CALL	R5	2
+      0x80000000,  //  000A  RET	0
     })
   )
 );

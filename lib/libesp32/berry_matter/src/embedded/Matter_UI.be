@@ -34,7 +34,7 @@ import matter
 class Matter_UI
   static var _ROOT_TYPES    = "root"
   static var _CLASSES_TYPES = "|relay|light0|light1|light2|light3|shutter"
-                              "|temperature|pressure|illuminance|humidity"
+                              "|temperature|pressure|illuminance|humidity|fan"
   var device
 
   def init(device)

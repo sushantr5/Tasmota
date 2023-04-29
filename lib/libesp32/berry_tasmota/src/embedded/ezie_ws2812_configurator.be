@@ -28,6 +28,7 @@ class ezie_ws2812_configurator
     self.normal_off_state_col = normal_off_state_color
     self.speed_bar_col =  speed_bar_color
     self.lights_timeout = lights_timeout_sec
+    self.web_add_handler()
     tasmota.add_driver(self)
   end
 
@@ -162,5 +163,5 @@ class ezie_ws2812_configurator
     webserver.on("/eziec", / -> self.page_part_ctl(), webserver.HTTP_POST)
   end
 end
-#var s = ezie_ws2812_configurator( nil, 0xff0000, 0x00ff00, 0x0000ff,63)
+#var s = ezie_ws2812_configurator(0xff0000, 0x00ff00, 0x0000ff,63)
 #return ezie_ws2812_configurator()
