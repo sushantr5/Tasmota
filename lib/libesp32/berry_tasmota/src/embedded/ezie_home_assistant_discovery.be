@@ -19,7 +19,7 @@ class ezie_home_assistant_discovery : Driver
 
         tasmota.add_rule("Mqtt#Connected", def ()
             self.send_ha_discovery_message()
-            #tasmota.remove_rule("Mqtt#Connected", "ha_discovery_sent")
+            tasmota.remove_rule("Mqtt#Connected", "ha_discovery_sent")
         end, "ha_discovery_sent")
 
         tasmota.add_driver(self)

@@ -330,7 +330,7 @@ be_local_closure(ezie_home_assistant_discovery_init,   /* name */
     1,                          /* has sup protos */
     ( &(const struct bproto*[ 1]) {
       be_nested_proto(
-        2,                          /* nstack */
+        4,                          /* nstack */
         0,                          /* argc */
         0,                          /* varg */
         1,                          /* has upvals */
@@ -340,16 +340,25 @@ be_local_closure(ezie_home_assistant_discovery_init,   /* name */
         0,                          /* has sup protos */
         NULL,                       /* no sub protos */
         1,                          /* has constants */
-        ( &(const bvalue[ 1]) {     /* constants */
+        ( &(const bvalue[ 5]) {     /* constants */
         /* K0   */  be_nested_str_weak(send_ha_discovery_message),
+        /* K1   */  be_nested_str_weak(tasmota),
+        /* K2   */  be_nested_str_weak(remove_rule),
+        /* K3   */  be_nested_str_weak(Mqtt_X23Connected),
+        /* K4   */  be_nested_str_weak(ha_discovery_sent),
         }),
         be_str_weak(_anonymous_),
         &be_const_str_solidified,
-        ( &(const binstruction[ 4]) {  /* code */
+        ( &(const binstruction[ 9]) {  /* code */
           0x68000000,  //  0000  GETUPV	R0	U0
           0x8C000100,  //  0001  GETMET	R0	R0	K0
           0x7C000200,  //  0002  CALL	R0	1
-          0x80000000,  //  0003  RET	0
+          0xB8020200,  //  0003  GETNGBL	R0	K1
+          0x8C000102,  //  0004  GETMET	R0	R0	K2
+          0x58080003,  //  0005  LDCONST	R2	K3
+          0x580C0004,  //  0006  LDCONST	R3	K4
+          0x7C000600,  //  0007  CALL	R0	3
+          0x80000000,  //  0008  RET	0
         })
       ),
     }),
