@@ -33,7 +33,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     #0x0004: [0,0xFFFC,0xFFFD],                      # Groups 1.3 p.21
     #0x0005: [0,1,2,3,4,5,0xFFFC,0xFFFD],            # Scenes 1.4 p.30 - no writable
     #0x0006: [0,0xFFFC,0xFFFD],                      # On/Off 1.5 p.48
-    0x0008: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Level Control 1.6 p.57
+    0x0202: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Level Control 1.6 p.57
   }
   static var TYPES = { 0x002B: 2 }       # FAN https://csa-iot.org/wp-content/uploads/2022/11/22-27351-001_Matter-1.0-Device-Library-Specification.pdf
   #static var TYPES = { 0x0101: 2 }  
@@ -60,7 +60,9 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
   def update_shadow()
     print("UPDATE SHADOW")
     var payload_json = tasmota.cmd("fanspeed")
+    print("***"+str(payload_json))
     var status_json = payload_json.find("fanspeed")
+    print("***"+str(status_json))
     var speed = int(status_json)
 
     if speed == nil
@@ -71,7 +73,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
       self.fanspeed = int(speed)
       print("ATTRIBUTE UPDATE")
     end
-
+    print("***ATTRIBUTE UPDATE")
     self.attribute_updated(nil, 0x0008, 0x0000)  
     super(self).update_shadow()     # superclass manages 'power'
   end
