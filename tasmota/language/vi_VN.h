@@ -104,7 +104,6 @@
 #define D_FALLBACK_TOPIC "Fallback Topic"
 #define D_FALSE "Sai"
 #define D_FILE "Tệp"
-#define D_FILE_SYSTEM_SIZE "File System Size"
 #define D_FLOW_RATE "Tốc độ dòng"
 #define D_FRAGMENTATION "frag."      // Lower case abbreviated version of fragmentation used in "memory fragmentation"
 #define D_FRAME_RATE "Frame rate"

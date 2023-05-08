@@ -2508,13 +2508,9 @@ void HandleInformation(void)
     }
   }
   esp_partition_iterator_release(it);
-#else   // not ESP32
+#else // ESP32
   WSContentSend_PD(PSTR("}1" D_FREE_MEMORY "}2%1_f KB"), &freemem);
-#ifdef USE_UFILESYS
-  WSContentSend_P(PSTR("}1}2&nbsp;"));  // Empty line
-  WSContentSend_P(PSTR("}1" D_FILE_SYSTEM_SIZE "}2%d KB"), UfsSize());
-#endif  // USE_UFILESYS
-#endif  // ESP32
+#endif // ESP32
   WSContentSend_P(PSTR("</td></tr></table>"));
 
   WSContentSend_P(HTTP_SCRIPT_INFO_END);
