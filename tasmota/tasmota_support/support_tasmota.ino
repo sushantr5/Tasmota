@@ -1638,6 +1638,7 @@ void Every250mSeconds(void)
   }
 }
 
+#ifdef ESP8266
 #ifdef USE_ARDUINO_OTA
 /*********************************************************************************************\
  * Allow updating via the Arduino OTA-protocol.
@@ -1721,6 +1722,7 @@ void ArduinoOtaLoop(void)
   while (arduino_ota_triggered) { ArduinoOTA.handle(); }
 }
 #endif  // USE_ARDUINO_OTA
+#endif  // ESP8266
 
 /********************************************************************************************/
 
