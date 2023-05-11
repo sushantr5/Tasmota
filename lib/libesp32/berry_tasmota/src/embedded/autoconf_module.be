@@ -91,7 +91,7 @@ autoconf_module.init = def (m)
       import string
       import json
       try 
-        var url = string.format("https://raw.githubusercontent.com/tasmota/autoconf/main/%s_manifest.json", tasmota.arch())
+        var url = string.format("https://raw.githubusercontent.com/sushantr5/EZIE/main/autoconf/%s_manifest.json", tasmota.arch())
         tasmota.log(string.format("CFG: loading '%s'", url), 3)
         # load the template
         var cl = webclient()
@@ -211,7 +211,7 @@ autoconf_module.init = def (m)
           var arch_name = webserver.arg("zip")
 
           if arch_name != "reset"
-            var url = string.format("https://raw.githubusercontent.com/tasmota/autoconf/main/%s/%s.autoconf", tasmota.arch(), arch_name)
+            var url = string.format("https://raw.githubusercontent.com/sushantr5/EZIE/main/autoconf/%s/%s.autoconf", tasmota.arch(), arch_name)
             tasmota.log(string.format("CFG: downloading '%s'", url), 2);
 
             var local_file = string.format("%s.autoconf", arch_name)

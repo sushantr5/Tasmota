@@ -20,7 +20,7 @@
 # Matter plug-in for core behavior
 
 # dummy declaration for solidification
-class Matter_Plugin_Device end
+#class Matter_Plugin_Device end
 
 #@ solidify:Matter_Plugin_Fan,weak
 
@@ -42,7 +42,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
   #############################################################
   # Constructor
   def init(device, endpoint, arguments)
-    super(self).init(device, endpoint)
+    super(self).init(device, endpoint, arguments)
     self.fanspeed = 0
   end
 
@@ -74,10 +74,10 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
   #
   def read_attribute(session, ctx)
     import string
-
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var attribute = ctx.attribute
+    print("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute))
     # ====================================================================================================
     if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       self.update_shadow_lazy()
@@ -112,7 +112,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var command = ctx.command
-
+    print("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command))
     # ====================================================================================================
     if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       if   command == 0x0000            # ---------- MoveToLevel ----------
@@ -127,6 +127,11 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
         return true
       elif command == 0x0002            # ---------- Step ----------
         # TODO, we don't really support it
+        var speed_in = val.findsubval(0)  # fan 0..4
+        var speed = tasmota.scale_uint(speed_in, 0, 254, 0, 4)
+        tasmota.cmd("fanspeed " + str(speed))
+        self.update_shadow()
+        ctx.log = "speed:"+str(speed_in)
         return true
       elif command == 0x0003            # ---------- Stop ----------
         # TODO, we don't really support it
