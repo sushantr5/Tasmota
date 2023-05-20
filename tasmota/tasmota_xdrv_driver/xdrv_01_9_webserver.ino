@@ -2466,7 +2466,11 @@ void HandleInformation(void)
   WSContentSend_P(PSTR("}1" D_PROGRAM_SIZE "}2%d KB"), ESP_getSketchSize() / 1024);
   WSContentSend_P(PSTR("}1" D_FREE_PROGRAM_SPACE "}2%d KB"), ESP_getFreeSketchSpace() / 1024);
 #ifdef ESP32
+#ifdef USE_GT911
+  WSContentSend_PD(PSTR("}1" D_FREE_MEMORY "}2%1_f KB"), &freemem);
+#else
   WSContentSend_PD(PSTR("}1" D_FREE_MEMORY "}2%1_f KB (" D_FRAGMENTATION " %d%%)"), &freemem, ESP_getHeapFragmentation());
+#endif // USE_GT911
   if (UsePSRAM()) {
     WSContentSend_P(PSTR("}1" D_PSR_MAX_MEMORY "}2%d KB"), ESP.getPsramSize() / 1024);
     WSContentSend_P(PSTR("}1" D_PSR_FREE_MEMORY "}2%d KB"), ESP.getFreePsram() / 1024);
@@ -3697,11 +3701,12 @@ bool Xdrv01(uint32_t function)
       if (Wifi.wifi_test_counter) {
         Wifi.wifi_test_counter--;
         AddLog(LOG_LEVEL_DEBUG, PSTR(D_LOG_WIFI D_TRYING_TO_CONNECT " %s"), SettingsText(SET_STASSID1));
-        if (WifiHasIP()) {            // Got IP - Connection Established
+        IPAddress local_ip;
+        if (WifiGetIP(&local_ip, true)) {            // Got IP - Connection Established (exclude AP address)
           Wifi.wifi_test_AP_TIMEOUT = false;
           Wifi.wifi_test_counter = 0;
           Wifi.wifiTest = WIFI_TEST_FINISHED;
-          AddLog(LOG_LEVEL_INFO, PSTR(D_LOG_WIFI D_CMND_SSID " %s: " D_CONNECTED " - " D_IP_ADDRESS " %s"), SettingsText(Wifi.wifi_Test_Save_SSID2 ? SET_STASSID2 : SET_STASSID1), WiFi.localIP().toString().c_str());
+          AddLog(LOG_LEVEL_INFO, PSTR(D_LOG_WIFI D_CMND_SSID " %s: " D_CONNECTED " - " D_IP_ADDRESS " %s"), SettingsText(Wifi.wifi_Test_Save_SSID2 ? SET_STASSID2 : SET_STASSID1), local_ip.toString().c_str());
 //          TasmotaGlobal.blinks = 255;                    // Signal wifi connection with blinks
           if (MAX_WIFI_OPTION != Wifi.old_wificonfig) {
             TasmotaGlobal.wifi_state_flag = Settings->sta_config = Wifi.old_wificonfig;
