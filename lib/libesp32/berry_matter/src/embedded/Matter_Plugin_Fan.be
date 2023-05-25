@@ -33,7 +33,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     #0x0004: [0,0xFFFC,0xFFFD],                      # Groups 1.3 p.21
     #0x0005: [0,1,2,3,4,5,0xFFFC,0xFFFD],            # Scenes 1.4 p.30 - no writable
     #0x0006: [0,0xFFFC,0xFFFD],                      # On/Off 1.5 p.48
-    0x0202: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Fan Control
+    0x0008: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Fan Control
   }
   static var TYPES = { 0x002B: 2 }       # FAN https://csa-iot.org/wp-content/uploads/2022/11/22-27351-001_Matter-1.0-Device-Library-Specification.pdf
   #static var TYPES = { 0x0101: 2 }  
@@ -54,18 +54,14 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var payload_json = tasmota.cmd("fanspeed")
     var status_json = payload_json.find("fanspeed")
     var speed = int(status_json)
-
     if speed == nil
       speed = self.fanspeed      
     end
-
     if speed != self.fanspeed   
       self.fanspeed = int(speed)
-      #self.attribute_updated(nil, 0x0202, 0x0000)
-    end
-
-    #forcing to send status every second
-    self.attribute_updated(nil, 0x0202, 0x0000)  
+      self.attribute_updated(0x0008, 0x0000)
+      print("###SRR:ATTRIBUTE UPDATE3###")
+    end      
     super(self).update_shadow()    
   end
 
@@ -79,7 +75,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var attribute = ctx.attribute
     print("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute))
     # ====================================================================================================
-    if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
+    if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
       self.update_shadow_lazy()
       if   attribute == 0x0000          #  ---------- CurrentLevel / u1 ----------
         var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 254)
@@ -114,7 +110,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var command = ctx.command
     print("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command))
     # ====================================================================================================
-    if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
+    if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
       if   command == 0x0000            # ---------- MoveToLevel ----------
         var speed_in = val.findsubval(0)  # fan 0..4
         var speed = tasmota.scale_uint(speed_in, 0, 254, 0, 4)

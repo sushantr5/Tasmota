@@ -92,7 +92,7 @@ be_local_closure(Matter_Plugin_Fan_invoke_request,   /* name */
       0x5C2C0C00,  //  000A  MOVE	R11	R6
       0x7C280200,  //  000B  CALL	R10	1
       0x7C1C0600,  //  000C  CALL	R7	3
-      0x541E0201,  //  000D  LDINT	R7	514
+      0x541E0007,  //  000D  LDINT	R7	8
       0x1C1C0A07,  //  000E  EQ	R7	R5	R7
       0x781E0076,  //  000F  JMPF	R7	#0087
       0x1C1C0D05,  //  0010  EQ	R7	R6	K5
@@ -280,7 +280,7 @@ be_local_closure(Matter_Plugin_Fan_read_attribute,   /* name */
       0x5C2C0C00,  //  000B  MOVE	R11	R6
       0x7C280200,  //  000C  CALL	R10	1
       0x7C1C0600,  //  000D  CALL	R7	3
-      0x541E0201,  //  000E  LDINT	R7	514
+      0x541E0007,  //  000E  LDINT	R7	8
       0x1C1C0A07,  //  000F  EQ	R7	R5	R7
       0x781E0045,  //  0010  JMPF	R7	#0057
       0x8C1C0106,  //  0011  GETMET	R7	R0	K6
@@ -373,7 +373,7 @@ be_local_closure(Matter_Plugin_Fan_read_attribute,   /* name */
 ********************************************************************/
 be_local_closure(Matter_Plugin_Fan_update_shadow,   /* name */
   be_nested_proto(
-    9,                          /* nstack */
+    8,                          /* nstack */
     1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
@@ -381,18 +381,19 @@ be_local_closure(Matter_Plugin_Fan_update_shadow,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 7]) {     /* constants */
+    ( &(const bvalue[ 8]) {     /* constants */
     /* K0   */  be_nested_str_weak(tasmota),
     /* K1   */  be_nested_str_weak(cmd),
     /* K2   */  be_nested_str_weak(fanspeed),
     /* K3   */  be_nested_str_weak(find),
     /* K4   */  be_nested_str_weak(attribute_updated),
     /* K5   */  be_const_int(0),
-    /* K6   */  be_nested_str_weak(update_shadow),
+    /* K6   */  be_nested_str_weak(_X23_X23_X23SRR_X3AATTRIBUTE_X20UPDATE3_X23_X23_X23),
+    /* K7   */  be_nested_str_weak(update_shadow),
     }),
     be_str_weak(update_shadow),
     &be_const_str_solidified,
-    ( &(const binstruction[32]) {  /* code */
+    ( &(const binstruction[34]) {  /* code */
       0xB8060000,  //  0000  GETNGBL	R1	K0
       0x8C040301,  //  0001  GETMET	R1	R1	K1
       0x580C0002,  //  0002  LDCONST	R3	K2
@@ -409,22 +410,24 @@ be_local_closure(Matter_Plugin_Fan_update_shadow,   /* name */
       0x880C0102,  //  000D  GETMBR	R3	R0	K2
       0x88100102,  //  000E  GETMBR	R4	R0	K2
       0x20100604,  //  000F  NE	R4	R3	R4
-      0x78120003,  //  0010  JMPF	R4	#0015
+      0x7812000A,  //  0010  JMPF	R4	#001C
       0x60100009,  //  0011  GETGBL	R4	G9
       0x5C140600,  //  0012  MOVE	R5	R3
       0x7C100200,  //  0013  CALL	R4	1
       0x90020404,  //  0014  SETMBR	R0	K2	R4
       0x8C100104,  //  0015  GETMET	R4	R0	K4
-      0x4C180000,  //  0016  LDNIL	R6
-      0x541E0201,  //  0017  LDINT	R7	514
-      0x58200005,  //  0018  LDCONST	R8	K5
-      0x7C100800,  //  0019  CALL	R4	4
-      0x60100003,  //  001A  GETGBL	R4	G3
-      0x5C140000,  //  001B  MOVE	R5	R0
-      0x7C100200,  //  001C  CALL	R4	1
-      0x8C100906,  //  001D  GETMET	R4	R4	K6
+      0x541A0007,  //  0016  LDINT	R6	8
+      0x581C0005,  //  0017  LDCONST	R7	K5
+      0x7C100600,  //  0018  CALL	R4	3
+      0x60100001,  //  0019  GETGBL	R4	G1
+      0x58140006,  //  001A  LDCONST	R5	K6
+      0x7C100200,  //  001B  CALL	R4	1
+      0x60100003,  //  001C  GETGBL	R4	G3
+      0x5C140000,  //  001D  MOVE	R5	R0
       0x7C100200,  //  001E  CALL	R4	1
-      0x80000000,  //  001F  RET	0
+      0x8C100907,  //  001F  GETMET	R4	R4	K7
+      0x7C100200,  //  0020  CALL	R4	1
+      0x80000000,  //  0021  RET	0
     })
   )
 );
@@ -451,7 +454,7 @@ be_local_class(Matter_Plugin_Fan,
         { be_const_key_weak(CLUSTERS, -1), be_const_simple_instance(be_nested_simple_instance(&be_class_map, {
         be_const_map( *     be_nested_map(1,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key_int(514, -1), be_const_simple_instance(be_nested_simple_instance(&be_class_list, {
+        { be_const_key_int(8, -1), be_const_simple_instance(be_nested_simple_instance(&be_class_list, {
         be_const_list( *     be_nested_list(7,
     ( (struct bvalue*) &(const bvalue[]) {
         be_const_int(0),
