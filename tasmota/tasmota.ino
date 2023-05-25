@@ -310,6 +310,7 @@ struct TasmotaGlobal_t {
   bool no_autoexec;                         // Disable autoexec
 
   uint8_t user_globals[3];                  // User set global temp/hum/press
+  uint8_t busy_time;                        // Time in ms to allow executing of time critical functions
   uint8_t init_state;                       // Tasmota init state
   uint8_t heartbeat_inverted;               // Heartbeat pulse inverted flag
   uint8_t spi_enabled;                      // SPI configured
@@ -578,6 +579,7 @@ void setup(void) {
       }
       if (RtcReboot.fast_reboot_count > Settings->param[P_BOOT_LOOP_OFFSET] +2) {  // Restarted 4 times
         Settings->rule_enabled = 0;                  // Disable all rules
+        Settings->flag3.shutter_mode = 0;            // disable shutter support
         TasmotaGlobal.no_autoexec = true;
       }
       if (RtcReboot.fast_reboot_count > Settings->param[P_BOOT_LOOP_OFFSET] +3) {  // Restarted 5 times

@@ -212,6 +212,16 @@ long wsmap(long x, long in_min, long in_max, long out_min, long out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+void Ws2812LibStripShow(void) {
+  strip->Show();
+
+#if defined(USE_WS2812_DMA) || defined(USE_WS2812_RMT) || defined(USE_WS2812_I2S)
+  // Wait for DMA/RMT/I2S to complete fixes distortion due to analogRead
+//  delay((Settings->light_pixels >> 6) +1);  // 256 / 64 = 4 +1 = 5
+  SystemBusyDelay( (Settings->light_pixels + 31) >> 5);  // (256 + 32) / 32 = 8
+#endif
+}
+
 void Ws2812StripShow(void)
 {
 #if (USE_WS2812_CTYPE > NEO_3LED)
@@ -232,7 +242,7 @@ void Ws2812StripShow(void)
       strip->SetPixelColor(i, c);
     }
   }
-  strip->Show();
+  Ws2812LibStripShow();
 }
 
 int mod(int a, int b)
@@ -549,7 +559,7 @@ void Ws2812DDP(void)
 void Ws2812Clear(void)
 {
   strip->ClearTo(0);
-  strip->Show();
+  Ws2812LibStripShow();
   Ws2812.show_next = 1;
 }
 
@@ -575,7 +585,7 @@ void Ws2812SetColor(uint32_t led, uint8_t red, uint8_t green, uint8_t blue, uint
   }
 
   if (!Ws2812.suspend_update) {
-    strip->Show();
+    Ws2812LibStripShow();
     Ws2812.show_next = 1;
   }
 }
@@ -616,7 +626,7 @@ void Ws2812ForceSuspend (void)
 void Ws2812ForceUpdate (void)
 {
   Ws2812.suspend_update = false;
-  strip->Show();
+  Ws2812LibStripShow();
   Ws2812.show_next = 1;
 }
 
@@ -634,7 +644,7 @@ bool Ws2812SetChannels(void)
 void Ws2812ShowScheme(void)
 {
   uint32_t scheme = Settings->light_scheme - Ws2812.scheme_offset;
-  
+
 #ifdef USE_NETWORK_LIGHT_SCHEMES
   if ((scheme != 9) && (ddp_udp_up)) {
     ddp_udp.stop();
@@ -797,7 +807,7 @@ size_t Ws2812StripGetPixelSize(void) {
 // return true if strip was dirty and an actual refresh was triggered
 bool Ws2812StripRefresh(void) {
   if (strip->IsDirty()) {
-    strip->Show();
+    Ws2812LibStripShow();
     return true;
   } else {
     return false;
