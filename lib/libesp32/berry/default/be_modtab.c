@@ -34,6 +34,8 @@ be_extern_native_module(mqtt);
 be_extern_native_module(persist);
 be_extern_native_module(autoconf);
 be_extern_native_module(tapp);
+be_extern_native_module(ezie_ws2812_configurator);
+be_extern_native_module(ezie_home_assistant_discovery);
 be_extern_native_module(light);
 be_extern_native_module(gpio);
 be_extern_native_module(display);
@@ -201,6 +203,8 @@ be_extern_native_class(ccronexpr);
 be_extern_native_class(tasmota_log_reader);
 be_extern_native_class(light_state);
 be_extern_native_class(Wire);
+be_extern_native_class(ezie_home_assistant_discovery);
+be_extern_native_class(ezie_ws2812_configurator);
 be_extern_native_class(I2C_Driver);
 be_extern_native_class(AXP192);
 be_extern_native_class(AXP202);
@@ -240,6 +244,8 @@ be_extern_native_class(lv_clock_icon);
 be_extern_native_class(int64);
 
 BERRY_LOCAL bclass_array be_class_table = {
+    &be_native_class(ezie_home_assistant_discovery),
+    &be_native_class(ezie_ws2812_configurator),
 #ifdef TASMOTA
     /* first list are direct classes */
     &be_native_class(dyn),

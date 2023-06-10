@@ -1,4 +1,4 @@
-#@ solidify:ezie_home_assistant_discovery,weak
+#@ solidify:ezie_home_assistant_discovery
 class ezie_home_assistant_discovery : Driver
 
     var ha_discovery_sent
@@ -144,6 +144,7 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def every_second()
+        print("waiting for MQTT Connection to send HA Disconvery...")
         if self.ha_discovery_sent == false && self.mqtt_connected == true
             self.send_ha_discovery_message()
         end

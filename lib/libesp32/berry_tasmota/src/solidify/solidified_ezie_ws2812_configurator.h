@@ -20,15 +20,15 @@ be_local_closure(ezie_ws2812_configurator_init,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 7]) {     /* constants */
-    /* K0   */  be_nested_str_weak(action_on_state_col),
-    /* K1   */  be_nested_str_weak(normal_off_state_col),
-    /* K2   */  be_nested_str_weak(speed_bar_col),
-    /* K3   */  be_nested_str_weak(lights_timeout),
-    /* K4   */  be_nested_str_weak(web_add_handler),
-    /* K5   */  be_nested_str_weak(tasmota),
-    /* K6   */  be_nested_str_weak(add_driver),
+    /* K0   */  be_nested_str(action_on_state_col),
+    /* K1   */  be_nested_str(normal_off_state_col),
+    /* K2   */  be_nested_str(speed_bar_col),
+    /* K3   */  be_nested_str(lights_timeout),
+    /* K4   */  be_nested_str(web_add_handler),
+    /* K5   */  be_nested_str(tasmota),
+    /* K6   */  be_nested_str(add_driver),
     }),
-    be_str_weak(init),
+    &be_const_str_init,
     &be_const_str_solidified,
     ( &(const binstruction[11]) {  /* code */
       0x90020001,  //  0000  SETMBR	R0	K0	R1
@@ -62,42 +62,42 @@ be_local_closure(ezie_ws2812_configurator_page_part_ctl,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[34]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(check_privileged_access),
-    /* K2   */  be_nested_str_weak(string),
-    /* K3   */  be_nested_str_weak(partition_core),
-    /* K4   */  be_nested_str_weak(persist),
-    /* K5   */  be_nested_str_weak(Partition),
-    /* K6   */  be_nested_str_weak(has_arg),
-    /* K7   */  be_nested_str_weak(on_color),
-    /* K8   */  be_nested_str_weak(action_on_state_col),
-    /* K9   */  be_nested_str_weak(replace),
-    /* K10  */  be_nested_str_weak(arg),
-    /* K11  */  be_nested_str_weak(_X23),
-    /* K12  */  be_nested_str_weak(0x),
-    /* K13  */  be_nested_str_weak(off_color),
-    /* K14  */  be_nested_str_weak(normal_off_state_col),
-    /* K15  */  be_nested_str_weak(bar_color),
-    /* K16  */  be_nested_str_weak(speed_bar_col),
-    /* K17  */  be_nested_str_weak(lights_timeout),
-    /* K18  */  be_nested_str_weak(tasmota),
-    /* K19  */  be_nested_str_weak(publish_result),
-    /* K20  */  be_nested_str_weak(_X7B_X22EZIE_X22_X3A_X7B_X22WS2812_Updated_X22_X3A1_X7D_X7D),
-    /* K21  */  be_nested_str_weak(EZIE),
-    /* K22  */  be_nested_str_weak(log),
-    /* K23  */  be_nested_str_weak(format),
-    /* K24  */  be_nested_str_weak(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(check_privileged_access),
+    /* K2   */  be_nested_str(string),
+    /* K3   */  be_nested_str(partition_core),
+    /* K4   */  be_nested_str(persist),
+    /* K5   */  be_nested_str(Partition),
+    /* K6   */  be_nested_str(has_arg),
+    /* K7   */  be_nested_str(on_color),
+    /* K8   */  be_nested_str(action_on_state_col),
+    /* K9   */  be_nested_str(replace),
+    /* K10  */  be_nested_str(arg),
+    /* K11  */  be_nested_str(_X23),
+    /* K12  */  be_nested_str(0x),
+    /* K13  */  be_nested_str(off_color),
+    /* K14  */  be_nested_str(normal_off_state_col),
+    /* K15  */  be_nested_str(bar_color),
+    /* K16  */  be_nested_str(speed_bar_col),
+    /* K17  */  be_nested_str(lights_timeout),
+    /* K18  */  be_nested_str(tasmota),
+    /* K19  */  be_nested_str(publish_result),
+    /* K20  */  be_nested_str(_X7B_X22EZIE_X22_X3A_X7B_X22WS2812_Updated_X22_X3A1_X7D_X7D),
+    /* K21  */  be_nested_str(EZIE),
+    /* K22  */  be_nested_str(log),
+    /* K23  */  be_nested_str(format),
+    /* K24  */  be_nested_str(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
     /* K25  */  be_const_int(2),
-    /* K26  */  be_nested_str_weak(content_start),
-    /* K27  */  be_nested_str_weak(Parameter_X20error),
-    /* K28  */  be_nested_str_weak(content_send_style),
-    /* K29  */  be_nested_str_weak(content_send),
-    /* K30  */  be_nested_str_weak(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
-    /* K31  */  be_nested_str_weak(content_button),
-    /* K32  */  be_nested_str_weak(BUTTON_MANAGEMENT),
-    /* K33  */  be_nested_str_weak(content_stop),
+    /* K26  */  be_nested_str(content_start),
+    /* K27  */  be_nested_str(Parameter_X20error),
+    /* K28  */  be_nested_str(content_send_style),
+    /* K29  */  be_nested_str(content_send),
+    /* K30  */  be_nested_str(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
+    /* K31  */  be_nested_str(content_button),
+    /* K32  */  be_nested_str(BUTTON_MANAGEMENT),
+    /* K33  */  be_nested_str(content_stop),
     }),
-    be_str_weak(page_part_ctl),
+    &be_const_str_page_part_ctl,
     &be_const_str_solidified,
     ( &(const binstruction[102]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -232,9 +232,9 @@ be_local_closure(ezie_ws2812_configurator_web_add_handler,   /* name */
         NULL,                       /* no sub protos */
         1,                          /* has constants */
         ( &(const bvalue[ 1]) {     /* constants */
-        /* K0   */  be_nested_str_weak(page_part_mgr),
+        /* K0   */  be_nested_str(page_part_mgr),
         }),
-        be_str_weak(_X3Clambda_X3E),
+        &be_const_str__X3Clambda_X3E,
         &be_const_str_solidified,
         ( &(const binstruction[ 4]) {  /* code */
           0x68000000,  //  0000  GETUPV	R0	U0
@@ -255,9 +255,9 @@ be_local_closure(ezie_ws2812_configurator_web_add_handler,   /* name */
         NULL,                       /* no sub protos */
         1,                          /* has constants */
         ( &(const bvalue[ 1]) {     /* constants */
-        /* K0   */  be_nested_str_weak(page_part_ctl),
+        /* K0   */  be_nested_str(page_part_ctl),
         }),
-        be_str_weak(_X3Clambda_X3E),
+        &be_const_str__X3Clambda_X3E,
         &be_const_str_solidified,
         ( &(const binstruction[ 4]) {  /* code */
           0x68000000,  //  0000  GETUPV	R0	U0
@@ -269,13 +269,13 @@ be_local_closure(ezie_ws2812_configurator_web_add_handler,   /* name */
     }),
     1,                          /* has constants */
     ( &(const bvalue[ 5]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(on),
-    /* K2   */  be_nested_str_weak(_X2Feziec),
-    /* K3   */  be_nested_str_weak(HTTP_GET),
-    /* K4   */  be_nested_str_weak(HTTP_POST),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(on),
+    /* K2   */  be_nested_str(_X2Feziec),
+    /* K3   */  be_nested_str(HTTP_GET),
+    /* K4   */  be_nested_str(HTTP_POST),
     }),
-    be_str_weak(web_add_handler),
+    &be_const_str_web_add_handler,
     &be_const_str_solidified,
     ( &(const binstruction[13]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -311,17 +311,17 @@ be_local_closure(ezie_ws2812_configurator_show_timeout_settings,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 9]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(string),
-    /* K2   */  be_nested_str_weak(content_send),
-    /* K3   */  be_nested_str_weak(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20Lights_X20Timeout_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K4   */  be_nested_str_weak(_X3Cp_X3ELights_X20Timeout_X20_X28seconds_X29_X3A_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str_weak(format),
-    /* K6   */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27range_X27_X20name_X3D_X27lights_timeout_X27_X20min_X3D_X270_X27_X20max_X3D_X27600_X27_X20step_X3D_X275_X27_X20value_X3D_X27_X25i_X27oninput_X3D_X27this_X2EnextElementSibling_X2Evalue_X20_X3D_X20this_X2Evalue_X27_X3E_X3Coutput_X3E_X25i_X3C_X2Foutput_X3E),
-    /* K7   */  be_nested_str_weak(lights_timeout),
-    /* K8   */  be_nested_str_weak(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(string),
+    /* K2   */  be_nested_str(content_send),
+    /* K3   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20Lights_X20Timeout_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K4   */  be_nested_str(_X3Cp_X3ELights_X20Timeout_X20_X28seconds_X29_X3A_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str(format),
+    /* K6   */  be_nested_str(_X3Cinput_X20type_X3D_X27range_X27_X20name_X3D_X27lights_timeout_X27_X20min_X3D_X270_X27_X20max_X3D_X27600_X27_X20step_X3D_X275_X27_X20value_X3D_X27_X25i_X27oninput_X3D_X27this_X2EnextElementSibling_X2Evalue_X20_X3D_X20this_X2Evalue_X27_X3E_X3Coutput_X3E_X25i_X3C_X2Foutput_X3E),
+    /* K7   */  be_nested_str(lights_timeout),
+    /* K8   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
     }),
-    be_str_weak(show_timeout_settings),
+    &be_const_str_show_timeout_settings,
     &be_const_str_solidified,
     ( &(const binstruction[22]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -366,9 +366,9 @@ be_local_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color,   /* na
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(speed_bar_col),
+    /* K0   */  be_nested_str(speed_bar_col),
     }),
-    be_str_weak(get_SPEED_indicator_bar_color),
+    &be_const_str_get_SPEED_indicator_bar_color,
     &be_const_str_solidified,
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
@@ -393,9 +393,9 @@ be_local_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color,   /* nam
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(action_on_state_col),
+    /* K0   */  be_nested_str(action_on_state_col),
     }),
-    be_str_weak(get_ACTION_or_ON_state_color),
+    &be_const_str_get_ACTION_or_ON_state_color,
     &be_const_str_solidified,
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
@@ -420,9 +420,9 @@ be_local_closure(ezie_ws2812_configurator_get_LIGHTS_timeout,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(lights_timeout),
+    /* K0   */  be_nested_str(lights_timeout),
     }),
-    be_str_weak(get_LIGHTS_timeout),
+    &be_const_str_get_LIGHTS_timeout,
     &be_const_str_solidified,
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
@@ -447,9 +447,9 @@ be_local_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color,   /* na
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str_weak(normal_off_state_col),
+    /* K0   */  be_nested_str(normal_off_state_col),
     }),
-    be_str_weak(get_NORMAL_or_OFF_state_color),
+    &be_const_str_get_NORMAL_or_OFF_state_color,
     &be_const_str_solidified,
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
@@ -474,25 +474,25 @@ be_local_closure(ezie_ws2812_configurator_show_color_settings,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[17]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(string),
-    /* K2   */  be_nested_str_weak(content_send),
-    /* K3   */  be_nested_str_weak(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20LED_X20Color_X20Settings_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K4   */  be_nested_str_weak(_X3Cp_X3EON_X2FACTION_X20state_X20color_X3A_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str_weak(format),
-    /* K6   */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27on_color_X27_X20value_X3D_X27_X25s_X27_X3E),
-    /* K7   */  be_nested_str_weak(_X23_X2506X),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(string),
+    /* K2   */  be_nested_str(content_send),
+    /* K3   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20LED_X20Color_X20Settings_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K4   */  be_nested_str(_X3Cp_X3EON_X2FACTION_X20state_X20color_X3A_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str(format),
+    /* K6   */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27on_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K7   */  be_nested_str(_X23_X2506X),
     /* K8   */  be_const_int(16777215),
-    /* K9   */  be_nested_str_weak(action_on_state_col),
-    /* K10  */  be_nested_str_weak(_X3Cp_X3EOFF_X2FNORMAL_X20state_X20color_X3A_X3C_X2Fp_X3E),
-    /* K11  */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27off_color_X27_X20value_X3D_X27_X25s_X27_X3E),
-    /* K12  */  be_nested_str_weak(normal_off_state_col),
-    /* K13  */  be_nested_str_weak(_X3Cp_X3ESPEED_X20Bar_X20color_X28Fan_X29_X3A_X3C_X2Fp_X3E),
-    /* K14  */  be_nested_str_weak(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27bar_color_X27_X20value_X3D_X27_X25s_X27_X3E),
-    /* K15  */  be_nested_str_weak(speed_bar_col),
-    /* K16  */  be_nested_str_weak(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K9   */  be_nested_str(action_on_state_col),
+    /* K10  */  be_nested_str(_X3Cp_X3EOFF_X2FNORMAL_X20state_X20color_X3A_X3C_X2Fp_X3E),
+    /* K11  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27off_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K12  */  be_nested_str(normal_off_state_col),
+    /* K13  */  be_nested_str(_X3Cp_X3ESPEED_X20Bar_X20color_X28Fan_X29_X3A_X3C_X2Fp_X3E),
+    /* K14  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27bar_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K15  */  be_nested_str(speed_bar_col),
+    /* K16  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
     }),
-    be_str_weak(show_color_settings),
+    &be_const_str_show_color_settings,
     &be_const_str_solidified,
     ( &(const binstruction[48]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -563,11 +563,11 @@ be_local_closure(ezie_ws2812_configurator_web_add_config_button,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[ 3]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(content_send),
-    /* K2   */  be_nested_str_weak(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziec_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20device_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(content_send),
+    /* K2   */  be_nested_str(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziec_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20device_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
     }),
-    be_str_weak(web_add_config_button),
+    &be_const_str_web_add_config_button,
     &be_const_str_solidified,
     ( &(const binstruction[ 5]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -595,22 +595,22 @@ be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
     ( &(const bvalue[14]) {     /* constants */
-    /* K0   */  be_nested_str_weak(webserver),
-    /* K1   */  be_nested_str_weak(string),
-    /* K2   */  be_nested_str_weak(check_privileged_access),
-    /* K3   */  be_nested_str_weak(content_start),
-    /* K4   */  be_nested_str_weak(EZIE_X20Device),
-    /* K5   */  be_nested_str_weak(content_send_style),
-    /* K6   */  be_nested_str_weak(content_send),
-    /* K7   */  be_nested_str_weak(_X3Cform_X20action_X3D_X27_X2Feziec_X27_X20method_X3D_X27post_X27_X20_X3E),
-    /* K8   */  be_nested_str_weak(show_color_settings),
-    /* K9   */  be_nested_str_weak(show_timeout_settings),
-    /* K10  */  be_nested_str_weak(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20name_X3D_X27ezieconfchange_X27_X20class_X3D_X27button_X20bgrn_X27_X3EChange_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
-    /* K11  */  be_nested_str_weak(content_button),
-    /* K12  */  be_nested_str_weak(BUTTON_CONFIGURATION),
-    /* K13  */  be_nested_str_weak(content_stop),
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(string),
+    /* K2   */  be_nested_str(check_privileged_access),
+    /* K3   */  be_nested_str(content_start),
+    /* K4   */  be_nested_str(EZIE_X20Device),
+    /* K5   */  be_nested_str(content_send_style),
+    /* K6   */  be_nested_str(content_send),
+    /* K7   */  be_nested_str(_X3Cform_X20action_X3D_X27_X2Feziec_X27_X20method_X3D_X27post_X27_X20_X3E),
+    /* K8   */  be_nested_str(show_color_settings),
+    /* K9   */  be_nested_str(show_timeout_settings),
+    /* K10  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20name_X3D_X27ezieconfchange_X27_X20class_X3D_X27button_X20bgrn_X27_X3EChange_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    /* K11  */  be_nested_str(content_button),
+    /* K12  */  be_nested_str(BUTTON_CONFIGURATION),
+    /* K13  */  be_nested_str(content_stop),
     }),
-    be_str_weak(page_part_mgr),
+    &be_const_str_page_part_mgr,
     &be_const_str_solidified,
     ( &(const binstruction[28]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
@@ -655,23 +655,23 @@ be_local_class(ezie_ws2812_configurator,
     NULL,
     be_nested_map(15,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key_weak(init, 5), be_const_closure(ezie_ws2812_configurator_init_closure) },
-        { be_const_key_weak(page_part_ctl, 13), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
-        { be_const_key_weak(web_add_handler, -1), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
-        { be_const_key_weak(normal_off_state_col, -1), be_const_var(1) },
-        { be_const_key_weak(page_part_mgr, -1), be_const_closure(ezie_ws2812_configurator_page_part_mgr_closure) },
-        { be_const_key_weak(web_add_config_button, -1), be_const_closure(ezie_ws2812_configurator_web_add_config_button_closure) },
-        { be_const_key_weak(get_ACTION_or_ON_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color_closure) },
-        { be_const_key_weak(lights_timeout, -1), be_const_var(3) },
-        { be_const_key_weak(get_SPEED_indicator_bar_color, 6), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
-        { be_const_key_weak(get_LIGHTS_timeout, 10), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_timeout_closure) },
-        { be_const_key_weak(action_on_state_col, -1), be_const_var(0) },
-        { be_const_key_weak(get_NORMAL_or_OFF_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
-        { be_const_key_weak(show_color_settings, -1), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
-        { be_const_key_weak(speed_bar_col, -1), be_const_var(2) },
-        { be_const_key_weak(show_timeout_settings, 4), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
+        { be_const_key(init, 5), be_const_closure(ezie_ws2812_configurator_init_closure) },
+        { be_const_key(page_part_ctl, 13), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
+        { be_const_key(web_add_handler, -1), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
+        { be_const_key(normal_off_state_col, -1), be_const_var(1) },
+        { be_const_key(page_part_mgr, -1), be_const_closure(ezie_ws2812_configurator_page_part_mgr_closure) },
+        { be_const_key(web_add_config_button, -1), be_const_closure(ezie_ws2812_configurator_web_add_config_button_closure) },
+        { be_const_key(get_ACTION_or_ON_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color_closure) },
+        { be_const_key(lights_timeout, -1), be_const_var(3) },
+        { be_const_key(get_SPEED_indicator_bar_color, 6), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
+        { be_const_key(get_LIGHTS_timeout, 10), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_timeout_closure) },
+        { be_const_key(action_on_state_col, -1), be_const_var(0) },
+        { be_const_key(get_NORMAL_or_OFF_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
+        { be_const_key(show_color_settings, -1), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
+        { be_const_key(speed_bar_col, -1), be_const_var(2) },
+        { be_const_key(show_timeout_settings, 4), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
     })),
-    be_str_weak(ezie_ws2812_configurator)
+    (bstring*) &be_const_str_ezie_ws2812_configurator
 );
 /*******************************************************************/
 

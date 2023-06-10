@@ -60,7 +60,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     if speed != self.fanspeed   
       self.fanspeed = int(speed)
       self.attribute_updated(0x0008, 0x0000)
-      print("###SRR:ATTRIBUTE UPDATE3###")
+      #print("###SRR:ATTRIBUTE UPDATE3###")
     end      
     super(self).update_shadow()    
   end
@@ -73,7 +73,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var attribute = ctx.attribute
-    print("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute))
+    print(string.format("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute)))
     # ====================================================================================================
     if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
       self.update_shadow_lazy()
@@ -89,7 +89,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
       elif attribute == 0x0011          #  ---------- OnLevel / u1 ----------
         return TLV.create_TLV(TLV.U1, 60)
       elif attribute == 0xFFFC          #  ---------- FeatureMap / map32 ----------
-        return TLV.create_TLV(TLV.U4, 0X01)    # OnOff
+        return TLV.create_TLV(TLV.U4, 0x01)    # OnOff
       elif attribute == 0xFFFD          #  ---------- ClusterRevision / u2 ----------
         return TLV.create_TLV(TLV.U4, 5)    # "new data model format and notation"
       end
@@ -108,7 +108,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var command = ctx.command
-    print("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command))
+    print(string.format("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command)))
     # ====================================================================================================
     if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
       if   command == 0x0000            # ---------- MoveToLevel ----------

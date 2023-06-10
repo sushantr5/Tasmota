@@ -1,6 +1,4 @@
-#@ solidify:ezie_ws2812_configurator,weak
-#var s = ezie_ws2812_configurator()
-#tasmota.add_driver(s)
+#@ solidify:ezie_ws2812_configurator
 class ezie_ws2812_configurator
   var action_on_state_col
   var normal_off_state_col
@@ -50,11 +48,11 @@ class ezie_ws2812_configurator
     #string hexColor = string.format("#%06X", (0xFFFFFF & intColor));
 
     webserver.content_send("<p>ON/ACTION state color:</p>")
-    webserver.content_send(string.format("<input type='color' name='on_color' value='%s'>", string.format("#%06X", (0xFFFFFF & self.action_on_state_col))))
+    webserver.content_send(string.format("<input type='color' name='on_color' value='%s'/>", string.format("#%06X", (0xFFFFFF & self.action_on_state_col))))
     webserver.content_send("<p>OFF/NORMAL state color:</p>")
-    webserver.content_send(string.format("<input type='color' name='off_color' value='%s'>", string.format("#%06X", (0xFFFFFF & self.normal_off_state_col))))
+    webserver.content_send(string.format("<input type='color' name='off_color' value='%s'/>", string.format("#%06X", (0xFFFFFF & self.normal_off_state_col))))
     webserver.content_send("<p>SPEED Bar color(Fan):</p>")
-    webserver.content_send(string.format("<input type='color' name='bar_color' value='%s'>", string.format("#%06X", (0xFFFFFF & self.speed_bar_col))))
+    webserver.content_send(string.format("<input type='color' name='bar_color' value='%s'/>", string.format("#%06X", (0xFFFFFF & self.speed_bar_col))))
     
     webserver.content_send("<p></p></fieldset><p></p>")
   end
@@ -68,7 +66,6 @@ class ezie_ws2812_configurator
     
     #string hexColor = string.format("#%06X", (0xFFFFFF & intColor));
 
-    webserver.content_send("<p>Lights Timeout (seconds):</p>")
     webserver.content_send("<p>Lights Timeout (seconds):</p>")
     webserver.content_send(string.format("<input type='range' name='lights_timeout' min='0' max='600' step='5' value='%i'oninput='this.nextElementSibling.value = this.value'><output>%i</output>", self.lights_timeout,self.lights_timeout))
     #manual solidification
@@ -163,5 +160,3 @@ class ezie_ws2812_configurator
     webserver.on("/eziec", / -> self.page_part_ctl(), webserver.HTTP_POST)
   end
 end
-#var s = ezie_ws2812_configurator(0xff0000, 0x00ff00, 0x0000ff,63)
-#return ezie_ws2812_configurator()
