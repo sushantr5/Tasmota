@@ -244,8 +244,6 @@ be_extern_native_class(lv_clock_icon);
 be_extern_native_class(int64);
 
 BERRY_LOCAL bclass_array be_class_table = {
-    &be_native_class(ezie_home_assistant_discovery),
-    &be_native_class(ezie_ws2812_configurator),
 #ifdef TASMOTA
     /* first list are direct classes */
     &be_native_class(dyn),
@@ -257,6 +255,8 @@ BERRY_LOCAL bclass_array be_class_table = {
     &be_native_class(ctypes_bytes),
     &be_native_class(ctypes_bytes_dyn),
     &be_native_class(tasmota_log_reader),
+    &be_native_class(ezie_home_assistant_discovery),
+    &be_native_class(ezie_ws2812_configurator),
 #ifdef USE_LIGHT
     &be_native_class(light_state),
 #endif

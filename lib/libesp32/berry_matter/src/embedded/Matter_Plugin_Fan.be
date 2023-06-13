@@ -51,12 +51,23 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
   #
   def update_shadow()
     #determine fanspeed
-    var payload_json = tasmota.cmd("fanspeed")
-    var status_json = payload_json.find("fanspeed")
-    var speed = int(status_json)
+
+    var speed = 0
+
+    try
+      speed = get_fan_speed()
+    except .. as e, v
+      print('You should implement method get_fan_speed() in your berry script.')
+      print('Now instead using fanspeed command.')
+      var payload_json = tasmota.cmd("fanspeed")
+      var status_json = payload_json.find("fanspeed")
+      speed = int(status_json)
+    end
+   
     if speed == nil
       speed = self.fanspeed      
     end
+    
     if speed != self.fanspeed   
       self.fanspeed = int(speed)
       self.attribute_updated(0x0008, 0x0000)
