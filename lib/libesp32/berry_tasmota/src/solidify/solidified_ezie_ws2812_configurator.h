@@ -323,7 +323,7 @@ be_local_closure(ezie_ws2812_configurator_show_timeout_settings,   /* name */
     }),
     &be_const_str_show_timeout_settings,
     &be_const_str_solidified,
-    ( &(const binstruction[22]) {  /* code */
+    ( &(const binstruction[19]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
       0xA40A0200,  //  0001  IMPORT	R2	K1
       0x8C0C0302,  //  0002  GETMET	R3	R1	K2
@@ -333,19 +333,16 @@ be_local_closure(ezie_ws2812_configurator_show_timeout_settings,   /* name */
       0x58140004,  //  0006  LDCONST	R5	K4
       0x7C0C0400,  //  0007  CALL	R3	2
       0x8C0C0302,  //  0008  GETMET	R3	R1	K2
-      0x58140004,  //  0009  LDCONST	R5	K4
-      0x7C0C0400,  //  000A  CALL	R3	2
-      0x8C0C0302,  //  000B  GETMET	R3	R1	K2
-      0x8C140505,  //  000C  GETMET	R5	R2	K5
-      0x581C0006,  //  000D  LDCONST	R7	K6
-      0x88200107,  //  000E  GETMBR	R8	R0	K7
-      0x88240107,  //  000F  GETMBR	R9	R0	K7
-      0x7C140800,  //  0010  CALL	R5	4
+      0x8C140505,  //  0009  GETMET	R5	R2	K5
+      0x581C0006,  //  000A  LDCONST	R7	K6
+      0x88200107,  //  000B  GETMBR	R8	R0	K7
+      0x88240107,  //  000C  GETMBR	R9	R0	K7
+      0x7C140800,  //  000D  CALL	R5	4
+      0x7C0C0400,  //  000E  CALL	R3	2
+      0x8C0C0302,  //  000F  GETMET	R3	R1	K2
+      0x58140008,  //  0010  LDCONST	R5	K8
       0x7C0C0400,  //  0011  CALL	R3	2
-      0x8C0C0302,  //  0012  GETMET	R3	R1	K2
-      0x58140008,  //  0013  LDCONST	R5	K8
-      0x7C0C0400,  //  0014  CALL	R3	2
-      0x80000000,  //  0015  RET	0
+      0x80000000,  //  0012  RET	0
     })
   )
 );
@@ -480,15 +477,15 @@ be_local_closure(ezie_ws2812_configurator_show_color_settings,   /* name */
     /* K3   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BEZIE_X20LED_X20Color_X20Settings_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
     /* K4   */  be_nested_str(_X3Cp_X3EON_X2FACTION_X20state_X20color_X3A_X3C_X2Fp_X3E),
     /* K5   */  be_nested_str(format),
-    /* K6   */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27on_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K6   */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27on_color_X27_X20value_X3D_X27_X25s_X27_X2F_X3E),
     /* K7   */  be_nested_str(_X23_X2506X),
     /* K8   */  be_const_int(16777215),
     /* K9   */  be_nested_str(action_on_state_col),
     /* K10  */  be_nested_str(_X3Cp_X3EOFF_X2FNORMAL_X20state_X20color_X3A_X3C_X2Fp_X3E),
-    /* K11  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27off_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K11  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27off_color_X27_X20value_X3D_X27_X25s_X27_X2F_X3E),
     /* K12  */  be_nested_str(normal_off_state_col),
     /* K13  */  be_nested_str(_X3Cp_X3ESPEED_X20Bar_X20color_X28Fan_X29_X3A_X3C_X2Fp_X3E),
-    /* K14  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27bar_color_X27_X20value_X3D_X27_X25s_X27_X3E),
+    /* K14  */  be_nested_str(_X3Cinput_X20type_X3D_X27color_X27_X20name_X3D_X27bar_color_X27_X20value_X3D_X27_X25s_X27_X2F_X3E),
     /* K15  */  be_nested_str(speed_bar_col),
     /* K16  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
     }),

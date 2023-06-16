@@ -54,15 +54,15 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
 
     var speed = 0
 
-    try
-      speed = get_fan_speed()
-    except .. as e, v
+    #try
+    #  speed = get_fan_speed()
+    #except .. as e, v
       print('You should implement method get_fan_speed() in your berry script.')
       print('Now instead using fanspeed command.')
       var payload_json = tasmota.cmd("fanspeed")
       var status_json = payload_json.find("fanspeed")
       speed = int(status_json)
-    end
+    #end
    
     if speed == nil
       speed = self.fanspeed      
