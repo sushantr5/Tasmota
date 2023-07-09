@@ -63,6 +63,11 @@ class Matter_Plugin
     self.parse_configuration(config)
   end
 
+  # proxy for the same method in IM
+  def send_ack_now(msg)
+    self.device.message_handler.im.send_ack_now(msg)
+  end
+
   #############################################################
   # parse_configuration
   #
@@ -205,6 +210,8 @@ class Matter_Plugin
 
       if   attribute == 0x0011          #  ---------- Reachable / bool ----------
         return TLV.create_TLV(TLV.BOOL, 1)     # by default we are reachable
+      else
+        return super(self).read_attribute(session, ctx)   # rest is handled by 0x0028
       end
     else
       return nil

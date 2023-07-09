@@ -96,7 +96,6 @@ class Matter_Plugin_Bridge_Light3 : Matter_Plugin_Bridge_Light1
   # read an attribute
   #
   def read_attribute(session, ctx)
-    import string
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var attribute = ctx.attribute
@@ -154,7 +153,6 @@ class Matter_Plugin_Bridge_Light3 : Matter_Plugin_Bridge_Light1
 
     # ====================================================================================================
     if   cluster == 0x0300              # ========== Color Control 3.2 p.111 ==========
-      self.update_shadow_lazy()
       if   command == 0x0000            # ---------- MoveToHue ----------
         var hue_in = val.findsubval(0)  # Hue 0..254
         self.set_hue(hue_in)
@@ -200,21 +198,20 @@ class Matter_Plugin_Bridge_Light3 : Matter_Plugin_Bridge_Light1
   # Show values of the remote device as HTML
   def web_values()
     import webserver
-    import string
-    webserver.content_send(string.format("| Light %s %s %s",
+    self.web_values_prefix()        # display '| ' and name if present
+    webserver.content_send(format("%s %s %s",
                               self.web_value_onoff(self.shadow_onoff), self.web_value_dimmer(),
                               self.web_value_RGB()))
   end
 
   # Show on/off value as html
   def web_value_RGB()
-    import string
     if self.shadow_hue != nil && self.shadow_sat != nil
       var l = light_state(3)      # RGB virtual light state object
       l.set_bri(255)              # set full brightness to get full range RGB
       l.set_huesat(tasmota.scale_uint(self.shadow_hue, 0, 254, 0, 360), tasmota.scale_uint(self.shadow_sat, 0, 254, 0, 255))
-      var rgb_hex = string.format("#%02X%02X%02X", l.r, l.g, l.b)
-      var rgb_html = string.format('<i class="bxm" style="--cl:%s"></i>%s', rgb_hex, rgb_hex)
+      var rgb_hex = format("#%02X%02X%02X", l.r, l.g, l.b)
+      var rgb_html = format('<i class="bxm" style="--cl:%s"></i>%s', rgb_hex, rgb_hex)
       return rgb_html
     end
     return ""
