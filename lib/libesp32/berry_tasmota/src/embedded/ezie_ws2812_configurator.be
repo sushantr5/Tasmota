@@ -135,7 +135,7 @@ class ezie_ws2812_configurator
       #print(string.format("#%06X", (0xFFFFFF &int(string.replace(hexColor, "#", "0x")))))
       tasmota.publish_result('{"EZIE":{"WS2812_Updated":1}}', 'EZIE')
       #- and force restart -#
-      #webserver.redirect("/?rst=")
+      webserver.redirect("/cn?")
     except .. as e, m
       tasmota.log(string.format("BRY: Exception> '%s' - %s", e, m), 2)
       #- display error page -#

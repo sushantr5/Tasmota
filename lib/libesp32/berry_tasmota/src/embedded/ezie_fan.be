@@ -61,20 +61,21 @@ class ezie_fan
   end
   
   def fanspeed(cmd, idx, payload, payload_json)
+    var prev_speed = self.set_speed
     # parse payload ==> fanspeed { "fanspeed":"4"} OR fanspeed { "fanspeed":4}
     if payload_json != nil && type(payload_json) == "string" && payload_json.find("fanspeed") != nil
-      #print("json condition true and fanspeed is found.")
+      print("json condition true and fanspeed is found.")
       self.set_speed = int(payload_json.find("fanspeed"))
     elif payload != nil
       if payload == "-"
-        #print("decrease speed")
+        print("decrease speed")
         self.set_speed = self.set_speed - 1;
       elif payload == "+"
-        #print("increase speed")
+        print("increase speed")
         self.set_speed = self.set_speed + 1;
       elif size(payload) > 0
-        #print(size(payload))
-        #print("set speed1")
+        print(size(payload))
+        print("set speed1")
         self.set_speed = int(payload);
       end
     end
@@ -89,23 +90,10 @@ class ezie_fan
   
     self.update_fan_relays()
     
-    
-    var msg = string.format("{ \"fanspeed\":%d }",self.set_speed);
-    #print(msg)
-    tasmota.resp_cmnd(msg)
-  end
-
-  def button_click(index)
-    print("Button #",index+1," Clicked")
-  
-    if index == 2
-      tasmota.cmd("fanspeed +")
+    if(prev_speed != self.set_speed)
+      tasmota.publish_result(string.format('{"EZIE":{"FanSpeed_Updated":%d}}',self.set_speed), 'EZIE')
     end
-  
-    if index == 1
-      tasmota.cmd("fanspeed -")
-    end
-  
+    tasmota.resp_cmnd(string.format("{ \"fanspeed\":%d }",self.set_speed))
   end
 
   def init()
@@ -122,13 +110,12 @@ class ezie_fan
     gpio.digital_write(self.out1, gpio.LOW)
     gpio.digital_write(self.out2, gpio.LOW)
     gpio.digital_write(self.out3, gpio.LOW)
-
-    tasmota.add_rule("button1#Action==SINGLE", def (value) self.button_click(0) end )
-    tasmota.add_rule("button2#Action==SINGLE", def (value) self.button_click(1) end )
-    tasmota.add_rule("button3#Action==SINGLE", def (value) self.button_click(2) end )
-    tasmota.add_rule("button4#Action==SINGLE", def (value) self.button_click(3) end )
     tasmota.add_cmd('fanspeed', def(cmd, idx, payload, payload_json) self.fanspeed(cmd, idx, payload, payload_json) end)
     tasmota.add_driver(self)
+  end
+
+  def get_speed()
+    return self.set_speed
   end
 end
 

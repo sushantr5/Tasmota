@@ -33,7 +33,8 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     #0x0004: [0,0xFFFC,0xFFFD],                      # Groups 1.3 p.21
     #0x0005: [0,1,2,3,4,5,0xFFFC,0xFFFD],            # Scenes 1.4 p.30 - no writable
     #0x0006: [0,0xFFFC,0xFFFD],                      # On/Off 1.5 p.48
-    0x0008: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Fan Control
+    #0x0008: [0,2,3,0x0F,0x11,0xFFFC,0xFFFD]                 # Level Control
+    0x0202: [0,2,3,4,5,6,0xFFFC,0xFFFD]                 # Fan Control
   }
   static var TYPES = { 0x002B: 2 }       # FAN https://csa-iot.org/wp-content/uploads/2022/11/22-27351-001_Matter-1.0-Device-Library-Specification.pdf
   #static var TYPES = { 0x0101: 2 }  
@@ -57,8 +58,8 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     #try
     #  speed = get_fan_speed()
     #except .. as e, v
-      print('You should implement method get_fan_speed() in your berry script.')
-      print('Now instead using fanspeed command.')
+    #  print('You should implement method get_fan_speed() in your berry script.')
+    #  print('Now instead using fanspeed command.')
       var payload_json = tasmota.cmd("fanspeed")
       var status_json = payload_json.find("fanspeed")
       speed = int(status_json)
@@ -70,7 +71,8 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     
     if speed != self.fanspeed   
       self.fanspeed = int(speed)
-      self.attribute_updated(0x0008, 0x0000)
+      self.attribute_updated(0x0202, 0x0002)
+      self.attribute_updated(0x0202, 0x0000)
       #print("###SRR:ATTRIBUTE UPDATE3###")
     end      
     super(self).update_shadow()    
@@ -86,27 +88,59 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var attribute = ctx.attribute
     print(string.format("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute)))
     # ====================================================================================================
-    if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
+    if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       self.update_shadow_lazy()
-      if   attribute == 0x0000          #  ---------- CurrentLevel / u1 ----------
-        var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 254)
+      if   attribute == 0x0000          #  ---------- FanMode / u1 ----------
+        return TLV.create_TLV(TLV.U1, self.fanspeed)
+      elif attribute == 0x0002          #  ---------- PercentSetting / u1 ----------
+        var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
         return TLV.create_TLV(TLV.U1, speed)
-      elif attribute == 0x0002          #  ---------- MinLevel / u1 ----------
-        return TLV.create_TLV(TLV.U1, 0)
-      elif attribute == 0x0003          #  ---------- MaxLevel / u1 ----------
-        return TLV.create_TLV(TLV.U1, 254)
-      elif attribute == 0x000F          #  ---------- Options / map8 ----------
-        return TLV.create_TLV(TLV.U1, 0)    #
-      elif attribute == 0x0011          #  ---------- OnLevel / u1 ----------
-        return TLV.create_TLV(TLV.U1, 60)
+      elif attribute == 0x0003          #  ---------- PercentCurrent / u1 ----------
+        var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
+        return TLV.create_TLV(TLV.U1, speed)
+      elif attribute == 0x0004          #  ---------- SpeedMax / u1 ----------
+        return TLV.create_TLV(TLV.U1, 4)
+      elif attribute == 0x0005          #  ---------- SpeedSetting / u1 ----------
+        return TLV.create_TLV(TLV.U1, self.fanspeed)
+      elif attribute == 0x0006          #  ---------- SpeedCurrent / u1 ----------
+        return TLV.create_TLV(TLV.U1, self.fanspeed)
       elif attribute == 0xFFFC          #  ---------- FeatureMap / map32 ----------
-        return TLV.create_TLV(TLV.U4, 0x01)    # OnOff
+        return TLV.create_TLV(TLV.U4, 0x00)    # Multispeed
       elif attribute == 0xFFFD          #  ---------- ClusterRevision / u2 ----------
-        return TLV.create_TLV(TLV.U4, 5)    # "new data model format and notation"
+        return TLV.create_TLV(TLV.U4, 2)    # "new data model format and notation"
       end
       
     else
       return super(self).read_attribute(session, ctx)
+    end
+  end
+
+  def write_attribute(session, ctx, write_data)
+    import string
+    var TLV = matter.TLV
+    var cluster = ctx.cluster
+    var attribute = ctx.attribute
+
+    print("###SRR:TEST3")
+    
+    if   cluster == 0x0202
+      print("###SRR:TEST4")      
+      if   attribute == 0x0002
+        print("###SRR:TEST5")  
+        if type(write_data) == 'int' || isinstance(write_data, int64)
+          print(string.format("###SRR:TEST6:%d",write_data))
+          var speed = tasmota.scale_uint(write_data, 0, 100, 0, 4)
+          tasmota.cmd("fanspeed " + str(speed))
+          print(string.format("###SRR:TEST7 FAN SPEED:%d",self.fan_speed))
+          self.attribute_updated(ctx.cluster, ctx.attribute)    # TODO should we have a more generalized way each time a write_attribute is triggered, declare the attribute as changed?
+          self.attribute_updated(0x0202, 0x0000)
+          return true
+        else
+          print("###SRR:TEST7")
+          ctx.status = matter.CONSTRAINT_ERROR
+          return false
+        end
+      end
     end
   end
 
@@ -121,21 +155,16 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var command = ctx.command
     print(string.format("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command)))
     # ====================================================================================================
-    if   cluster == 0x0008              # ========== Level Control 1.6 p.57 ==========
+    if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       if   command == 0x0000            # ---------- MoveToLevel ----------
-        var speed_in = val.findsubval(0)  # fan 0..4
-        var speed = tasmota.scale_uint(speed_in, 0, 254, 0, 4)
-        tasmota.cmd("fanspeed " + str(speed))
-        self.update_shadow()
-        ctx.log = "speed:"+str(speed_in)
         return true
       elif command == 0x0001            # ---------- Move ----------
         # TODO, we don't really support it
         return true
       elif command == 0x0002            # ---------- Step ----------
-        # TODO, we don't really support it
-        var speed_in = val.findsubval(0)  # fan 0..4
-        var speed = tasmota.scale_uint(speed_in, 0, 254, 0, 4)
+        var speed_in = val.findsubval(0)
+        print(string.format("###SRR:SPEED_IN:%s",str(speed_in)))
+        var speed = tasmota.scale_uint(speed_in, 0, 100, 0, 4)
         tasmota.cmd("fanspeed " + str(speed))
         self.update_shadow()
         ctx.log = "speed:"+str(speed_in)
@@ -144,11 +173,6 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
         # TODO, we don't really support it
         return true
       elif command == 0x0004            # ---------- MoveToLevelWithOnOff ----------
-        var speed_in = val.findsubval(0)  # Hue 0..254
-         var speed = tasmota.scale_uint(speed_in, 0, 254, 0, 4)
-        tasmota.cmd("fanspeed " + str(speed))
-        self.update_shadow()
-        ctx.log = "speed:"+str(speed_in)
         return true
       elif command == 0x0005            # ---------- MoveWithOnOff ----------
         # TODO, we don't really support it

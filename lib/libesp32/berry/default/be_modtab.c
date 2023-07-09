@@ -36,6 +36,7 @@ be_extern_native_module(autoconf);
 be_extern_native_module(tapp);
 be_extern_native_module(ezie_ws2812_configurator);
 be_extern_native_module(ezie_home_assistant_discovery);
+be_extern_native_module(ezie_fan);
 be_extern_native_module(light);
 be_extern_native_module(gpio);
 be_extern_native_module(display);
@@ -204,6 +205,7 @@ be_extern_native_class(tasmota_log_reader);
 be_extern_native_class(light_state);
 be_extern_native_class(Wire);
 be_extern_native_class(ezie_home_assistant_discovery);
+be_extern_native_class(ezie_fan);
 be_extern_native_class(ezie_ws2812_configurator);
 be_extern_native_class(I2C_Driver);
 be_extern_native_class(AXP192);
@@ -256,6 +258,7 @@ BERRY_LOCAL bclass_array be_class_table = {
     &be_native_class(ctypes_bytes_dyn),
     &be_native_class(tasmota_log_reader),
     &be_native_class(ezie_home_assistant_discovery),
+    &be_native_class(ezie_fan),
     &be_native_class(ezie_ws2812_configurator),
 #ifdef USE_LIGHT
     &be_native_class(light_state),

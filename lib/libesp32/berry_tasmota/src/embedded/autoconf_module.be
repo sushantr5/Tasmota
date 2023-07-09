@@ -335,8 +335,29 @@ autoconf_module.init = def (m)
       import path
 
       var reboot = false
+
+      # EZIE Custom step. if '_matter_device.json' is present, load it
+      var fname = self._archive + '#_matter_device.json'
+      if path.exists(fname) && self.is_first_time()
+        tasmota.log("MTR CFG: loading "+fname, 3)
+        var f, f_out
+        try
+          f = open(fname, "r")
+          f_out = open("_matter_device.json", "w")
+          var content = f.readbytes()
+          f_out.write(content)
+          f.close()
+          f_out.close()
+          tasmota.log("MTR CFG: loaded  "+fname, 3)
+        except .. as e, m
+          print(string.format("MTR CFG: could not copy '_matter_device.json' (%s - %s)'", e, m))
+          if f != nil   f.close()   end
+          if f_out != nil   f_out.close()   end
+        end
+      end
+
       # Step 1. if first run, only apply `init.bat`
-      var fname = self._archive + '#init.bat'
+      fname = self._archive + '#init.bat'
       if self.is_first_time() && path.exists(fname)
         # create the '.autoconf' file to avoid running it again, even if it crashed
         self.set_first_time()
@@ -348,7 +369,7 @@ autoconf_module.init = def (m)
         return                    # if init was run, force a restart anyways and don't run the remaining code
         # end
       end
-
+      
       # Step 2. if 'display.ini' is present, copy it to file system (first run or if not already in file system)
       fname = self._archive + '#display.ini'
       if path.exists(fname) && (self.is_first_time() || !path.exists('display.ini'))

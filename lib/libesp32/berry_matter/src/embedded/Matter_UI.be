@@ -33,7 +33,7 @@ import matter
 #################################################################################
 class Matter_UI
   static var _CLASSES_TYPES = "|relay|light0|light1|light2|light3|shutter|shutter+tilt"
-                              "|temperature|pressure|illuminance|humidity|occupancy|onoff|contact"
+                              "|temperature|pressure|illuminance|humidity|occupancy|onoff|contact|fan"
   # static var _CLASSES_HTTP  = "-http"
   static var _CLASSES_TYPES2= "|http_relay|http_light0|http_light1|http_light2|http_light3"
                               "|http_temperature|http_pressure|http_illuminance|http_humidity"
@@ -355,7 +355,7 @@ class Matter_UI
       end
     end
     self.device.sort_distinct(remotes)
-    # tasmota.log("MTR: remotes: "+str(remotes), 4)
+    tasmota.log("MTR: remotes: "+str(remotes), 4)
 
     for remote: remotes
 
