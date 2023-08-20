@@ -26,34 +26,28 @@ class ezie_fan
   def web_sensor()
     import webserver
     if webserver.has_arg("m_speed")
-      print ( string.format("Speed:%s", webserver.arg("m_speed")))
       tasmota.cmd(string.format("fanspeed %s",webserver.arg("m_speed")))
     end
   end
 
   def update_fan_relays()
     if self.set_speed == 3
-      print("GPIO ON: 17, 18")
       gpio.digital_write(self.out1, gpio.LOW)
       gpio.digital_write(self.out2, gpio.HIGH)
       gpio.digital_write(self.out3, gpio.HIGH)
     elif self.set_speed == 2
-      print("GPIO ON: 18")
       gpio.digital_write(self.out1, gpio.LOW)
       gpio.digital_write(self.out2, gpio.LOW)
       gpio.digital_write(self.out3, gpio.HIGH)
     elif self.set_speed == 1
-      print("GPIO ON: 17")
       gpio.digital_write(self.out1, gpio.LOW)
       gpio.digital_write(self.out2, gpio.HIGH)
       gpio.digital_write(self.out3, gpio.LOW)
     elif self.set_speed == 4
-      print("GPIO ON: 15")
       gpio.digital_write(self.out1, gpio.HIGH)
       gpio.digital_write(self.out2, gpio.LOW)
       gpio.digital_write(self.out3, gpio.LOW)
     elif self.set_speed == 0
-      print("GPIO ON: 17")
       gpio.digital_write(self.out1, gpio.LOW)
       gpio.digital_write(self.out3, gpio.LOW)
       gpio.digital_write(self.out2, gpio.LOW)
@@ -64,18 +58,13 @@ class ezie_fan
     var prev_speed = self.set_speed
     # parse payload ==> fanspeed { "fanspeed":"4"} OR fanspeed { "fanspeed":4}
     if payload_json != nil && type(payload_json) == "string" && payload_json.find("fanspeed") != nil
-      print("json condition true and fanspeed is found.")
       self.set_speed = int(payload_json.find("fanspeed"))
     elif payload != nil
       if payload == "-"
-        print("decrease speed")
         self.set_speed = self.set_speed - 1;
       elif payload == "+"
-        print("increase speed")
         self.set_speed = self.set_speed + 1;
       elif size(payload) > 0
-        print(size(payload))
-        print("set speed1")
         self.set_speed = int(payload);
       end
     end
@@ -91,7 +80,7 @@ class ezie_fan
     self.update_fan_relays()
     
     if(prev_speed != self.set_speed)
-      tasmota.publish_result(string.format('{"EZIE":{"FanSpeed_Updated":%d}}',self.set_speed), 'EZIE')
+      tasmota.publish_result(string.format('{"EZIE":{"FanSpeed_Updated":%d}}',int(self.set_speed)), 'EZIE')
     end
     tasmota.resp_cmnd(string.format("{ \"fanspeed\":%d }",self.set_speed))
   end

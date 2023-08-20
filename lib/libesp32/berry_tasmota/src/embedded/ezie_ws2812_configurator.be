@@ -4,6 +4,7 @@ class ezie_ws2812_configurator
   var normal_off_state_col
   var speed_bar_col
   var lights_timeout
+  var lights_dim_factor
 
   def get_ACTION_or_ON_state_color()
     return self.action_on_state_col
@@ -21,11 +22,16 @@ class ezie_ws2812_configurator
     return self.lights_timeout
   end
 
-  def init(action_on_state_color, normal_off_state_color, speed_bar_color, lights_timeout_sec)
+  def get_LIGHTS_dim_percentage()
+    return self.lights_dim_factor
+  end
+
+  def init(action_on_state_color, normal_off_state_color, speed_bar_color, lights_timeout_sec, lights_dim_percentage)
     self.action_on_state_col =  action_on_state_color
     self.normal_off_state_col = normal_off_state_color
     self.speed_bar_col =  speed_bar_color
     self.lights_timeout = lights_timeout_sec
+    self.lights_dim_factor = lights_dim_percentage
     self.web_add_handler()
     tasmota.add_driver(self)
   end
@@ -71,6 +77,8 @@ class ezie_ws2812_configurator
     #manual solidification
     #X3Cinput_X20type_X3D_X27range_X27_X20name_X3D_X27lights_timeout_X27_X20min_X3D_X270_X27_X20max_X3D_X27600_X27_X20step_X3D_X275_X27_X20value_X3D_X27_X25i_X27oninput_X3D_X27this_X2EnextElementSibling_X2Evalue_X20_X3D_X20this_X2Evalue_X27_X3E_X3Coutput_X3E_X25i_X3C_X2Foutput_X3E_X3C_X2Finput_X3E_X00
     #define INST_BUF_SIZE   288 in berry code to compile
+    webserver.content_send("<p>Dimmed Lights Factor (Percentage):</p>")
+    webserver.content_send(string.format("<input type='range' name='lights_dim_factor' min='0' max='100' step='10' value='%i'oninput='this.nextElementSibling.value = this.value'><output>%i</output>", self.lights_dim_factor,self.lights_dim_factor))
     webserver.content_send("<p></p></fieldset><p></p>")
   end
 
@@ -125,6 +133,10 @@ class ezie_ws2812_configurator
 
       if webserver.has_arg("lights_timeout")
         self.lights_timeout = int(webserver.arg("lights_timeout"))
+      end
+
+      if webserver.has_arg("lights_dim_factor")
+        self.lights_dim_factor = int(webserver.arg("lights_dim_factor"))
       end
 
       #var hexColor = string.format("#%06X", (0xFFFFFF & 0x00F100));

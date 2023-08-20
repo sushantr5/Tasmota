@@ -19,7 +19,7 @@ be_local_closure(ezie_home_assistant_discovery_publish_discovery_message_for_4sp
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[55]) {     /* constants */
+    ( &(const bvalue[56]) {     /* constants */
     /* K0   */  be_nested_str(mqtt),
     /* K1   */  be_nested_str(json),
     /* K2   */  be_nested_str(tasmota),
@@ -68,17 +68,18 @@ be_local_closure(ezie_home_assistant_discovery_publish_discovery_message_for_4sp
     /* K45  */  be_nested_str(speed_range_min),
     /* K46  */  be_const_int(1),
     /* K47  */  be_nested_str(speed_range_max),
-    /* K48  */  be_nested_str(publish),
-    /* K49  */  be_nested_str(homeassistant_X2Ffan_X2F),
-    /* K50  */  be_nested_str(_X2F),
-    /* K51  */  be_nested_str(_X2Fconfig),
-    /* K52  */  be_nested_str(dump),
-    /* K53  */  be_nested_str(format),
-    /* K54  */  be_nested_str(ha_discovery_sent),
+    /* K48  */  be_nested_str(log),
+    /* K49  */  be_nested_str(publish),
+    /* K50  */  be_nested_str(homeassistant_X2Ffan_X2F),
+    /* K51  */  be_nested_str(_X2F),
+    /* K52  */  be_nested_str(_X2Fconfig),
+    /* K53  */  be_nested_str(dump),
+    /* K54  */  be_nested_str(format),
+    /* K55  */  be_nested_str(ha_discovery_sent),
     }),
     &be_const_str_publish_discovery_message_for_4speed_fan,
     &be_const_str_solidified,
-    ( &(const binstruction[127]) {  /* code */
+    ( &(const binstruction[129]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
       0xA40A0200,  //  0001  IMPORT	R2	K1
       0xB80E0400,  //  0002  GETNGBL	R3	K2
@@ -187,25 +188,27 @@ be_local_closure(ezie_home_assistant_discovery_publish_discovery_message_for_4sp
       0x582C002F,  //  0069  LDCONST	R11	K47
       0x54320003,  //  006A  LDINT	R12	4
       0x7C240600,  //  006B  CALL	R9	3
-      0x60240001,  //  006C  GETGBL	R9	G1
-      0x5C280E00,  //  006D  MOVE	R10	R7
-      0x7C240200,  //  006E  CALL	R9	1
-      0x8C240330,  //  006F  GETMET	R9	R1	K48
-      0x002E6206,  //  0070  ADD	R11	K49	R6
-      0x002C1732,  //  0071  ADD	R11	R11	K50
-      0x002C1606,  //  0072  ADD	R11	R11	R6
+      0xB8260400,  //  006C  GETNGBL	R9	K2
+      0x8C241330,  //  006D  GETMET	R9	R9	K48
+      0x5C2C0E00,  //  006E  MOVE	R11	R7
+      0x54320003,  //  006F  LDINT	R12	4
+      0x7C240600,  //  0070  CALL	R9	3
+      0x8C240331,  //  0071  GETMET	R9	R1	K49
+      0x002E6406,  //  0072  ADD	R11	K50	R6
       0x002C1733,  //  0073  ADD	R11	R11	K51
-      0x8C300534,  //  0074  GETMET	R12	R2	K52
-      0x5C380E00,  //  0075  MOVE	R14	R7
-      0x603C0012,  //  0076  GETGBL	R15	G18
-      0x7C3C0000,  //  0077  CALL	R15	0
-      0x40401F35,  //  0078  CONNECT	R16	R15	K53
-      0x7C300600,  //  0079  CALL	R12	3
-      0x50340200,  //  007A  LDBOOL	R13	1	0
-      0x7C240800,  //  007B  CALL	R9	4
-      0x50240200,  //  007C  LDBOOL	R9	1	0
-      0x90026C09,  //  007D  SETMBR	R0	K54	R9
-      0x80000000,  //  007E  RET	0
+      0x002C1606,  //  0074  ADD	R11	R11	R6
+      0x002C1734,  //  0075  ADD	R11	R11	K52
+      0x8C300535,  //  0076  GETMET	R12	R2	K53
+      0x5C380E00,  //  0077  MOVE	R14	R7
+      0x603C0012,  //  0078  GETGBL	R15	G18
+      0x7C3C0000,  //  0079  CALL	R15	0
+      0x40401F36,  //  007A  CONNECT	R16	R15	K54
+      0x7C300600,  //  007B  CALL	R12	3
+      0x50340200,  //  007C  LDBOOL	R13	1	0
+      0x7C240800,  //  007D  CALL	R9	4
+      0x50240200,  //  007E  LDBOOL	R9	1	0
+      0x90026E09,  //  007F  SETMBR	R0	K55	R9
+      0x80000000,  //  0080  RET	0
     })
   )
 );
@@ -217,7 +220,7 @@ be_local_closure(ezie_home_assistant_discovery_publish_discovery_message_for_4sp
 ********************************************************************/
 be_local_closure(ezie_home_assistant_discovery_every_second,   /* name */
   be_nested_proto(
-    3,                          /* nstack */
+    5,                          /* nstack */
     1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
@@ -225,29 +228,34 @@ be_local_closure(ezie_home_assistant_discovery_every_second,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 4]) {     /* constants */
-    /* K0   */  be_nested_str(waiting_X20for_X20MQTT_X20Connection_X20to_X20send_X20HA_X20Disconvery_X2E_X2E_X2E),
-    /* K1   */  be_nested_str(ha_discovery_sent),
-    /* K2   */  be_nested_str(mqtt_connected),
-    /* K3   */  be_nested_str(send_ha_discovery_message),
+    ( &(const bvalue[ 7]) {     /* constants */
+    /* K0   */  be_nested_str(tasmota),
+    /* K1   */  be_nested_str(log),
+    /* K2   */  be_nested_str(waiting_X20for_X20MQTT_X20Connection_X20to_X20send_X20HA_X20Disconvery_X2E_X2E_X2E),
+    /* K3   */  be_const_int(2),
+    /* K4   */  be_nested_str(ha_discovery_sent),
+    /* K5   */  be_nested_str(mqtt_connected),
+    /* K6   */  be_nested_str(send_ha_discovery_message),
     }),
     &be_const_str_every_second,
     &be_const_str_solidified,
-    ( &(const binstruction[14]) {  /* code */
-      0x60040001,  //  0000  GETGBL	R1	G1
-      0x58080000,  //  0001  LDCONST	R2	K0
-      0x7C040200,  //  0002  CALL	R1	1
-      0x88040101,  //  0003  GETMBR	R1	R0	K1
-      0x50080000,  //  0004  LDBOOL	R2	0	0
-      0x1C040202,  //  0005  EQ	R1	R1	R2
-      0x78060005,  //  0006  JMPF	R1	#000D
-      0x88040102,  //  0007  GETMBR	R1	R0	K2
-      0x50080200,  //  0008  LDBOOL	R2	1	0
-      0x1C040202,  //  0009  EQ	R1	R1	R2
-      0x78060001,  //  000A  JMPF	R1	#000D
-      0x8C040103,  //  000B  GETMET	R1	R0	K3
-      0x7C040200,  //  000C  CALL	R1	1
-      0x80000000,  //  000D  RET	0
+    ( &(const binstruction[16]) {  /* code */
+      0xB8060000,  //  0000  GETNGBL	R1	K0
+      0x8C040301,  //  0001  GETMET	R1	R1	K1
+      0x580C0002,  //  0002  LDCONST	R3	K2
+      0x58100003,  //  0003  LDCONST	R4	K3
+      0x7C040600,  //  0004  CALL	R1	3
+      0x88040104,  //  0005  GETMBR	R1	R0	K4
+      0x50080000,  //  0006  LDBOOL	R2	0	0
+      0x1C040202,  //  0007  EQ	R1	R1	R2
+      0x78060005,  //  0008  JMPF	R1	#000F
+      0x88040105,  //  0009  GETMBR	R1	R0	K5
+      0x50080200,  //  000A  LDBOOL	R2	1	0
+      0x1C040202,  //  000B  EQ	R1	R1	R2
+      0x78060001,  //  000C  JMPF	R1	#000F
+      0x8C040106,  //  000D  GETMET	R1	R0	K6
+      0x7C040200,  //  000E  CALL	R1	1
+      0x80000000,  //  000F  RET	0
     })
   )
 );
@@ -259,7 +267,7 @@ be_local_closure(ezie_home_assistant_discovery_every_second,   /* name */
 ********************************************************************/
 be_local_closure(ezie_home_assistant_discovery_send_ha_discovery_message,   /* name */
   be_nested_proto(
-    5,                          /* nstack */
+    7,                          /* nstack */
     1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
@@ -267,24 +275,25 @@ be_local_closure(ezie_home_assistant_discovery_send_ha_discovery_message,   /* n
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[13]) {     /* constants */
+    ( &(const bvalue[14]) {     /* constants */
     /* K0   */  be_nested_str(tasmota),
     /* K1   */  be_nested_str(cmd),
     /* K2   */  be_nested_str(mqtthost),
     /* K3   */  be_nested_str(find),
     /* K4   */  be_nested_str(MqttHost),
     /* K5   */  be_const_int(0),
-    /* K6   */  be_nested_str(Sending_X20HA_X20Discovery_X20Message_X2E_X2E_X2E),
-    /* K7   */  be_nested_str(mqtt_connected),
-    /* K8   */  be_nested_str(device_type),
-    /* K9   */  be_const_int(1),
-    /* K10  */  be_nested_str(publish_discovery_message_for_4P_switch),
-    /* K11  */  be_const_int(2),
-    /* K12  */  be_nested_str(publish_discovery_message_for_4speed_fan),
+    /* K6   */  be_nested_str(log),
+    /* K7   */  be_nested_str(Sending_X20HA_X20Discovery_X20Message_X2E_X2E_X2E),
+    /* K8   */  be_const_int(2),
+    /* K9   */  be_nested_str(mqtt_connected),
+    /* K10  */  be_nested_str(device_type),
+    /* K11  */  be_const_int(1),
+    /* K12  */  be_nested_str(publish_discovery_message_for_4P_switch),
+    /* K13  */  be_nested_str(publish_discovery_message_for_4speed_fan),
     }),
     &be_const_str_send_ha_discovery_message,
     &be_const_str_solidified,
-    ( &(const binstruction[30]) {  /* code */
+    ( &(const binstruction[32]) {  /* code */
       0xB8060000,  //  0000  GETNGBL	R1	K0
       0x8C040301,  //  0001  GETMET	R1	R1	K1
       0x580C0002,  //  0002  LDCONST	R3	K2
@@ -298,23 +307,25 @@ be_local_closure(ezie_home_assistant_discovery_send_ha_discovery_message,   /* n
       0x1C0C0705,  //  000A  EQ	R3	R3	K5
       0x780E0000,  //  000B  JMPF	R3	#000D
       0x80000600,  //  000C  RET	0
-      0x600C0001,  //  000D  GETGBL	R3	G1
-      0x58100006,  //  000E  LDCONST	R4	K6
-      0x7C0C0200,  //  000F  CALL	R3	1
-      0x500C0200,  //  0010  LDBOOL	R3	1	0
-      0x90020E03,  //  0011  SETMBR	R0	K7	R3
-      0x880C0108,  //  0012  GETMBR	R3	R0	K8
-      0x1C0C0709,  //  0013  EQ	R3	R3	K9
-      0x780E0002,  //  0014  JMPF	R3	#0018
-      0x8C0C010A,  //  0015  GETMET	R3	R0	K10
-      0x7C0C0200,  //  0016  CALL	R3	1
-      0x70020004,  //  0017  JMP		#001D
-      0x880C0108,  //  0018  GETMBR	R3	R0	K8
-      0x1C0C070B,  //  0019  EQ	R3	R3	K11
-      0x780E0001,  //  001A  JMPF	R3	#001D
-      0x8C0C010C,  //  001B  GETMET	R3	R0	K12
-      0x7C0C0200,  //  001C  CALL	R3	1
-      0x80000000,  //  001D  RET	0
+      0xB80E0000,  //  000D  GETNGBL	R3	K0
+      0x8C0C0706,  //  000E  GETMET	R3	R3	K6
+      0x58140007,  //  000F  LDCONST	R5	K7
+      0x58180008,  //  0010  LDCONST	R6	K8
+      0x7C0C0600,  //  0011  CALL	R3	3
+      0x500C0200,  //  0012  LDBOOL	R3	1	0
+      0x90021203,  //  0013  SETMBR	R0	K9	R3
+      0x880C010A,  //  0014  GETMBR	R3	R0	K10
+      0x1C0C070B,  //  0015  EQ	R3	R3	K11
+      0x780E0002,  //  0016  JMPF	R3	#001A
+      0x8C0C010C,  //  0017  GETMET	R3	R0	K12
+      0x7C0C0200,  //  0018  CALL	R3	1
+      0x70020004,  //  0019  JMP		#001F
+      0x880C010A,  //  001A  GETMBR	R3	R0	K10
+      0x1C0C0708,  //  001B  EQ	R3	R3	K8
+      0x780E0001,  //  001C  JMPF	R3	#001F
+      0x8C0C010D,  //  001D  GETMET	R3	R0	K13
+      0x7C0C0200,  //  001E  CALL	R3	1
+      0x80000000,  //  001F  RET	0
     })
   )
 );

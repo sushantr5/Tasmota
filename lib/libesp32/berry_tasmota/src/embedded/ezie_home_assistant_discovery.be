@@ -61,7 +61,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('speed_range_min', 1 )
         discovery_msg_map.setitem('speed_range_max', 4 )
         
-        print(discovery_msg_map)
+        tasmota.log(discovery_msg_map,4)
         mqtt.publish('homeassistant/fan/' + unique_id + '/' + unique_id + '/config', json.dump(discovery_msg_map,['format']), true )
         self.ha_discovery_sent = true
     end
@@ -133,7 +133,7 @@ class ezie_home_assistant_discovery : Driver
             return
         end
 
-        print("Sending HA Discovery Message...")
+        tasmota.log("Sending HA Discovery Message...",2)
         self.mqtt_connected = true
         
         if self.device_type == 1
@@ -144,7 +144,7 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def every_second()
-        print("waiting for MQTT Connection to send HA Disconvery...")
+        tasmota.log("waiting for MQTT Connection to send HA Disconvery...",2)
         if self.ha_discovery_sent == false && self.mqtt_connected == true
             self.send_ha_discovery_message()
         end
