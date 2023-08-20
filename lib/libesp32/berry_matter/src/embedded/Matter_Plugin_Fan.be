@@ -86,18 +86,20 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var attribute = ctx.attribute
-    print(string.format("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute)))
+    #print(string.format("###SRR:READ ATTRIBUTE %s:%s",str(cluster),str(attribute)))
     # ====================================================================================================
     if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       self.update_shadow_lazy()
       if   attribute == 0x0000          #  ---------- FanMode / u1 ----------
+        #print(string.format("###SRR: ATTRIBUTE value for 0x0000:%s",str(self.fanspeed)))
         return TLV.create_TLV(TLV.U1, self.fanspeed)
       elif attribute == 0x0002          #  ---------- PercentSetting / u1 ----------
-        var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
-        return TLV.create_TLV(TLV.U1, speed)
+        var speed_percent = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
+        #print(string.format("###SRR: ATTRIBUTE value for 0x0002:%s",str(speed_percent)))
+        return TLV.create_TLV(TLV.U1, speed_percent)
       elif attribute == 0x0003          #  ---------- PercentCurrent / u1 ----------
-        var speed = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
-        return TLV.create_TLV(TLV.U1, speed)
+        var speed_percent = tasmota.scale_uint(self.fanspeed, 0, 4, 0, 100)
+        return TLV.create_TLV(TLV.U1, speed_percent)
       elif attribute == 0x0004          #  ---------- SpeedMax / u1 ----------
         return TLV.create_TLV(TLV.U1, 4)
       elif attribute == 0x0005          #  ---------- SpeedSetting / u1 ----------
@@ -120,23 +122,16 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var attribute = ctx.attribute
-
-    print("###SRR:TEST3")
     
     if   cluster == 0x0202
-      print("###SRR:TEST4")      
-      if   attribute == 0x0002
-        print("###SRR:TEST5")  
+      if   attribute == 0x0002  
         if type(write_data) == 'int' || isinstance(write_data, int64)
-          print(string.format("###SRR:TEST6:%d",write_data))
           var speed = tasmota.scale_uint(write_data, 0, 100, 0, 4)
           tasmota.cmd("fanspeed " + str(speed))
-          print(string.format("###SRR:TEST7 FAN SPEED:%d",self.fan_speed))
           self.attribute_updated(ctx.cluster, ctx.attribute)    # TODO should we have a more generalized way each time a write_attribute is triggered, declare the attribute as changed?
           self.attribute_updated(0x0202, 0x0000)
           return true
         else
-          print("###SRR:TEST7")
           ctx.status = matter.CONSTRAINT_ERROR
           return false
         end
@@ -153,8 +148,7 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
     var TLV = matter.TLV
     var cluster = ctx.cluster
     var command = ctx.command
-    print(string.format("###SRR:INVOKE REQUEST %s:%s",str(cluster),str(command)))
-    # ====================================================================================================
+     # ====================================================================================================
     if   cluster == 0x0202              # ========== Level Control 1.6 p.57 ==========
       if   command == 0x0000            # ---------- MoveToLevel ----------
         return true
@@ -163,7 +157,6 @@ class Matter_Plugin_Fan : Matter_Plugin_Device
         return true
       elif command == 0x0002            # ---------- Step ----------
         var speed_in = val.findsubval(0)
-        print(string.format("###SRR:SPEED_IN:%s",str(speed_in)))
         var speed = tasmota.scale_uint(speed_in, 0, 100, 0, 4)
         tasmota.cmd("fanspeed " + str(speed))
         self.update_shadow()
