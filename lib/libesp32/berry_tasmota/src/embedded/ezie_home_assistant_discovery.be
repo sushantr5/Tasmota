@@ -17,6 +17,8 @@ class ezie_home_assistant_discovery : Driver
             self.device_type = 0
         end
 
+        self.send_ha_discovery_message()
+        
         tasmota.add_rule("Mqtt#Connected", def ()
             self.send_ha_discovery_message()
             tasmota.remove_rule("Mqtt#Connected", "ha_discovery_sent")
@@ -26,6 +28,7 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def publish_discovery_message_for_4speed_fan()
+        tasmota.log("publish_discovery_message_for_4speed_fan()",4)
         import mqtt
         import json
 
@@ -67,6 +70,7 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def publish_discovery_message_for_4P_switch()
+        tasmota.log("publish_discovery_message_for_4P_switch()",4)
         import mqtt
         import json
 
@@ -127,13 +131,14 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def send_ha_discovery_message()
+        tasmota.log("send_ha_discovery_message()",4)
         var payload_json = tasmota.cmd("mqtthost")
         var mqtthost = payload_json.find("MqttHost")
         if size(mqtthost) == 0
             return
         end
 
-        tasmota.log("Sending HA Discovery Message...",2)
+        tasmota.log("Sending HA Discovery Message...",4)
         self.mqtt_connected = true
         
         if self.device_type == 1
@@ -144,7 +149,9 @@ class ezie_home_assistant_discovery : Driver
     end
 
     def every_second()
-        tasmota.log("waiting for MQTT Connection to send HA Disconvery...",2)
+        if self.mqtt_connected == false
+            tasmota.log("waiting for MQTT Connection to send HA Disconvery...",4)
+        end
         if self.ha_discovery_sent == false && self.mqtt_connected == true
             self.send_ha_discovery_message()
         end
