@@ -20,13 +20,13 @@ class ezie_fan
   def web_add_main_button()
     import webserver
     webserver.content_send("<p>FAN Speed:</p>")
-    webserver.content_send(string.format("<input type='range' name='fan_speed' min='0' max='4' step='1' value='%i'oninput='this.nextElementSibling.value = this.value' onchange='la(\"&m_speed=\"+this.value);'/><output>%i</output>", self.set_speed ,self.set_speed ))
+    webserver.content_send(format("<input type='range' name='fan_speed' min='0' max='4' step='1' value='%i'oninput='this.nextElementSibling.value = this.value' onchange='la(\"&m_speed=\"+this.value);'/><output>%i</output>", self.set_speed ,self.set_speed ))
   end
     
   def web_sensor()
     import webserver
     if webserver.has_arg("m_speed")
-      tasmota.cmd(string.format("fanspeed %s",webserver.arg("m_speed")))
+      tasmota.cmd(format("fanspeed %s",webserver.arg("m_speed")))
     end
   end
 
@@ -80,9 +80,9 @@ class ezie_fan
     self.update_fan_relays()
     
     if(prev_speed != self.set_speed)
-      tasmota.publish_result(string.format('{"EZIE":{"FanSpeed_Updated":%d}}',int(self.set_speed)), 'EZIE')
+      tasmota.publish_result(format('{"EZIE":{"FanSpeed_Updated":%d}}',int(self.set_speed)), 'EZIE')
     end
-    tasmota.resp_cmnd(string.format("{ \"fanspeed\":%d }",self.set_speed))
+    tasmota.resp_cmnd(format("{ \"fanspeed\":%d }",self.set_speed))
   end
 
   def init()

@@ -678,7 +678,7 @@ be_local_closure(Leds_init,   /* name */
       0x5C180200,  //  0003  MOVE	R6	R1
       0x7C140200,  //  0004  CALL	R5	1
       0x90020205,  //  0005  SETMBR	R0	K1	R5
-      0x5416007E,  //  0006  LDINT	R5	127
+      0x541600FE,  //  0006  LDINT	R5	255
       0x90020405,  //  0007  SETMBR	R0	K2	R5
       0x4C140000,  //  0008  LDNIL	R5
       0x1C140405,  //  0009  EQ	R5	R2	R5

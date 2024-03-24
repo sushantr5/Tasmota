@@ -35,7 +35,7 @@ class Leds : Leds_ntv
   def init(leds, gpio_phy, typ, rmt)   # rmt is optional
     self.gamma = true     # gamma is enabled by default, it should be disabled explicitly if needed
     self.leds = int(leds)
-    self.bri = 127        # 50% brightness by default
+    self.bri = 255        # 50% brightness by default
 
     # if no GPIO, abort
     if gpio_phy == nil
