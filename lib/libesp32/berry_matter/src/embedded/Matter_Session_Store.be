@@ -35,7 +35,8 @@ class Matter_Session_Store
   var device                      # device root object
   var sessions
   var fabrics                     # list of provisioned fabrics
-  static var _FABRICS  = "_matter_fabrics.json"
+  static var _FABRICS  = "/_matter_fabrics.json"
+  static var _FABRICS_TEMP  = "/_matter_fabrics.tmp"   # temporary saved file before renaming to _FABRICS
 
   #############################################################
   def init(device)
@@ -57,15 +58,19 @@ class Matter_Session_Store
   #############################################################
   # remove fabric
   def remove_fabric(fabric)
-    var idx = 0
-    while idx < size(self.sessions)
-      if self.sessions[idx]._fabric == fabric
-        self.sessions.remove(idx)
-      else
-        idx += 1
+    if (self.sessions != nil)
+      var idx = 0
+      while idx < size(self.sessions)
+        if self.sessions[idx]._fabric == fabric
+          self.sessions.remove(idx)
+        else
+          idx += 1
+        end
       end
     end
-    self.fabrics.remove(self.fabrics.find(fabric))     # fail safe
+    if (self.fabrics != nil)
+      self.fabrics.remove(self.fabrics.find(fabric))     # fail safe
+    end
   end
 
   #############################################################
@@ -98,7 +103,11 @@ class Matter_Session_Store
   # Count the number of commissionned fabrics, i.e. persisted
   def count_active_fabrics()
     self.remove_expired()      # clean before
-    return self.fabrics.count_persistables()
+    if self.fabrics != nil
+      return self.fabrics.count_persistables()
+    else
+      return 0
+    end
   end
 
   #############################################################
@@ -310,23 +319,34 @@ class Matter_Session_Store
   #############################################################
   def save_fabrics()
     import json
+    import path
     try
       self.remove_expired()      # clean before saving
       var sessions_saved = 0
+      var fabrics_saved = 0
 
-      var fabs = []
-      for f : self.fabrics.persistables()
-        for _ : f._sessions.persistables()    sessions_saved += 1   end   # count persitable sessions
-        fabs.push(f.tojson())
+      var f = open(self._FABRICS_TEMP, "w")
+
+      f.write("[")
+      for fab : self.fabrics.persistables()
+        for _ : fab._sessions.persistables()    sessions_saved += 1   end   # count persitable sessions
+        if fabrics_saved > 0
+          f.write(",")
+        end
+        fab.writejson(f)
+        fabrics_saved += 1
       end
-      var fabs_size = size(fabs)
-      fabs = "[" + fabs.concat(",") + "]"
+      f.write("]")
 
-      var f = open(self._FABRICS, "w")
-      f.write(fabs)
       f.close()
-      tasmota.log(format("MTR: =Saved     %i fabric(s) and %i session(s)", fabs_size, sessions_saved), 2)
-      self.device.event_fabrics_saved()     # signal event
+      # saving went well, now remove previous version and rename
+      path.remove(self._FABRICS)
+      if (path.rename(self._FABRICS_TEMP, self._FABRICS))
+        tasmota.log(f"MTR: =Saved     {fabrics_saved} fabric(s) and {sessions_saved} session(s)", 2)
+        self.device.event_fabrics_saved()     # signal event
+      else
+        tasmota.log(f"MTR: Saving Fabrics failed", 2)
+      end
     except .. as e, m
       tasmota.log("MTR: Session_Store::save Exception:" + str(e) + "|" + str(m), 2)
     end

@@ -47,7 +47,8 @@ struct COUNTER {
 
 } Counter;
 
-void IRAM_ATTR CounterIsrArg(void *arg) {
+void IRAM_ATTR CounterIsrArg(void *arg);
+void CounterIsrArg(void *arg) {
   uint32_t index = *static_cast<uint8_t*>(arg);
 
   uint32_t time = micros();
@@ -76,9 +77,13 @@ void IRAM_ATTR CounterIsrArg(void *arg) {
       // restart PWM each second (german 50Hz has to up to 0.01% deviation)
       // restart initiated by setting Counter.startReSync = true;
 #ifdef USE_AC_ZERO_CROSS_DIMMER
-      if (index == 3) ACDimmerZeroCross(time);
-#endif //USE_AC_ZERO_CROSS_DIMMER
+      if (index == 3) { ACDimmerZeroCross(time); }
       return;
+#else
+      if (!Settings->flag6.counter_both_edges) {  // SetOption159 - (Counter) Enable counting on both rising and falling edge (1)
+        return;
+      }
+#endif //USE_AC_ZERO_CROSS_DIMMER
     }
   }
 
@@ -98,6 +103,9 @@ void IRAM_ATTR CounterIsrArg(void *arg) {
 void CounterInterruptDisable(bool state)
 {
   if (state) {   // Disable interrupts
+    if (Settings->flag4.zerocross_dimmer) {
+        return;
+    }
     if (Counter.any_counter) {
       for (uint32_t i = 0; i < MAX_COUNTERS; i++) {
         if (PinUsed(GPIO_CNTR1, i)) {
@@ -122,6 +130,40 @@ bool CounterPinState(void)
   }
   return false;
 }
+
+// is this GPIO configured as a counter
+// this encapsulates the logic and avoids exposing internals to Berry
+bool CounterPinConfigured(int32_t counter) {
+  if ((counter > 0) && (counter <= MAX_COUNTERS) && (PinUsed(GPIO_CNTR1, counter - 1))) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// return counter value for this GPIO
+// this encapsulates the logic and avoids exposing internals to Berry
+uint32_t CounterPinRead(int32_t counter) {
+  if (CounterPinConfigured(counter)) {
+    return RtcSettings.pulse_counter[counter - 1];
+  }
+  return 0;
+}
+
+// set the value, add offset if `add` is true, return value
+// this encapsulates the logic and avoids exposing internals to Berry
+uint32_t CounterPinSet(int32_t counter, int32_t value, bool add) {
+  if (CounterPinConfigured(counter)) {
+    if (add) {
+      RtcSettings.pulse_counter[counter - 1] += value;
+    } else {
+      RtcSettings.pulse_counter[counter - 1] = value;
+    }
+    return RtcSettings.pulse_counter[counter - 1];
+  }
+  return 0;
+}
+
 
 void CounterInit(void)
 {

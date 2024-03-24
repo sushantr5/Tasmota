@@ -50,7 +50,7 @@
 */
 #ifndef USE_BLE_ESP32
 #ifdef ESP32                       // ESP32 only. Use define USE_HM10 for ESP8266 support
-#if defined CONFIG_IDF_TARGET_ESP32 || defined CONFIG_IDF_TARGET_ESP32C3 || defined CONFIG_IDF_TARGET_ESP32S3
+#if defined CONFIG_IDF_TARGET_ESP32 || defined CONFIG_IDF_TARGET_ESP32C3 || defined CONFIG_IDF_TARGET_ESP32C2 || defined CONFIG_IDF_TARGET_ESP32C6 || defined CONFIG_IDF_TARGET_ESP32S3
 
 #ifdef USE_MI_ESP32
 
@@ -60,35 +60,31 @@
 
 #define XSNS_62                    62
 
-#include <NimBLEDevice.h>
+// undefine "trash" from the NimBLE stack, that collides with Tasmotas enum
+#undef LOG_LEVEL_DEBUG
+#undef LOG_LEVEL_NONE
+#undef LOG_LEVEL_ERROR
+#undef LOG_LEVEL_INFO
+#undef LOG_LEVEL_DEBUG
+#undef LOG_LEVEL_DEBUG_MORE
 #include <vector>
-#include <queue>
+#include "freertos/ringbuf.h"
 
 #include <t_bearssl.h>
 
 #include "include/xsns_62_esp32_mi.h"
 
-#if USE_MI_HOMEKIT==0
-  #undef USE_MI_HOMEKIT
-#endif
-#ifdef USE_MI_HOMEKIT
-extern "C" void mi_homekit_main(void);
-extern "C" void mi_homekit_update_value(void* handle, float value, uint32_t type);
-extern "C" void mi_homekit_stop();
-void MI32getSetupCodeFromMAC(char* code);
-#endif //USE_MI_HOMEKIT
-
-
-void MI32scanEndedCB(NimBLEScanResults results);
 void MI32notifyCB(NimBLERemoteCharacteristic* pRemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify);
 void MI32AddKey(mi_bindKey_t keyMAC);
 
 std::vector<mi_sensor_t> MIBLEsensors;
+RingbufHandle_t BLERingBufferQueue = nullptr;
 
 static BLEScan* MI32Scan;
+static NimBLEClient* MI32Client;
 
 /*********************************************************************************************\
- * Classes
+ * BLE Callback Classes
 \*********************************************************************************************/
 
 class MI32SensorCallback : public NimBLEClientCallbacks {
@@ -97,30 +93,26 @@ class MI32SensorCallback : public NimBLEClientCallbacks {
     MI32.infoMsg = MI32_DID_CONNECT;
     MI32.mode.willConnect = 0;
     MI32.mode.connected = 1;
+    pclient->updateConnParams(8,11,0,1000);
   }
-  void onDisconnect(NimBLEClient* pclient) {
+  void onDisconnect(NimBLEClient* pclient, int reason) {
     MI32.mode.connected = 0;
     MI32.infoMsg = MI32_DID_DISCONNECT;
-    MI32.conCtx->error = MI32_CONN_DID_DISCCONNECT;
-    MI32.mode.triggerBerryConnCB = 1; //mainly for unexpected or requested disconnects
+    MI32.conCtx->error = reason;
+    MI32.conCtx->operation = 5; //set for all disconnects that come from the remote device or connection loss
+    MI32.mode.triggerBerryConnCB = 1;
     //AddLog(LOG_LEVEL_DEBUG,PSTR("disconnected"));
-  }
-  bool onConnParamsUpdateRequest(NimBLEClient* MI32Client, const ble_gap_upd_params* params) {
-    if(params->itvl_min < 24) { /** 1.25ms units */
-      return false;
-    } else if(params->itvl_max > 40) { /** 1.25ms units */
-      return false;
-    } else if(params->latency > 2) { /** Number of intervals allowed to skip */
-      return false;
-    } else if(params->supervision_timeout > 100) { /** 10ms units */
-      return false;
-    }
-    return true;
   }
 };
 
-class MI32AdvCallbacks: public NimBLEAdvertisedDeviceCallbacks {
-  void onResult(NimBLEAdvertisedDevice* advertisedDevice) {
+class MI32AdvCallbacks: public NimBLEScanCallbacks {
+  void onScanEnd(NimBLEScanResults results) {
+    MI32.infoMsg = MI32_SCAN_ENDED;
+    MI32.mode.runningScan = 0;
+    MI32.mode.deleteScanTask = 1; // if scan ended dew to a BLE controller error, make sure we stop the task
+  }
+
+  void IRAM_ATTR onResult(NimBLEAdvertisedDevice* advertisedDevice) {
     static bool _mutex = false;
     if(_mutex) return;
     _mutex = true;
@@ -153,112 +145,124 @@ class MI32AdvCallbacks: public NimBLEAdvertisedDeviceCallbacks {
     if(UUID==0xfe95) {
       MI32ParseResponse((char*)advertisedDevice->getServiceData(0).data(),ServiceDataLength, addr, RSSI);
     }
-    else if(UUID==0xfdcd) {
+    else if(UUID==0xfcd2) {
+      std::string optionalName = advertisedDevice->getName();
+      MI32parseBTHomePacket((char*)advertisedDevice->getServiceData(0).data(),ServiceDataLength, addr, RSSI, optionalName.c_str());
+    }
+    else if(UUID==0xfdcd) { // deprecated
       MI32parseCGD1Packet((char*)advertisedDevice->getServiceData(0).data(),ServiceDataLength, addr, RSSI);
     }
-    else if(UUID==0x181a) { //ATC and PVVX
+    else if(UUID==0x181a) { //ATC and PVVX - deprecated, change FW setting of these devices to BTHome V2
       MI32ParseATCPacket((char*)advertisedDevice->getServiceData(0).data(),ServiceDataLength, addr, RSSI);
     }
   _mutex = false;
   };
 };
 
-static std::queue<BLEqueueBuffer_t> BLEmessageQueue;
-
 class MI32ServerCallbacks: public NimBLEServerCallbacks {
-    void onConnect(NimBLEServer* pServer, ble_gap_conn_desc* desc) {
-        BLEqueueBuffer_t q;
-        q.length = 6;
-        q.type = BLE_OP_ON_CONNECT;
-        q.buffer = new uint8_t[q.length];
-        memcpy(q.buffer,desc->peer_ota_addr.val,6);
-        BLEmessageQueue.push(q);
+    void onConnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo) {
+        struct{
+          BLERingBufferItem_t header;
+          uint8_t buffer[6];
+        } item;
+        item.header.length = 6;
+        item.header.type = BLE_OP_ON_CONNECT;
+        memcpy(item.buffer,connInfo.getAddress().getNative(),6);
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t) + 6 , pdMS_TO_TICKS(1));
         MI32.infoMsg = MI32_SERV_CLIENT_CONNECTED;
     };
-    void onDisconnect(NimBLEServer* pServer) {
-        BLEqueueBuffer_t q;
-        q.length = 0;
-        q.type = BLE_OP_ON_DISCONNECT;
+    void onDisconnect(NimBLEServer* pServer, NimBLEConnInfo& connInfo, int reason) {
+        struct{
+          BLERingBufferItem_t header;
+        } item;
+        item.header.length = 0;
+        item.header.type = BLE_OP_ON_DISCONNECT;
         memset(MI32.conCtx->MAC,0,6);
-        BLEmessageQueue.push(q);
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t), pdMS_TO_TICKS(1));
         MI32.infoMsg = MI32_SERV_CLIENT_DISCONNECTED;
+#ifdef CONFIG_BT_NIMBLE_EXT_ADV
+        NimBLEDevice::startAdvertising(0);
+#else
         NimBLEDevice::startAdvertising();
+#endif
     };
 };
 
 class MI32CharacteristicCallbacks: public NimBLECharacteristicCallbacks {
-    void onRead(NimBLECharacteristic* pCharacteristic){
-        BLEqueueBuffer_t q;
-        q.length = 0;
-        q.type = BLE_OP_ON_READ;
-        q.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
-        q.handle = pCharacteristic->getHandle();
-        BLEmessageQueue.push(q);
+    void onRead(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo){
+        struct{
+          BLERingBufferItem_t header;
+        } item;
+        item.header.length = 0;
+        item.header.type = BLE_OP_ON_READ;
+        item.header.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
+        item.header.handle = pCharacteristic->getHandle();
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t), pdMS_TO_TICKS(1));
     };
 
-    void onWrite(NimBLECharacteristic* pCharacteristic) {
-        BLEqueueBuffer_t q;
-        q.type = BLE_OP_ON_WRITE;
-        q.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
-        q.handle = pCharacteristic->getHandle();
-        q.length = pCharacteristic->getDataLength();
-        q.buffer = new uint8_t[q.length];
-        memcpy(q.buffer,pCharacteristic->getValue(),pCharacteristic->getDataLength());
-        BLEmessageQueue.push(q);
+    void onWrite(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo) {
+        struct{
+          BLERingBufferItem_t header;
+          uint8_t buffer[255];
+        } item;
+        item.header.length = pCharacteristic->getDataLength();;
+        item.header.type = BLE_OP_ON_WRITE;
+        item.header.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
+        item.header.handle = pCharacteristic->getHandle();
+        memcpy(item.buffer,pCharacteristic->getValue(),pCharacteristic->getDataLength());
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t) + item.header.length , pdMS_TO_TICKS(1));
     };
 
     /** The status returned in status is defined in NimBLECharacteristic.h.
      *  The value returned in code is the NimBLE host return code.
      */
-    void onStatus(NimBLECharacteristic* pCharacteristic, Status status, int code) {
-        BLEqueueBuffer_t q;
-        q.length = 0;
-        q.type = BLE_OP_ON_STATUS;
-        q.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
-        q.handle = pCharacteristic->getHandle();
-        q.value = code;
-        BLEmessageQueue.push(q);
+    void onStatus(NimBLECharacteristic* pCharacteristic, int code) {
+        struct{
+          BLERingBufferItem_t header;
+          uint8_t buffer[4];
+        } item;
+        item.header.length = 4;
+        item.header.type = BLE_OP_ON_STATUS;
+        item.header.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
+        item.header.handle = pCharacteristic->getHandle();
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t) + 4, pdMS_TO_TICKS(1));
     };
 
-    void onSubscribe(NimBLECharacteristic* pCharacteristic, ble_gap_conn_desc* desc, uint16_t subValue) {
-        BLEqueueBuffer_t q;
-        q.length = 0;
-        q.type = BLE_OP_ON_UNSUBSCRIBE + subValue;
-        q.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
-        q.handle = pCharacteristic->getHandle();
-        BLEmessageQueue.push(q);
+    void onSubscribe(NimBLECharacteristic* pCharacteristic, NimBLEConnInfo& connInfo, uint16_t subValue) {
+        struct{
+          BLERingBufferItem_t header;
+        } item;
+        item.header.length = 0;
+        item.header.type = BLE_OP_ON_UNSUBSCRIBE + subValue;;
+        item.header.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
+        item.header.handle = pCharacteristic->getHandle();
+        xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t), pdMS_TO_TICKS(1));
     };
 };
 
 
+void MI32notifyCB(NimBLERemoteCharacteristic* pRemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify){
+  if(isNotify){
+    struct{
+      BLERingBufferItem_t header;
+      uint8_t buffer[255];
+    } item;
+    item.header.length = length;
+    // item.header.type = 103;  does not matter for now
+    memcpy(item.buffer,pData,length);
+    item.header.returnCharUUID = pRemoteCharacteristic->getUUID().getNative()->u16.value;
+    item.header.handle = pRemoteCharacteristic->getHandle();
+    xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t) + length , pdMS_TO_TICKS(5));
+    MI32.mode.readingDone = 1;
+    MI32.infoMsg = MI32_GOT_NOTIFICATION;
+    return;
+  }
+}
+
 static MI32AdvCallbacks MI32ScanCallbacks;
 static MI32SensorCallback MI32SensorCB;
 static MI32CharacteristicCallbacks MI32ChrCallback;
-static NimBLEClient* MI32Client;
-static std::queue<MI32notificationBuffer_t> MI32NotificationQueue;
 
-/*********************************************************************************************\
- * BLE callback functions
-\*********************************************************************************************/
-
-void MI32scanEndedCB(NimBLEScanResults results){
-  MI32.infoMsg = MI32_SCAN_ENDED;
-  MI32.mode.runningScan = 0;
-}
-
-void MI32notifyCB(NimBLERemoteCharacteristic* pRemoteCharacteristic, uint8_t* pData, size_t length, bool isNotify){
-  if(isNotify){
-    MI32notificationBuffer_t _buf;
-    _buf.buffer[0] = (uint8_t)length;
-    memcpy(_buf.buffer+1, pData, length);
-    _buf.returnCharUUID = pRemoteCharacteristic->getUUID().getNative()->u16.value;
-    MI32NotificationQueue.push(_buf);
-    MI32.mode.readingDone = 1;
-    MI32.mode.triggerBerryConnCB = 1;
-    MI32.infoMsg = MI32_GOT_NOTIFICATION;
-    return; // do not discard data
-  }
-}
 /*********************************************************************************************\
  * Helper functions
 \*********************************************************************************************/
@@ -282,9 +286,9 @@ void MI32stripColon(char* _string){
 }
 
 /**
- * @brief Convert string that repesents a hexadecimal number to a byte array
+ * @brief Convert string that represents a hexadecimal number to a byte array
  *
- * @param _string input string in format: AABBCCDDEEFF or AA:BB:CC:DD:EE:FF, caseinsensitive
+ * @param _string input string in format: AABBCCDDEEFF or AA:BB:CC:DD:EE:FF, case insensitive
  * @param _mac  target byte array must match the correct size (i.e. AA:BB -> uint8_t bytes[2])
  */
 
@@ -309,7 +313,7 @@ void MI32HexStringToBytes(char* _string, uint8_t* _byteArray) {
 /**
  * @brief Reverse an array of 6 bytes
  *
- * @param _mac a byte array of size 6 (typicalliy representing a MAC address)
+ * @param _mac a byte array of size 6 (typically representing a MAC address)
  */
 void MI32_ReverseMAC(uint8_t _mac[]){
   uint8_t _reversedMAC[6];
@@ -437,7 +441,7 @@ int MI32_decryptPacket(char * _buf, uint16_t _bufSize, uint8_t * _payload, uint3
  * @param _type       Type number of the sensor
  * @return uint32_t   Known or new slot in the sensors-vector
  */
-uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter){
+uint32_t MIBLEgetSensorSlot(uint8_t * _MAC, uint16_t _type, uint8_t counter){
   DEBUG_SENSOR_LOG(PSTR("%s: will test ID-type: %x"),D_CMND_MI32, _type);
   uint16_t _pid = _type; // save for unknown types
   bool _success = false;
@@ -452,10 +456,10 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
 
   DEBUG_SENSOR_LOG(PSTR("%s: vector size %u"),D_CMND_MI32, MIBLEsensors.size());
   for(uint32_t i=0; i<MIBLEsensors.size(); i++){
-    if(memcmp(_MAC,MIBLEsensors[i].MAC,sizeof(_MAC))==0){
+    if(memcmp(_MAC,MIBLEsensors[i].MAC,6)==0){
       DEBUG_SENSOR_LOG(PSTR("%s: known sensor at slot: %u"),D_CMND_MI32, i);
       // AddLog(LOG_LEVEL_DEBUG,PSTR("Counters: %x %x"),MIBLEsensors[i].lastCnt, counter);
-      if(MIBLEsensors[i].lastCnt==counter) {
+      if(MIBLEsensors[i].lastCnt==counter && counter!=0) {
         // AddLog(LOG_LEVEL_DEBUG,PSTR("Old packet"));
         return 0xff; // packet received before, stop here
       }
@@ -470,23 +474,21 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
   }
   DEBUG_SENSOR_LOG(PSTR("%s: found new sensor"),D_CMND_MI32);
   mi_sensor_t _newSensor;
-  memcpy(_newSensor.MAC,_MAC, sizeof(_MAC));
+  memcpy(_newSensor.MAC,_MAC, 6);
   _newSensor.PID = _pid;
   _newSensor.type = _type;
   _newSensor.eventType.raw = 0;
   _newSensor.feature.raw = 0;
   _newSensor.status.raw = 0;
   _newSensor.temp = NAN;
-  _newSensor.temp_history = (uint8_t*) calloc(24,1);
   _newSensor.bat=0x00;
   _newSensor.RSSI=0;
   _newSensor.lux = 0x00ffffff;
-  _newSensor.lux_history = (uint8_t*) calloc(24,1);
   _newSensor.key = nullptr;
   switch (_type)
     {
-    case UNKNOWN_MI:
-      _newSensor.hum_history = (uint8_t*) calloc(24,1);
+    case UNKNOWN_MI: case BTHOME:
+      _newSensor.feature.raw = 0;
       break;
     case FLORA:
       _newSensor.moisture =0xff;
@@ -497,18 +499,12 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
       _newSensor.feature.fert=1;
       _newSensor.feature.lux=1;
       _newSensor.feature.bat=1;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.light_hap_service = nullptr;
-#endif
       break;
     case NLIGHT:
       _newSensor.events=0x00;
       _newSensor.feature.motion=1;
       _newSensor.feature.NMT=1;
       _newSensor.NMT=0;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.motion_hap_service = nullptr;
-#endif //USE_MI_HOMEKIT
       break;
     case MJYD2S:
       _newSensor.NMT=0;
@@ -516,11 +512,6 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
       _newSensor.feature.motion=1;
       _newSensor.feature.NMT=1;
       _newSensor.feature.lux=1;
-      _newSensor.feature.bat=1;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.light_hap_service = nullptr;
-      _newSensor.motion_hap_service = nullptr;
-#endif //USE_MI_HOMEKIT
       _newSensor.feature.bat=1;
       _newSensor.NMT=0;
       break;
@@ -531,17 +522,11 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
         _newSensor.feature.knob = 1;
         _newSensor.dimmer = 0;
       }
-#ifdef USE_MI_HOMEKIT
-      _newSensor.button_hap_service[0] = nullptr;
-#endif //USE_MI_HOMEKIT
       break;
     case MCCGQ02:
       _newSensor.events=0x00;
       _newSensor.feature.bat=1;
       _newSensor.feature.door=1;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.door_sensor_hap_service = nullptr;
-#endif //USE_MI_HOMEKIT
       _newSensor.door = 255;
       break;
     case SJWS01L:
@@ -549,24 +534,13 @@ uint32_t MIBLEgetSensorSlot(uint8_t (&_MAC)[6], uint16_t _type, uint8_t counter)
       _newSensor.feature.bat=1;
       _newSensor.feature.Btn=1;
       _newSensor.Btn=99;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.leak_hap_service = nullptr;
-      _newSensor.bat_hap_service = nullptr;
-      _newSensor.button_hap_service[0] = nullptr;
-#endif //USE_MI_HOMEKIT
       break;
     default:
       _newSensor.hum=NAN;
-      _newSensor.hum_history = (uint8_t*) calloc(24,1);
       _newSensor.feature.temp=1;
       _newSensor.feature.hum=1;
       _newSensor.feature.tempHum=1;
       _newSensor.feature.bat=1;
-#ifdef USE_MI_HOMEKIT
-      _newSensor.temp_hap_service = nullptr;
-      _newSensor.hum_hap_service = nullptr;
-      _newSensor.bat_hap_service = nullptr;
-#endif //USE_MI_HOMEKIT
       break;
     }
   MIBLEsensors.push_back(_newSensor);
@@ -602,25 +576,25 @@ void MI32StatusInfo() {
  * @param value - value as float, this
  * @param type  - internal type. for BLE: 0 - temperature, 1 - humidity, 2 - illuminance, for internal sensors: 100 - wattage
  */
-void MI32addHistory(uint8_t *history, float value, uint32_t type){
-  uint32_t _hour = (LocalTime()%SECS_PER_DAY)/SECS_PER_HOUR;
+void MI32addHistory(uint8_t history[24], float value, const uint32_t type){
+  const uint32_t _hour = (LocalTime()%SECS_PER_DAY)/SECS_PER_HOUR;
   // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: history hour: %u"),_hour);
   switch(type){
     case 0:  //temperature
-      history[_hour] = (((uint8_t)(value + 5.0f)/4)+1) + 0b10000000; //temp
+      history[_hour] = ((((value + 5.0f)/4) + 1) + 0b10000000); //temp
       break;
     case 1: //humidity
-      history[_hour] = (((uint8_t)(value/5 ))+1) + 0b10000000; //hum
+      history[_hour] = (((value/5.0f) + 1) + 0b10000000) ; //hum
       break;
     case 2: //light
       if(value>100.0f) value=100.0f; //clamp it for now
-      history[_hour] = (((uint8_t)(value/5.0f))+1) + 0b10000000; //lux
+      history[_hour] = (((value/5.0f) + 1) + 0b10000000); //lux
       // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: history lux: %u in hour:%u"),history[_hour], _hour);
       break;
 #ifdef USE_MI_ESP32_ENERGY
     case 100: // energy
       if(value == 0.0f) value = 1.0f;
-      uint8_t _watt = ((uint8_t)(MI32ln(value))*2) + 0b10000000; //watt
+      const uint8_t _watt = ((MI32ln(value)*2) + 0b10000000); //watt
       history[_hour] = _watt;
       // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: history energy: %u for value:%u"),history[_hour], value); //still playing with the mapping
       break;
@@ -629,16 +603,14 @@ void MI32addHistory(uint8_t *history, float value, uint32_t type){
 }
 
 /**
- * @brief Returns a value betwenn 0-21 for use as a data point in the history graph of the extended web UI
+ * @brief Returns a value between 0-21 for use as a data point in the history graph of the extended web UI
  *
  * @param history - pointer to uint8_t[23]
  * @param hour  - hour of datapoint
  * @return uint8_t  - value for the y-axis, should be between 0-21
  */
-uint8_t MI32fetchHistory(uint8_t *history, uint32_t hour){
-    if(hour>23) {
-      return 0;} //should never happen
-    if(bitRead(history[hour],7) == 0) {
+uint8_t MI32fetchHistory(uint8_t history[24], uint32_t hour){
+    if((hour>23 || bitRead(history[hour],7)) == 0) {
       return 0; //invalidated data
     }
     return (history[hour]) - 0b10000000;
@@ -709,20 +681,11 @@ void MI32Init(void) {
     }
   }
 
-  if(MI32.mode.didGetConfig && !Settings->flag5.zigbee_hide_bridge_topic){ // borrow SO125 1 to turn off HomeKit
-    MI32.mode.didStartHAP = 0;
-  #ifdef USE_MI_HOMEKIT
-    MI32getSetupCodeFromMAC(MI32.hk_setup_code);
-    AddLog(LOG_LEVEL_INFO,PSTR("M32: Init HAP core"));
-    mi_homekit_main();
-  #else
-    MI32.mode.didStartHAP = 1;
-  #endif //USE_MI_HOMEKIT
-  }
-
   if (!MI32.mode.init) {
-    NimBLEDevice::setScanFilterMode(CONFIG_BTDM_SCAN_DUPL_TYPE_DATA_DEVICE);
-    NimBLEDevice::setScanDuplicateCacheSize(40); // will not be perfect for every situation (few vs many BLE devices nearby)
+  #ifdef CONFIG_BTDM_BLE_SCAN_DUPL
+    // NimBLEDevice::setScanFilterMode(2); //CONFIG_BTDM_SCAN_DUPL_TYPE_DATA_DEVICE
+    // NimBLEDevice::setScanDuplicateCacheSize(10); // will not be perfect for every situation (few vs many BLE devices nearby)
+  #endif
     const std::string name(TasmotaGlobal.hostname);
     NimBLEDevice::init(name);
     AddLog(LOG_LEVEL_INFO,PSTR("M32: Init BLE device: %s"),TasmotaGlobal.hostname);
@@ -730,11 +693,7 @@ void MI32Init(void) {
     MI32.mode.readyForNextConnJob = 1;
     MI32StartTask(MI32_TASK_SCAN); // Let's get started !!
   }
-#ifdef USE_MI_EXT_GUI
-#ifdef USE_MI_ESP32_ENERGY
-  MI32.energy_history = (uint8_t*) calloc(24,1);
-#endif //USE_MI_ESP32_ENERGY
-#endif //USE_MI_EXT_GUI
+
   return;
 }
 
@@ -747,9 +706,12 @@ extern "C" {
     return (MI32.mode.init && Settings->flag5.mi32_enable);
   }
 
-  bool MI32runBerryServer(uint16_t operation, bool response){
+  void MI32BerryLoop(){
+    MI32BLELoop();
+  }
+
+  bool MI32runBerryServer(uint16_t operation){
     MI32.conCtx->operation = operation;
-    MI32.conCtx->response = response;
     AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: Berry server op: %d, response: %u"),MI32.conCtx->operation, MI32.conCtx->response);
     if(MI32.mode.readyForNextServerJob == 0){
       MI32.mode.triggerNextServerJob = 0;
@@ -760,14 +722,22 @@ extern "C" {
     return true;
   }
 
-  bool MI32runBerryConnection(uint8_t operation, bool response){
+  bool MI32runBerryConnection(uint8_t operation, bool response, int32_t* arg1){
     if(MI32.conCtx != nullptr){
+      if(arg1 != nullptr){
+        MI32.conCtx->arg1 = *arg1;
+        MI32.conCtx->hasArg1 = true;
+        AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: arg1: %u"),MI32.conCtx->arg1);
+      }
+      else{
+        MI32.conCtx->hasArg1 = false;
+      }
+      MI32.conCtx->response = response;
       if(operation > 200){
-        return MI32runBerryServer(operation,response);
+        return MI32runBerryServer(operation);
       }
       MI32.conCtx->oneOp = (operation > 9);
       MI32.conCtx->operation = operation%10;
-      MI32.conCtx->response = response;
       AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: Berry connection op: %d, addrType: %d, oneOp: %u, response: %u"),MI32.conCtx->operation, MI32.conCtx->addrType, MI32.conCtx->oneOp, MI32.conCtx->response);
       if(MI32.conCtx->oneOp){
         MI32StartConnectionTask();
@@ -868,10 +838,10 @@ extern "C" {
       bool _runningScan = MI32Scan->stop();
       if(NimBLEDevice::whiteListAdd(_newAddress)){
         MI32Scan->setFilterPolicy(BLE_HCI_SCAN_FILT_USE_WL);
-        if(_runningScan) MI32Scan->start(0, MI32scanEndedCB, false);
+        if(_runningScan) MI32Scan->start(0, false);
       }
       else {
-        if(_runningScan) MI32Scan->start(0, MI32scanEndedCB, false);
+        if(_runningScan) MI32Scan->start(0, false);
         return false;
       }
     }
@@ -910,6 +880,9 @@ extern "C" {
   }
 
   char * MI32getDeviceName(uint32_t slot){
+    if(MIBLEsensors[slot].name != nullptr){
+      return MIBLEsensors[slot].name;
+    }
     static char _name[12];
     if( MIBLEsensors[slot].type == UNKNOWN_MI){
       snprintf_P(_name,8,PSTR("MI_%04X"),MIBLEsensors[slot].PID);
@@ -921,128 +894,7 @@ extern "C" {
   }
 
 } //extern "C"
-/*********************************************************************************************\
- * Homekit section
-\*********************************************************************************************/
-#ifdef USE_MI_HOMEKIT
-extern "C" {
 
-  const char * MI32getSetupCode(){
-    return (const char*)MI32.hk_setup_code;
-  }
-
-  uint32_t MI32numOfRelays(){
-    if(TasmotaGlobal.devices_present>0) MI32.HKinfoMsg = MI32_HAP_OUTLET_ADDED;
-    return TasmotaGlobal.devices_present;
-  }
-
-  void MI32setRelayFromHK(uint32_t relay, bool onOff){
-      ExecuteCommandPower(relay, onOff, SRC_IGNORE);
-  }
-
-  uint32_t MI32getDeviceType(uint32_t slot){
-    return MIBLEsensors[slot].type;
-  }
-
-/**
- * @brief Get at least a bit of the status of the HAP core, i.e. to reduce the activy of the driver while doing the pairing
- *
- * @param event
- */
-  void MI32passHapEvent(uint32_t event){
-    switch(event){
-      case 5: //HAP_EVENT_PAIRING_STARTED
-        MI32suspendScanTask();
-      default:
-        MI32resumeScanTask();
-    }
-    if(event==4){
-      MI32.HKinfoMsg = MI32_HAP_CONTROLLER_DISCONNECTED;
-      MI32.HKconnectedControllers--;
-    }
-    if(event==3){
-      MI32.HKinfoMsg = MI32_HAP_CONTROLLER_CONNECTED;
-      MI32.HKconnectedControllers++;
-    }
-  }
-
-  void MI32didStartHAP(bool HAPdidStart){
-    if(HAPdidStart) {
-      MI32.mode.didStartHAP = 1;
-      MI32.HKinfoMsg = MI32_HAP_DID_START;
-      }
-    else{
-      MI32.HKinfoMsg = MI32_HAP_DID_NOT_START;
-    }
-  }
-
-/**
- * @brief Simply store the writeable HAP characteristics as void pointers in the "main" driver for updates of the values
- *
- * @param slot - sensor slot in MIBLEsensors
- * @param type - sensors type, except for the buttons this is equal to the mibeacon types
- * @param handle - a void ponter to a characteristic
- */
-  void MI32saveHAPhandles(uint32_t slot, uint32_t type, void* handle){
-    // AddLog(LOG_LEVEL_INFO,PSTR("M32: pass ptr to hap service, type:%u"), type);
-    switch(type){
-      case 1000: case 1001: case 1002: case 1003: case 1004: case 1005:
-        MIBLEsensors[slot].button_hap_service[type-1000] = handle;
-        break;
-      case 0x04:
-        MIBLEsensors[slot].temp_hap_service = handle;
-        break;
-      case 0x06:
-        MIBLEsensors[slot].hum_hap_service = handle;
-        break;
-      case 0x0a:
-        MIBLEsensors[slot].bat_hap_service = handle;
-        break;
-      case 0x07:
-        MIBLEsensors[slot].light_hap_service = handle;
-        break;
-      case 0x0f:
-        MIBLEsensors[slot].motion_hap_service = handle;
-        break;
-      case 0x14:
-        MIBLEsensors[slot].leak_hap_service = handle;
-        break;
-      case 0x19:
-        MIBLEsensors[slot].door_sensor_hap_service = handle;
-        break;
-      case 0xf0:
-        if(slot>3) break; //support only 4 for now
-        MI32.outlet_hap_service[slot] = handle;
-        break;
-    }
-  }
-}
-
-/**
- * @brief Creates a simplified setup code from the Wifi MAC for HomeKit by converting every ascii-converted byte to 1, if it not 2-9
- *        Example: AABBCC1234f2
- *              -> 111-11-234
- *        This is no security feature, only for convenience
- *  * @param setupcode
- */
-  void MI32getSetupCodeFromMAC(char *setupcode){
-    uint8_t _mac[6];
-    char _macStr[13] = { 0 };
-    WiFi.macAddress(_mac);
-    ToHex_P(_mac,6,_macStr,13);
-    AddLog(LOG_LEVEL_INFO,PSTR("M32: Wifi MAC: %s"), _macStr);
-    for(int i = 0; i<10; i++){
-      if(_macStr[i]>'9' || _macStr[i]<'1') setupcode[i]='1';
-      else setupcode[i] = _macStr[i];
-    }
-    setupcode[3] = '-';
-    setupcode[6] = '-';
-    setupcode[10] = 0;
-    AddLog(LOG_LEVEL_INFO,PSTR("M32: HK setup code: %s"), setupcode);
-    return;
-  }
-
-#endif //USE_MI_HOMEKIT
 /*********************************************************************************************\
  * Config section
 \*********************************************************************************************/
@@ -1093,18 +945,29 @@ void MI32loadCfg(){
           }
           _val = _device[PSTR("key")];
           if (_val) {
-            mi_bindKey_t _keyMAC;
-            uint8_t *_key = (uint8_t*) malloc(16);
             char *_keyStr = (char *)_val.getStr();
-            if(strlen(_keyStr)==0){
-              continue;
+            if(strlen(_keyStr)>0){
+              if(strlen(_keyStr)==32){
+                uint8_t *_key = (uint8_t*) malloc(16);
+                MI32HexStringToBytes(_keyStr,_key);
+                MIBLEsensors[_numberOfDevices].key = _key;
+              }
+              else{
+                _error = true;
+                break;
+              }
             }
-            if(strlen(_keyStr)!=32){
-              _error = true;
-              break;
-            }
-            MI32HexStringToBytes(_keyStr,_key);
-            MIBLEsensors[_numberOfDevices].key = _key;
+          }
+          _val = _device[PSTR("name")];
+          if (_val) {
+            char *_name = (char *)_val.getStr();
+            MIBLEsensors[_numberOfDevices].name = new char[strlen(_name) + 1];
+            strcpy(MIBLEsensors[_numberOfDevices].name, _name);
+            AddLog(LOG_LEVEL_INFO,PSTR("M32: found name: %s"), _name);
+          }
+          _val = _device[PSTR("feat")];
+          if (_val) {
+            MIBLEsensors[_numberOfDevices].feature.raw = _val.getUInt();
           }
       }
       if(!_error){
@@ -1128,7 +991,17 @@ void MI32saveConfig(){
     if(_sensor.key != nullptr){
       ToHex_P(_sensor.key,16,_key,33);
     }
-    uint32_t _inc = snprintf_P(_filebuf+_pos,200,PSTR("{\"MAC\":\"%s\",\"PID\":\"%04x\",\"key\":\"%s\"},"),_MAC,kMI32DeviceID[_sensor.type - 1],_key);
+    char _name_feat[64];
+    if(_sensor.name != nullptr){
+      snprintf_P(_name_feat,64,PSTR(",\"name\":\"%s\",\"feat\":%u"),_sensor.name,_sensor.feature.raw);
+    }
+    else if(_sensor.type == BTHOME && _sensor.name == nullptr){
+      snprintf_P(_name_feat,64,PSTR(",\"feat\":%u"),_sensor.feature.raw);
+    }
+    else{
+      _name_feat[0] = 0;
+    }
+    uint32_t _inc = snprintf_P(_filebuf+_pos,200,PSTR("{\"MAC\":\"%s\",\"PID\":\"%04x\",\"key\":\"%s\"%s},"),_MAC,kMI32DeviceID[_sensor.type - 1],_key,_name_feat);
     _pos += _inc;
   }
   _filebuf[_pos-1] = ']';
@@ -1159,6 +1032,7 @@ void MI32resumeScanTask(void){
 
 void MI32StartTask(uint32_t task){
   if (MI32.mode.willConnect == 1) return; // we are in the middle of connecting to something ... do not interrupt this.
+  MI32.role = 0;
   switch(task){
     case MI32_TASK_SCAN:
       if (MI32.mode.connected == 1) return;
@@ -1185,6 +1059,7 @@ void MI32StartScanTask(){
     if(MI32.ScanTask!=nullptr) vTaskDelete(MI32.ScanTask);
     MI32.mode.runningScan = 1;
     MI32.mode.deleteScanTask = 0;
+    MI32.role = 1;
     xTaskCreatePinnedToCore(
     MI32ScanTask,    /* Function to implement the task */
     "MI32ScanTask",  /* Name of the task */
@@ -1202,7 +1077,7 @@ void MI32ScanTask(void *pvParameters){
 
   MI32Scan = NimBLEDevice::getScan();
 
-  MI32Scan->setAdvertisedDeviceCallbacks(&MI32ScanCallbacks,false);
+  MI32Scan->setScanCallbacks(&MI32ScanCallbacks,true);
   if(NimBLEDevice::getWhiteListCount()>0){
     MI32Scan->setFilterPolicy(BLE_HCI_SCAN_FILT_USE_WL);
   }
@@ -1212,7 +1087,9 @@ void MI32ScanTask(void *pvParameters){
 
   MI32Scan->setActiveScan(MI32.option.activeScan == 1);
   MI32Scan->setMaxResults(0);
-  MI32Scan->start(0, MI32scanEndedCB, false); // never stop scanning, will pause automatically while connecting
+  // MI32Scan->setInterval(30);
+  // MI32Scan->setWindow(25);
+  MI32Scan->start(0, false); // never stop scanning, will pause automatically while connecting
   MI32.infoMsg = MI32.option.activeScan?MI32_START_SCANNING_ACTIVE:MI32_START_SCANNING_PASSIVE;
 
   uint32_t timer = 0;
@@ -1232,6 +1109,7 @@ void MI32ScanTask(void *pvParameters){
       MI32.infoMsg = MI32.option.activeScan?MI32_START_SCANNING_ACTIVE:MI32_START_SCANNING_PASSIVE;
     }
   }
+  MI32.mode.deleteScanTask = 0;
   vTaskDelete( NULL );
 }
 
@@ -1275,13 +1153,71 @@ bool MI32ConnectActiveSensor(){ // only use inside a task !!
   return true;
 }
 
+/**
+ * @brief Retrieves all services of the connected BLE device and stores the result into the transfer buffer of Berry's BLE module
+*         buffer format: 
+ *        first byte: number of services
+ *        next byte: format of the UUID in bits, next N bytes: the UUID as 16-bit-uint or uint8_t buffer of 16 bytes
+ *        ... next service
+ */
+void MI32ConnectionGetServices(){
+  std::vector<NimBLERemoteService*> *srvvector = MI32Client->getServices(true); // refresh
+  MI32.conCtx->buffer[1] = srvvector->size(); // number of services
+  uint32_t i = 2;
+  for (auto &srv: *srvvector) {
+    MI32.conCtx->buffer[i] = srv->getUUID().bitSize(); // 16/128 bit
+    if(MI32.conCtx->buffer[i] == 16){
+      MI32.conCtx->buffer[i+1] = srv->getUUID().getNative()->u16.value & 0xff;
+      MI32.conCtx->buffer[i+2] = srv->getUUID().getNative()->u16.value >> 8;
+    }
+    else{
+      memcpy((MI32.conCtx->buffer)+i+1,srv->getUUID().getNative()->u128.value,MI32.conCtx->buffer[i]); // the UUID
+    }
+    i += 1 + (MI32.conCtx->buffer[i]/8);
+  }
+  MI32.conCtx->buffer[0] = i;
+}
+
+/**
+ * @brief Retrieves all characteristics of the given service and stores the result into the transfer buffer of Berry's BLE module
+ *         buffer format: 
+ *         first byte: number of characteristics
+ *         next byte: format of the UUID in bits, next N bytes: the UUID as 16-bit-uint or uint8_t buffer of 16 bytes
+ *         next byte: properties in a bitfield
+ *         ... next characteristic
+ * 
+ * @param pSvc 
+ */
+void MI32ConnectionGetCharacteristics(NimBLERemoteService* pSvc);
+void MI32ConnectionGetCharacteristics(NimBLERemoteService* pSvc){
+  std::vector<NimBLERemoteCharacteristic*> *charvector = pSvc->getCharacteristics(true); // refresh
+  MI32.conCtx->buffer[1] = charvector->size(); // number of characteristics
+  uint32_t i = 2;
+  for (auto &chr: *charvector) {
+    MI32.conCtx->buffer[i] = chr->getUUID().bitSize(); // 16/128 bit
+    if(MI32.conCtx->buffer[i] == 16){
+      MI32.conCtx->buffer[i+1] = chr->getUUID().getNative()->u16.value & 0xff;
+      MI32.conCtx->buffer[i+2] = chr->getUUID().getNative()->u16.value >> 8;
+    }
+    else{
+      memcpy((MI32.conCtx->buffer)+i+1,chr->getUUID().getNative()->u128.value,MI32.conCtx->buffer[i]); // the UUID
+    }
+    i += 1 + (MI32.conCtx->buffer[i]/8);
+    MI32.conCtx->buffer[i] = chr->getProperties(); // flags as bitfield
+    MI32.conCtx->buffer[i+1] = chr->getHandle() & 0xff;
+    MI32.conCtx->buffer[i+2] = chr->getHandle() >> 8;
+    i += 3;
+  }
+  MI32.conCtx->buffer[0] = i;
+}
+
 bool MI32StartConnectionTask(){
     if(MI32.conCtx == nullptr) return false;
     if(MI32.conCtx->buffer == nullptr) return false;
-    MI32NotificationQueue = {};
     MI32.mode.willConnect = 1;
     MI32Scan->stop();
     MI32suspendScanTask();
+    MI32.role = 2;
     xTaskCreatePinnedToCore(
       MI32ConnectionTask,    /* Function to implement the task */
       "MI32ConnectionTask",  /* Name of the task */
@@ -1290,13 +1226,18 @@ bool MI32StartConnectionTask(){
       2,                /* Priority of the task */
       &MI32.ConnTask,   /* Task handle. */
       0);               /* Core where the task should run */
-      return true;
+    return true;
 }
 
 void MI32ConnectionTask(void *pvParameters){
-#if !defined(CONFIG_IDF_TARGET_ESP32C3) //needs more testing ...
+#if !defined(CONFIG_IDF_TARGET_ESP32C3) || !defined(CONFIG_IDF_TARGET_ESP32C6) //needs more testing ...
     // NimBLEDevice::setOwnAddrType(BLE_OWN_ADDR_RANDOM,false); //seems to be important for i.e. xbox controller, hopefully not breaking other things
-    // NimBLEDevice::setSecurityAuth(true, true, true);
+#ifdef CONFIG_BT_NIMBLE_NVS_PERSIST
+    NimBLEDevice::setSecurityAuth(true, true, true);
+#else
+    NimBLEDevice::setSecurityAuth(false, true, true);
+#endif
+
 #endif //CONFIG_IDF_TARGET_ESP32C3
     MI32.conCtx->error = MI32_CONN_NO_ERROR;
     if (MI32ConnectActiveSensor()){
@@ -1316,11 +1257,12 @@ void MI32ConnectionTask(void *pvParameters){
         timer++;
         vTaskDelay(10/ portTICK_PERIOD_MS);
       }
-      if(MI32.mode.discoverAttributes){
+      if(MI32.mode.discoverAttributes || MI32.conCtx->hasArg1){ // explicit or in the first run with selection by handle
         MI32Client->discoverAttributes(); // solves connection problems on i.e. yeelight dimmer
       }
       NimBLERemoteService* pSvc = nullptr;
       NimBLERemoteCharacteristic* pChr = nullptr;
+      std::vector<NimBLERemoteCharacteristic*>*charvector = nullptr;
 
       // AddLog(LOG_LEVEL_INFO,PSTR("M32: start connection loop"));
       bool keepConnectionAlive = true;
@@ -1341,23 +1283,46 @@ void MI32ConnectionTask(void *pvParameters){
           MI32Client->disconnect();
           break;
         }
-        pSvc = MI32Client->getService(MI32.conCtx->serviceUUID);
-        if(pSvc) {
-            pChr = pSvc->getCharacteristic(MI32.conCtx->charUUID);
+
+        if(MI32.conCtx->operation == 6){ // get remote services to Berry
+          MI32ConnectionGetServices();
         }
         else{
-          MI32.conCtx->error = MI32_CONN_NO_SERVICE;
+          if(MI32.conCtx->hasArg1){
+            pSvc = nullptr; // invalidate possible dangling service from last operation
+          }
+          else{
+            pSvc = MI32Client->getService(MI32.conCtx->serviceUUID);
+          }
+        }
+
+        if(pSvc) {
+          if(MI32.conCtx->operation == 7){ // get remote characteristics to Berry
+            MI32ConnectionGetCharacteristics(pSvc);
+          }
+          else{
+          pChr = pSvc->getCharacteristic(MI32.conCtx->charUUID);
+          }
+        }
+        else if(MI32.conCtx->hasArg1){
+          pChr = MI32Client->getCharacteristic(MI32.conCtx->arg1); // get by handle, overriding svc and chr values
+        }
+        else{
+          if(MI32.conCtx->operation != 6){
+            MI32.conCtx->error = MI32_CONN_NO_SERVICE;
+          }
         }
         if (pChr){
           switch(MI32.conCtx->operation){
             case 1:
               if(pChr->canRead()) {
-              NimBLEAttValue _val = pChr->readValue();
-              MI32.conCtx->buffer[0] = _val.size();
-                 memcpy( MI32.conCtx->buffer + 1,_val.data(),MI32.conCtx->buffer[0]);
+                NimBLEAttValue _val = pChr->readValue();
+                MI32.conCtx->buffer[0] = _val.size();
+                memcpy( MI32.conCtx->buffer + 1,_val.data(),MI32.conCtx->buffer[0]);
+                MI32.conCtx->handle = pChr->getHandle();
               }
               else{
-              MI32.conCtx->error = MI32_CONN_CAN_NOT_READ;
+                MI32.conCtx->error = MI32_CONN_CAN_NOT_READ;
               }
               break;
             case 2:
@@ -1365,6 +1330,7 @@ void MI32ConnectionTask(void *pvParameters){
                 uint8_t len = MI32.conCtx->buffer[0];
                 if(pChr->writeValue(MI32.conCtx->buffer + 1,len,MI32.conCtx->response & !pChr->canWriteNoResponse())) { // falls always back to "no response" if server provides both options
                   // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: write op done"));
+                  MI32.conCtx->handle = pChr->getHandle();
                 }
                 else{
                 MI32.conCtx->error = MI32_CONN_DID_NOT_WRITE;
@@ -1376,13 +1342,38 @@ void MI32ConnectionTask(void *pvParameters){
               MI32.mode.readingDone = 1;
               break;
             case 3:
-              if(pChr->canNotify()) {
-                if(pChr->subscribe(true,MI32notifyCB, MI32.conCtx->response)){
-                  // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: subscribe"));
+              if (BLERingBufferQueue == nullptr){
+                BLERingBufferQueue = xRingbufferCreate(2048, RINGBUF_TYPE_NOSPLIT);
+                if(!BLERingBufferQueue) {
+                  MI32.conCtx->error = MI32_CONN_CAN_NOT_NOTIFY;
+                  break;
                 }
               }
-              else{
-                MI32.conCtx->error = MI32_CONN_CAN_NOT_NOTIFY;
+              if(MI32.conCtx->hasArg1){ // characteristic selected by handle
+                if (pChr->canNotify()) {
+                  if(!pChr->subscribe(true, MI32notifyCB, MI32.conCtx->response)) {
+                    MI32.conCtx->error = MI32_CONN_CAN_NOT_NOTIFY; // will return the last result only ATM, maybe check differently
+                  }
+                }
+              }
+              else { //  characteristic selected by UUID
+                charvector = pSvc->getCharacteristics(true); // always try to subscribe to all characteristics with the same UUID
+                uint32_t position = 1;
+                for (auto &it: *charvector) {
+                  if (it->getUUID() == MI32.conCtx->charUUID) {
+                    if (it->canNotify()) {
+                      if(!it->subscribe(true, MI32notifyCB, MI32.conCtx->response)) {
+                        MI32.conCtx->error = MI32_CONN_CAN_NOT_NOTIFY; // will return the last result only ATM, maybe check differently
+                      }
+                      else{
+                        MI32.conCtx->buffer[position++] = it->getHandle() >> 8;
+                        MI32.conCtx->buffer[position++] = it->getHandle() & 0xff;
+                        MI32.conCtx->handle = it->getHandle();
+                      }
+                    }
+                  }
+                }
+                MI32.conCtx->buffer[0] = position - 1;
               }
               break;
           default:
@@ -1390,7 +1381,9 @@ void MI32ConnectionTask(void *pvParameters){
           }
         }
         else{
-            MI32.conCtx->error = MI32_CONN_NO_CHARACTERISTIC;
+            if(MI32.conCtx->operation < 5){ // no characteristics are fine for ops, that are not read, write or subscribe
+              MI32.conCtx->error = MI32_CONN_NO_CHARACTERISTIC;
+            }
         }
         timer = 0;
 
@@ -1425,6 +1418,10 @@ void MI32ConnectionTask(void *pvParameters){
   }
   MI32.mode.connected = 0;
   MI32.mode.triggerBerryConnCB = 1;
+  if (BLERingBufferQueue != nullptr){
+    vRingbufferDelete(BLERingBufferQueue);
+    BLERingBufferQueue = nullptr;
+  }
   MI32StartTask(MI32_TASK_SCAN);
   vTaskDelete( NULL );
 }
@@ -1433,7 +1430,14 @@ void MI32ConnectionTask(void *pvParameters){
 
 bool MI32StartServerTask(){
   AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: Server task ... start"));
-  MI32NotificationQueue = {};
+  if (BLERingBufferQueue == nullptr){
+    BLERingBufferQueue = xRingbufferCreate(2048, RINGBUF_TYPE_NOSPLIT);
+    if(!BLERingBufferQueue) {
+      AddLog(LOG_LEVEL_ERROR,PSTR("BLE: failed to create ringbuffer queue"));
+      return false;
+    }
+  }
+  MI32.role = 3;
   xTaskCreatePinnedToCore(
     MI32ServerTask,    /* Function to implement the task */
     "MI32ServerTask",  /* Name of the task */
@@ -1442,16 +1446,43 @@ bool MI32StartServerTask(){
     2,                /* Priority of the task */
     &MI32.ServerTask,   /* Task handle. */
     0);               /* Core where the task should run */
-    return true;
+  return true;
 }
 
 void MI32ServerSetAdv(NimBLEServer *pServer, std::vector<NimBLEService*>& servicesToStart, bool &shallStartServices);
+/**
+ * @brief Sets the advertisement message from the data of the context, could be regular advertisement or scan response
+ * 
+ * @param pServer - our server instance
+ * @param servicesToStart - for the first run, this vector holds all our services, would not be used for later modifications of the advertisement message
+ * @param shallStartServices - true only for the first call, which will finish the construction of the server by starting all services
+ */
 void MI32ServerSetAdv(NimBLEServer *pServer, std::vector<NimBLEService*>& servicesToStart, bool &shallStartServices){
+#ifdef CONFIG_BT_NIMBLE_EXT_ADV
+  NimBLEExtAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
+#else
   NimBLEAdvertising *pAdvertising = NimBLEDevice::getAdvertising();
-  BLEqueueBuffer_t q;
-  q.length = 0;
+#endif
+  /**  optional argument arg1
+    BLE_GAP_CONN_MODE_NON (0) - not connectable advertising
+    BLE_GAP_CONN_MODE_DIR (1) - directed connectable advertising
+    BLE_GAP_CONN_MODE_UND (2) - undirected connectable advertising
+   */
+  if(MI32.conCtx->hasArg1){
+#ifdef CONFIG_BT_NIMBLE_EXT_ADV
+    //TODO
+#else
+    pAdvertising->setAdvertisementType(MI32.conCtx->arg1);
+    // AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: AdvertisementType: %u"),MI32.conCtx->arg1);
+#endif
+    // AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: AdvertisementType: %u"),MI32.conCtx->arg1);
+  }
+  struct{
+    BLERingBufferItem_t header;
+    uint8_t buffer[255];
+  } item;
+  item.header.length = 0;
   if(shallStartServices && MI32.conCtx->operation == BLE_OP_SET_ADV){
-    q.buffer = new uint8_t[256];
     for (auto & pService : servicesToStart) {
         pService->start();
     }
@@ -1463,35 +1494,61 @@ void MI32ServerSetAdv(NimBLEServer *pServer, std::vector<NimBLEService*>& servic
         std::vector<NimBLECharacteristic *> characteristics = pService->getCharacteristics();
         for (auto & pCharacteristic : characteristics) {
           uint16_t handle = pCharacteristic->getHandle(); // now we have handles, so pass them to Berry
-          q.buffer[idx] = (uint8_t)handle>>8;
-          q.buffer[idx+1] = (uint8_t)handle&0xff;
+          item.buffer[idx] = (uint8_t)handle>>8;
+          item.buffer[idx+1] = (uint8_t)handle&0xff;
           if (idx > 254) break; // limit to 127 characteristics
           idx += 2;
         }
       }
-      q.length = idx;
+      item.header.length = idx;
     }
     servicesToStart.clear(); // release vector
   }
+#ifdef CONFIG_BT_NIMBLE_EXT_ADV
+  NimBLEExtAdvertisement adv;
+  adv.setLegacyAdvertising(true); // use legacy for the start
+  adv.setData((const uint8_t*)&MI32.conCtx->buffer[1], MI32.conCtx->buffer[0]);
+  pAdvertising->setInstanceData(0,adv); // instance id 0
+  if(MI32.conCtx->operation == BLE_OP_SET_ADV){
+    if(pAdvertising->isAdvertising() == false && !shallStartServices){ // first advertisement
+      vTaskDelay(1000/ portTICK_PERIOD_MS);   // work around to prevent crash on start
+      pAdvertising->start(0);
+    }
+  } else
+  {
+    pAdvertising->setScanResponseData(0, adv); // instance id 0
+  }
+#else
   NimBLEAdvertisementData adv;
   adv.addData((char *)&MI32.conCtx->buffer[1], MI32.conCtx->buffer[0]);
   if(MI32.conCtx->operation == BLE_OP_SET_ADV){
     pAdvertising->setAdvertisementData(adv); // replace whole advertisement with our custom data from the Berry side
-    pAdvertising->start();
+    if(pAdvertising->isAdvertising() == false && !shallStartServices){ // first advertisement
+      vTaskDelay(1000/ portTICK_PERIOD_MS);   // work around to prevent crash on start
+      pAdvertising->start();
+    }
   } else
   {
     pAdvertising->setScanResponseData(adv);
     pAdvertising->setScanResponse(true);
   }
+#endif //CONFIG_BT_NIMBLE_EXT_ADV
 
   MI32.infoMsg = MI32_SERV_SCANRESPONSE_ADDED + (MI32.conCtx->operation - BLE_OP_SET_SCAN_RESP); // .. ADV or SCAN RESPONSE
-  q.type = MI32.conCtx->operation;
-  q.returnCharUUID = 0; // does not matter
-  q.handle = 0; //dito
-  BLEmessageQueue.push(q);
+  item.header.type = MI32.conCtx->operation;
+  item.header.returnCharUUID = 0;
+  item.header.handle = 0;
+  xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t) + item.header.length, pdMS_TO_TICKS(20));
 }
 
 void MI32ServerSetCharacteristic(NimBLEServer *pServer, std::vector<NimBLEService*>& servicesToStart, bool &shallStartServices);
+/**
+ * @brief Create a characteristic or modify its value with data of the context
+ * 
+ * @param pServer - our server instance
+ * @param servicesToStart - before the finish of the server construction, a characteristic and maybe the holding service will be created and added to this vector
+ * @param shallStartServices - true, if the server construction is not finished by first setting of advertisement data
+ */
 void MI32ServerSetCharacteristic(NimBLEServer *pServer, std::vector<NimBLEService*>& servicesToStart, bool &shallStartServices){
   MI32.conCtx->error = MI32_CONN_NO_ERROR;
   NimBLEService *pService = pServer->getServiceByUUID(MI32.conCtx->serviceUUID); // retrieve ...
@@ -1509,11 +1566,16 @@ void MI32ServerSetCharacteristic(NimBLEServer *pServer, std::vector<NimBLEServic
   NimBLECharacteristic *pCharacteristic = pService->getCharacteristic(MI32.conCtx->charUUID); // again retrieve ...
   if(pCharacteristic == nullptr){
     uint32_t _writeRSP = MI32.conCtx->response ?  NIMBLE_PROPERTY::WRITE :  NIMBLE_PROPERTY::WRITE_NR;
+    uint32_t _property = NIMBLE_PROPERTY::READ |
+                         _writeRSP |
+                         NIMBLE_PROPERTY::NOTIFY |
+                         NIMBLE_PROPERTY::INDICATE; // default to "all"
+    if(MI32.conCtx->hasArg1){
+      _property = MI32.conCtx->arg1;    // override with optional argument
+      // AddLog(LOG_LEVEL_DEBUG,PSTR("BLE: _property: %u"),_property);
+    }
     pCharacteristic = pService->createCharacteristic(MI32.conCtx->charUUID,
-                                                    NIMBLE_PROPERTY::READ |
-                                                    _writeRSP |
-                                                    NIMBLE_PROPERTY::NOTIFY |
-                                                    NIMBLE_PROPERTY::INDICATE);  //... or create characteristic.
+                                                    _property);  //... or create characteristic.
     if(pCharacteristic == nullptr){
       MI32.conCtx->error = MI32_CONN_NO_CHARACTERISTIC;
       return;
@@ -1522,13 +1584,15 @@ void MI32ServerSetCharacteristic(NimBLEServer *pServer, std::vector<NimBLEServic
     MI32.infoMsg = MI32_SERV_CHARACTERISTIC_ADDED;
   }
   pCharacteristic->setValue(MI32.conCtx->buffer + 1, MI32.conCtx->buffer[0]); // set value
-  pCharacteristic->notify(true); // always notify .. for now
-  BLEqueueBuffer_t q;
-  q.length = 0;
-  q.type = BLE_OP_SET_CHARACTERISTIC;
-  q.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
-  q.handle = pCharacteristic->getHandle(); // this returns "-1", no valid handle yet :(                   
-  BLEmessageQueue.push(q);
+  pCharacteristic->notify(true); // TODO: fallback to indication
+  struct{
+    BLERingBufferItem_t header;
+  } item;
+  item.header.length = 0;
+  item.header.type = BLE_OP_SET_CHARACTERISTIC;
+  item.header.returnCharUUID = pCharacteristic->getUUID().getNative()->u16.value;
+  item.header.handle = pCharacteristic->getHandle();
+  xRingbufferSend(BLERingBufferQueue, (const void*)&item, sizeof(BLERingBufferItem_t), pdMS_TO_TICKS(1));
 }
 
 void MI32ServerTask(void *pvParameters){
@@ -1544,9 +1608,11 @@ void MI32ServerTask(void *pvParameters){
     while(MI32.mode.triggerNextServerJob == 0){
       if(MI32.mode.deleteServerTask == 1){
         delete MI32.conCtx;
-        MI32.conCtx = nullptr;
         pServer->stopAdvertising();
         MI32StartTask(MI32_TASK_SCAN);
+        vRingbufferDelete(BLERingBufferQueue);
+        BLERingBufferQueue = nullptr;
+        MI32.conCtx = nullptr;
         vTaskDelete( NULL );
       }
       vTaskDelay(50/ portTICK_PERIOD_MS);
@@ -1630,11 +1696,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].longpress = _payload.Btn.value;
         MI32.mode.shallTriggerTele = 1;
         MIBLEsensors[_slot].eventType.longpress = 1;
-#ifdef USE_MI_HOMEKIT
-      if((void**)MIBLEsensors[_slot].button_hap_service[0] != nullptr){
-        mi_homekit_update_value(MIBLEsensors[_slot].button_hap_service[0], (float)2.0f, 0x01); // only one button, long press = 2
-        }
-#endif //USE_MI_HOMEKIT
         break;
       }
       // single, double, long
@@ -1647,13 +1708,6 @@ if(decryptRet!=0){
       }
       MIBLEsensors[_slot].eventType.Btn = 1;
       MI32.mode.shallTriggerTele = 1;
-#ifdef USE_MI_HOMEKIT
-      if(MIBLEsensors[_slot].Btn>5) break; // hard coded limit for now
-      if((void**)MIBLEsensors[_slot].button_hap_service[MIBLEsensors[_slot].Btn] != nullptr){
-        // AddLog(LOG_LEVEL_DEBUG,PSTR("Send Button %u:  SingleLong:%u, pointer: %x"), MIBLEsensors[_slot].Btn,_singleLong,MIBLEsensors[_slot].button_hap_service[MIBLEsensors[_slot].Btn] );
-        mi_homekit_update_value(MIBLEsensors[_slot].button_hap_service[MIBLEsensors[_slot].Btn], (float)MIBLEsensors[_slot].BtnType, 0x01);
-        }
-#endif //USE_MI_HOMEKIT
       // AddLog(LOG_LEVEL_DEBUG,PSTR("Mode 1: U16:  %u Button"), MIBLEsensors[_slot].Btn );
     break;
     case 0x04:
@@ -1664,9 +1718,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].eventType.temp = 1;
         DEBUG_SENSOR_LOG(PSTR("Mode 4: temp updated"));
       }
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].temp_hap_service, _tempFloat, 0x04);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
       MI32addHistory(MIBLEsensors[_slot].temp_history, _tempFloat, 0);
 #endif //USE_MI_EXT_GUI
@@ -1680,9 +1731,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].eventType.hum = 1;
         DEBUG_SENSOR_LOG(PSTR("Mode 6: hum updated"));
       }
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].hum_hap_service, _tempFloat,0x06);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
       MI32addHistory(MIBLEsensors[_slot].hum_history, _tempFloat, 1);
 #endif //USE_MI_EXT_GUI
@@ -1695,9 +1743,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].eventType.noMotion  = 1;
       }
       MIBLEsensors[_slot].eventType.lux  = 1;
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].light_hap_service, (float)MIBLEsensors[_slot].lux,0x07);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
       MI32addHistory(MIBLEsensors[_slot].lux_history, (float)MIBLEsensors[_slot].lux, 2);
 #endif //USE_MI_EXT_GUI
@@ -1728,9 +1773,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].bat = _payload.bat;
         MIBLEsensors[_slot].eventType.bat  = 1;
         DEBUG_SENSOR_LOG(PSTR("Mode a: bat updated"));
-#ifdef USE_MI_HOMEKIT
-          mi_homekit_update_value(MIBLEsensors[_slot].bat_hap_service, (float)_payload.bat,0xa);
-#endif //USE_MI_HOMEKIT
       }
       // AddLog(LOG_LEVEL_DEBUG,PSTR("Mode a: U8: %u %%"), _payload.bat);
     break;
@@ -1759,10 +1801,6 @@ if(decryptRet!=0){
       MIBLEsensors[_slot].eventType.lux = 1;
       MIBLEsensors[_slot].NMT = 0;
       MI32.mode.shallTriggerTele = 1;
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].motion_hap_service, (float)1,0x0f);
-        mi_homekit_update_value(MIBLEsensors[_slot].light_hap_service, (float)_payload.lux,0x07);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
       MI32addHistory(MIBLEsensors[_slot].lux_history, (float)MIBLEsensors[_slot].lux, 2);
 #endif //USE_MI_EXT_GUI
@@ -1773,9 +1811,6 @@ if(decryptRet!=0){
       MIBLEsensors[_slot].leak = _payload.leak;
       MIBLEsensors[_slot].eventType.leak = 1;
       if(_payload.leak>0) MI32.mode.shallTriggerTele = 1;
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].leak_hap_service, (float)_payload.leak,0x14);
-#endif //USE_MI_HOMEKIT
       break;
     case 0x17:
       MIBLEsensors[_slot].feature.NMT = 1;
@@ -1790,9 +1825,6 @@ if(decryptRet!=0){
       MIBLEsensors[_slot].eventType.door = 1;
       MIBLEsensors[_slot].events++;
       MI32.mode.shallTriggerTele = 1;
-#ifdef USE_MI_HOMEKIT
-        mi_homekit_update_value(MIBLEsensors[_slot].door_sensor_hap_service, (float)_payload.door,0x19);
-#endif //USE_MI_HOMEKIT
       // AddLog(LOG_LEVEL_DEBUG,PSTR("Mode 19: %u"), _payload.door);
     break;
 
@@ -1802,9 +1834,6 @@ if(decryptRet!=0){
         MIBLEsensors[_slot].events++;
         MIBLEsensors[_slot].NMT = 0;
         MI32.mode.shallTriggerTele = 1;
-#ifdef USE_MI_HOMEKIT
-          mi_homekit_update_value(MIBLEsensors[_slot].motion_hap_service, (float)1,0x0f);
-#endif //USE_MI_HOMEKIT
       }
       else{
         //unknown payload
@@ -1814,6 +1843,77 @@ if(decryptRet!=0){
   }
   if(MIBLEsensors[_slot].eventType.raw == 0) return;
   MIBLEsensors[_slot].shallSendMQTT = 1;
+  if(MI32.option.directBridgeMode) MI32.mode.shallTriggerTele = 1;
+}
+
+void MI32parseBTHomePacket(char * _buf, uint32_t length, uint8_t addr[6], int RSSI, const char* optionalName){
+  const uint32_t _slot = MIBLEgetSensorSlot(addr, 0xb770, 0); // fake ID, constant fake counter
+  if(_slot==0xff) return;
+
+  if (optionalName[0] != '\0'){
+      AddLog(LOG_LEVEL_DEBUG,PSTR("%s at slot %u"), optionalName,_slot);
+  }
+  const auto _sensor =  &MIBLEsensors[_slot];
+  _sensor->RSSI = RSSI;
+  _sensor->lastTime = millis();
+
+  BTHome_info_t info;
+  info.byte_value = _buf[0];
+  _sensor->feature.needsKey = info.encrypted;
+
+  uint32_t idx = 1;
+  while(idx < length - 1){
+    switch(_buf[idx]){
+      case 0x00:
+        if(_buf[idx+1] == _sensor->lastCnt){
+          return; // known packet
+        }
+        _sensor->lastCnt = _buf[idx+1];
+        idx += 2;
+        break;
+      case 0x01:
+        _sensor->bat = _buf[idx+1];
+        _sensor->eventType.bat = 1;
+        _sensor->feature.bat = 1;
+        idx += 2;
+      break;
+      case 0x02:
+        _sensor->temp = (int16_t)(_buf[idx+1]|_buf[idx+2] << 8)/100.0f;
+        _sensor->eventType.temp = 1;
+        _sensor->feature.temp = 1;
+        MI32addHistory(_sensor->temp_history, _sensor->temp, 0);
+        idx += 3;
+        break;
+      case 0x03:
+       _sensor->hum = (uint16_t)(_buf[idx+1]|_buf[idx+2] << 8)/100.0f;
+       _sensor->eventType.hum = 1;
+       _sensor->feature.hum = 1;
+       MI32addHistory(_sensor->hum_history, _sensor->hum, 1);
+       idx += 3;
+       break;
+      case 0x0b:
+        // power ??
+        idx += 4;
+        break;
+      case 0x0c:
+        //voltage
+        idx += 3;
+        break;
+      case 0x10:
+        // binary power on/off??
+        idx += 2;
+        break;
+      default:
+        AddLog(LOG_LEVEL_INFO,PSTR("M32: unknown BTHome data type: %u, discard rest of data buffer!"),_buf[idx]);
+        AddLogBuffer(LOG_LEVEL_DEBUG,(uint8_t*)_buf,length);
+        idx = length; // "break"
+        break;
+    }
+  }
+#ifdef USE_MI_EXT_GUI
+  bitSet(MI32.widgetSlot,_slot);
+#endif //USE_MI_EXT_GUI
+ _sensor->shallSendMQTT = 1;
   if(MI32.option.directBridgeMode) MI32.mode.shallTriggerTele = 1;
 }
 
@@ -1844,11 +1944,6 @@ void MI32ParseATCPacket(char * _buf, uint32_t length, uint8_t addr[6], int RSSI)
 
   MIBLEsensors[_slot].eventType.tempHum  = 1;
   MIBLEsensors[_slot].eventType.bat  = 1;
-#ifdef USE_MI_HOMEKIT
-    mi_homekit_update_value(MIBLEsensors[_slot].temp_hap_service, MIBLEsensors.at(_slot).temp,0x04);
-    mi_homekit_update_value(MIBLEsensors[_slot].hum_hap_service, MIBLEsensors.at(_slot).hum,0x06);
-    mi_homekit_update_value(MIBLEsensors[_slot].bat_hap_service, (float)MIBLEsensors.at(_slot).bat,0x0a);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
   bitSet(MI32.widgetSlot,_slot);
   MI32addHistory(MIBLEsensors[_slot].temp_history, (float)MIBLEsensors[_slot].temp, 0);
@@ -1856,7 +1951,6 @@ void MI32ParseATCPacket(char * _buf, uint32_t length, uint8_t addr[6], int RSSI)
 #endif //USE_MI_EXT_GUI
   MIBLEsensors[_slot].shallSendMQTT = 1;
   if(MI32.option.directBridgeMode) MI32.mode.shallTriggerTele = 1;
-
 }
 
 void MI32parseCGD1Packet(char * _buf, uint32_t length, uint8_t addr[6], int RSSI){ // no MiBeacon
@@ -1877,9 +1971,6 @@ void MI32parseCGD1Packet(char * _buf, uint32_t length, uint8_t addr[6], int RSSI
           MIBLEsensors[_slot].temp = _tempFloat;
           MIBLEsensors[_slot].eventType.temp  = 1;
           DEBUG_SENSOR_LOG(PSTR("CGD1: temp updated"));
-#ifdef USE_MI_HOMEKIT
-            mi_homekit_update_value(MIBLEsensors[_slot].temp_hap_service, _tempFloat,0x04);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
           MI32addHistory(MIBLEsensors[_slot].temp_history, (float)MIBLEsensors[_slot].temp, 0);
 #endif //USE_MI_EXT_GUI
@@ -1889,9 +1980,6 @@ void MI32parseCGD1Packet(char * _buf, uint32_t length, uint8_t addr[6], int RSSI
           MIBLEsensors[_slot].hum = _tempFloat;
           MIBLEsensors[_slot].eventType.hum  = 1;
           DEBUG_SENSOR_LOG(PSTR("CGD1: hum updated"));
-#ifdef USE_MI_HOMEKIT
-            mi_homekit_update_value(MIBLEsensors[_slot].hum_hap_service, _tempFloat,0x06);
-#endif //USE_MI_HOMEKIT
 #ifdef USE_MI_EXT_GUI
           MI32addHistory(MIBLEsensors[_slot].hum_history, (float)MIBLEsensors[_slot].hum, 1);
 #endif //USE_MI_EXT_GUI
@@ -1932,15 +2020,10 @@ void MI32ParseResponse(char *buf, uint16_t bufsize, uint8_t addr[6], int RSSI) {
 }
 
 /**
- * @brief Launch functions from Core 1 to make race conditions less likely
- *
- */
-
-void MI32Every50mSecond(){
-  if(MI32.mode.shallTriggerTele){
-      MI32.mode.shallTriggerTele = 0;
-      MI32triggerTele();
-  }
+ * Called automatically every 50 milliseconds or can be triggered from Berry with BLE.loop() - useful from fast_loop
+*/
+void MI32BLELoop()
+{
   if(MI32.mode.triggerBerryAdvCB == 1){
     if(MI32.beAdvCB != nullptr){
         // AddLogBuffer(LOG_LEVEL_DEBUG,MI32.beAdvBuf,40);
@@ -1962,60 +2045,79 @@ void MI32Every50mSecond(){
     }
     MI32.mode.triggerBerryAdvCB = 0;
   }
-  if(MI32.mode.triggerBerryConnCB || !MI32NotificationQueue.empty()){
-    if(!MI32NotificationQueue.empty()){
-      MI32notificationBuffer_t _buf = MI32NotificationQueue.front();
-      MI32NotificationQueue.pop();
-      memcpy(MI32.conCtx->buffer,_buf.buffer,_buf.buffer[0]+1);
-      MI32.conCtx->returnCharUUID = _buf.returnCharUUID;
+
+  // client callback
+  // handle notification queue only if there is no message from read/write or subscribe, which is prioritized
+  if(MI32.mode.connected == 1 && BLERingBufferQueue != nullptr && MI32.mode.triggerBerryConnCB == 0) {
+    size_t size;
+    BLERingBufferItem_t *q = (BLERingBufferItem_t *)xRingbufferReceive(BLERingBufferQueue, &size, pdMS_TO_TICKS(1));
+    
+    if(q != nullptr){
+      if(q->length != 0){
+        memcpy(MI32.conCtx->buffer,&q->length,q->length + 1);
+      }
+      MI32.conCtx->returnCharUUID = q->returnCharUUID;
+      MI32.conCtx->handle = q->handle;
       MI32.conCtx->operation = 103;
       MI32.conCtx->error = 0;
+      vRingbufferReturnItem(BLERingBufferQueue, (void *)q);
+      MI32.mode.triggerBerryConnCB = 1;
     }
-    if(MI32.beConnCB != nullptr){
-    void (*func_ptr)(int, int, int) = (void (*)(int, int, int))MI32.beConnCB;
-    char _message[32];
-    GetTextIndexed(_message, sizeof(_message), MI32.conCtx->error, kMI32_ConnErrorMsg);
-    AddLog(LOG_LEVEL_DEBUG,PSTR("M32: BryCbMsg: %s"),_message);
-    func_ptr(MI32.conCtx->error, MI32.conCtx->operation , MI32.conCtx->returnCharUUID);
-    }
-    MI32.mode.triggerBerryConnCB = 0;
   }
-
-  if(!BLEmessageQueue.empty()){
-    BLEqueueBuffer_t q = BLEmessageQueue.front();
-    BLEmessageQueue.pop();
-    MI32.conCtx->returnCharUUID = q.returnCharUUID;
-    MI32.conCtx->handle = q.handle;
-    MI32.conCtx->operation = q.type;
-    MI32.conCtx->error = 0;
-    if(q.length != 0){
-      MI32.conCtx->buffer[0] = q.length;
-      memcpy(MI32.conCtx->buffer + 1,q.buffer,q.length);
-      delete q.buffer;
-    }
-    if(MI32.beServerCB != nullptr){
-      void (*func_ptr)(int, int, int, int) = (void (*)(int, int, int, int))MI32.beServerCB;
+  if(MI32.mode.triggerBerryConnCB == 1){
+    if(MI32.beConnCB != nullptr){
+      void (*func_ptr)(int, int, int, int) = (void (*)(int, int, int, int))MI32.beConnCB;
       char _message[32];
       GetTextIndexed(_message, sizeof(_message), MI32.conCtx->error, kMI32_ConnErrorMsg);
       AddLog(LOG_LEVEL_DEBUG,PSTR("M32: BryCbMsg: %s"),_message);
       func_ptr(MI32.conCtx->error, MI32.conCtx->operation , MI32.conCtx->returnCharUUID, MI32.conCtx->handle);
     }
+    MI32.mode.triggerBerryConnCB = 0;
   }
 
+  // server callback
+  if(MI32.mode.connected == 0 && BLERingBufferQueue != nullptr){
+    size_t size;
+    BLERingBufferItem_t *q = (BLERingBufferItem_t *)xRingbufferReceive(BLERingBufferQueue, &size, pdMS_TO_TICKS(1));
+    
+    if(q != nullptr){
+      if(q->length != 0){
+        memcpy(MI32.conCtx->buffer,&q->length,q->length + 1);
+      }
+      MI32.conCtx->buffer[0] = q->length;
+      MI32.conCtx->returnCharUUID = q->returnCharUUID;
+      MI32.conCtx->handle = q->handle;
+      MI32.conCtx->operation = q->type;
+      MI32.conCtx->error = 0;
+      vRingbufferReturnItem(BLERingBufferQueue, (void *)q);
+      if(MI32.beServerCB != nullptr){
+        void (*func_ptr)(int, int, int, int) = (void (*)(int, int, int, int))MI32.beServerCB;
+        char _message[32];
+        GetTextIndexed(_message, sizeof(_message), MI32.conCtx->error, kMI32_ConnErrorMsg);
+        AddLog(LOG_LEVEL_DEBUG,PSTR("M32: BryCbMsg: %s"),_message);
+        func_ptr(MI32.conCtx->error, MI32.conCtx->operation , MI32.conCtx->returnCharUUID, MI32.conCtx->handle);
+      }
+    }
+  }
   if(MI32.infoMsg > 0){
     char _message[32];
     GetTextIndexed(_message, sizeof(_message), MI32.infoMsg-1, kMI32_BLEInfoMsg);
     AddLog(LOG_LEVEL_DEBUG,PSTR("M32: %s"),_message);
     MI32.infoMsg = 0;
   }
-#ifdef USE_MI_HOMEKIT
-  if(MI32.HKinfoMsg > 0){
-    char _message[32];
-    GetTextIndexed(_message, sizeof(_message), MI32.HKinfoMsg-1, kMI32_HKInfoMsg);
-    AddLog(LOG_LEVEL_DEBUG,PSTR("M32: %s"),_message);
-    MI32.HKinfoMsg = 0;
+}
+
+/**
+ * @brief Launch functions from Core 1 to make race conditions less likely
+ *
+ */
+
+void MI32Every50mSecond(){
+  if(MI32.mode.shallTriggerTele){
+      MI32.mode.shallTriggerTele = 0;
+      MI32triggerTele();
   }
-#endif //USE_MI_HOMEKIT
+  MI32BLELoop();
 }
 
 /**
@@ -2025,26 +2127,16 @@ void MI32Every50mSecond(){
 
 void MI32EverySecond(bool restart){
 
-#ifdef USE_MI_HOMEKIT
-  if(TasmotaGlobal.devices_present>0){
-    for(uint32_t i=0;i<TasmotaGlobal.devices_present;i++){
-      power_t mask = 1 << i;
-      // AddLog(LOG_LEVEL_DEBUG,PSTR("M32: Power masl: %u"), (TasmotaGlobal.power & mask));
-      mi_homekit_update_value(MI32.outlet_hap_service[i],(TasmotaGlobal.power & mask)!=0,0xf0);
-    }
-  }
-#endif //USE_MI_HOMEKIT
-
-
   for (uint32_t i = 0; i < MIBLEsensors.size(); i++) {
     if(MIBLEsensors[i].type==NLIGHT || MIBLEsensors[i].type==MJYD2S){
       MIBLEsensors[i].NMT++;
-#ifdef USE_MI_HOMEKIT
-      if(MIBLEsensors[i].NMT > 20){ //TODO: Make a choosable timeout later
-        mi_homekit_update_value(MIBLEsensors[i].motion_hap_service,0.0f,0x0f);
-      }
-#endif //USE_MI_HOMEKIT
     }
+  }
+
+  // should not be needed with a stable BLE stack
+  if(MI32.role == 1 && MI32.mode.runningScan == 0){
+    AddLog(LOG_LEVEL_INFO,PSTR("BLE: probably controller error ... restart scan"));
+    MI32StartTask(MI32_TASK_SCAN);
   }
 }
 
@@ -2065,6 +2157,24 @@ void CmndMi32Key(void) {
     MI32AddKey(keyMAC);
     ResponseCmndDone();
   }
+}
+
+void CmndMi32Name(void) {
+  if(XdrvMailbox.index > MIBLEsensors.size() - 1){
+    ResponseCmndDone();
+    return;
+  }
+  if(MIBLEsensors[XdrvMailbox.index].name != nullptr){
+    delete []MIBLEsensors[XdrvMailbox.index].name;
+  }
+  if(XdrvMailbox.data_len==0){
+    MIBLEsensors[XdrvMailbox.index].name = nullptr;
+  }
+  else{
+    MIBLEsensors[XdrvMailbox.index].name = new char[XdrvMailbox.data_len + 1];
+    strcpy(MIBLEsensors[XdrvMailbox.index].name,XdrvMailbox.data);
+  }
+  ResponseCmndChar((const char*)MI32getDeviceName(XdrvMailbox.index));
 }
 
 void CmndMi32Cfg(void) {
@@ -2111,7 +2221,7 @@ void CmndMi32Option(void){
       if(XdrvMailbox.data_len>0){
         if(MI32.option.activeScan != onOff){
           MI32.option.activeScan = onOff;
-          if(MI32.mode.runningScan){
+          if(MI32.mode.runningScan == 1){
             MI32.mode.updateScan = 1;
           }
           else{
@@ -2123,6 +2233,12 @@ void CmndMi32Option(void){
         onOff = MI32.option.activeScan;
       }
       break;
+#ifdef CONFIG_BT_NIMBLE_NVS_PERSIST
+    case 99: // TODO: should be moved to some reset command, i.e. "reset 6"
+       NimBLEDevice::deleteAllBonds();
+       AddLog(LOG_LEVEL_DEBUG,PSTR("NVS: deleteAllBonds"));
+      break;
+#endif //CONFIG_BT_NIMBLE_NVS_PERSIST
   }
   ResponseCmndIdxNumber(onOff?1:0);
 }
@@ -2135,14 +2251,14 @@ bool MI32HandleWebGUIResponse(void){
   char tmp[16];
   WebGetArg(PSTR("wi"), tmp, sizeof(tmp));
   if (strlen(tmp)) {
-    WSContentBegin(200, CT_PLAIN);
-    if(MI32.widgetSlot==0) {WSContentEnd();return true;}
-    for(uint32_t i=0;i<32;i++){
-      if(bitRead(MI32.widgetSlot,i)){
-        MI32sendWidget(i);
-        WSContentEnd();
-        bitClear(MI32.widgetSlot,i);
-        return true;
+    WSContentBegin(200, CT_PLAIN);                         
+    if(MI32.widgetSlot!=0){
+      for(uint32_t i=0;i<32;i++){
+        if(bitRead(MI32.widgetSlot,i)){
+          MI32sendWidget(i);
+          bitClear(MI32.widgetSlot,i);
+          break;
+        }
       }
     }
     WSContentEnd();
@@ -2194,7 +2310,11 @@ void MI32sendEnergyWidget(){
 #ifdef USE_WEBCAM
 void MI32sendCamWidget(){
     if (Wc.CamServer && Wc.up) {
-      WSContentSend_P(PSTR("<img class='box' id='cam' src='http://%_I:81/stream'>"),
+      WSContentSend_P(PSTR("<div class='box"));
+      if(Settings->webcam_config.resolution>7){
+        WSContentSend_P(PSTR(" big"));
+      }
+      WSContentSend_P(PSTR("' id='cam' style='background-image:url(http://%_I:81/stream);background-repeat:no-repeat;background-size:cover;'></div>"),
         (uint32_t)WiFi.localIP());
     }
 }
@@ -2225,6 +2345,9 @@ void MI32sendWidget(uint32_t slot){
       snprintf_P(_key,32,PSTR("!! not paired !!"));
       _opacity=0;
     }
+  }
+  if(_sensor.feature.raw == 0){ //no known data types to show
+    _opacity=0;
   }
 
   char _bat[24];
@@ -2311,25 +2434,24 @@ void MI32sendWidget(uint32_t slot){
 }
 
 void MI32InitGUI(void){
-  MI32suspendScanTask();
   MI32.widgetSlot=0;
   WSContentStart_P("m32");
   WSContentSend_P(HTTP_MI32_SCRIPT_1);
-  // WSContentSend_P(HTTP_MI32_SCRIPT_1);
   WSContentSendStyle();
   WSContentSend_P(HTTP_MI32_STYLE);
   WSContentSend_P(HTTP_MI32_STYLE_SVG,1,185,124,124,185,124,124);
   WSContentSend_P(HTTP_MI32_STYLE_SVG,2,151,190,216,151,190,216);
   WSContentSend_P(HTTP_MI32_STYLE_SVG,3,242,240,176,242,240,176);
-#ifdef USE_MI_HOMEKIT
-  WSContentSend_P((HTTP_MI32_PARENT_START),MIBLEsensors.size(),UpTime(),MI32.hk_setup_code,MI32.HKconnectedControllers,ESP.getFreeHeap()/1024);
-#else
-  const char _setupCode[1] = {0};
-  WSContentSend_P((HTTP_MI32_PARENT_START),MIBLEsensors.size(),UpTime(),_setupCode,ESP.getFreeHeap()/1024);
-#endif //USE_MI_HOMEKIT
-  for(uint32_t _slot = 0;_slot<MIBLEsensors.size();_slot++){
+
+  char _role[16];
+  GetTextIndexed(_role, sizeof(_role), MI32.role, HTTP_MI32_PARENT_BLE_ROLE);
+  WSContentSend_P((HTTP_MI32_PARENT_START),MIBLEsensors.size(),UpTime(),ESP.getFreeHeap()/1024,_role);
+
+  uint32_t _slot;
+  for(_slot = 0;_slot<MIBLEsensors.size();_slot++){
     MI32sendWidget(_slot);
   }
+
 #ifdef USE_MI_ESP32_ENERGY
   MI32sendEnergyWidget();
 #endif //USE_MI_ESP32_ENERGY
@@ -2339,7 +2461,6 @@ void MI32InitGUI(void){
   WSContentSend_P(PSTR("</div>"));
   WSContentSpaceButton(BUTTON_MAIN);
   WSContentStop();
-  MI32resumeScanTask();
 }
 
 void MI32HandleWebGUI(void){
@@ -2352,7 +2473,7 @@ void MI32HandleWebGUI(void){
 const char HTTP_MI32[] PROGMEM = "{s}Mi ESP32 {m} %u devices{e}";
 
 #ifndef USE_MI_EXT_GUI
-const char HTTP_BATTERY[] PROGMEM = "{s}%s" " Battery" "{m}%u %%{e}";
+const char HTTP_BATTERY[] PROGMEM = "{s}%s " D_BATTERY "{m}%u %%{e}";
 const char HTTP_LASTBUTTON[] PROGMEM = "{s}%s Last Button{m}%u {e}";
 const char HTTP_EVENTS[] PROGMEM = "{s}%s Events{m}%u {e}";
 const char HTTP_NMT[] PROGMEM = "{s}%s No motion{m}> %u seconds{e}";
@@ -2374,24 +2495,30 @@ void MI32ShowContinuation(bool *commaflg) {
 void MI32Show(bool json)
 {
   if (json) {
-    if(!MI32.mode.triggeredTele){
-      if(MI32.option.noSummary) return; // no message at TELEPERIOD
+    if(MI32.mode.triggeredTele == 0){
+      if(MI32.option.noSummary == 1) return; // no message at TELEPERIOD
       }
     if(TasmotaGlobal.masterlog_level == LOG_LEVEL_DEBUG_MORE) return; // we want to announce sensors unlinked to the ESP, check for LOG_LEVEL_DEBUG_MORE is medium-safe
     MI32suspendScanTask();
     for (uint32_t i = 0; i < MIBLEsensors.size(); i++) {
-      if(MI32.mode.triggeredTele && MIBLEsensors[i].eventType.raw == 0) continue;
-      if(MI32.mode.triggeredTele && MIBLEsensors[i].shallSendMQTT==0) continue;
+      if(MI32.mode.triggeredTele == 1 && MIBLEsensors[i].eventType.raw == 0) continue;
+      if(MI32.mode.triggeredTele == 1 && MIBLEsensors[i].shallSendMQTT==0) continue;
 
       bool commaflg = false;
-      ResponseAppend_P(PSTR(",\"%s-%02x%02x%02x\":{"),
-        MI32getDeviceName(i),
-        MIBLEsensors[i].MAC[3], MIBLEsensors[i].MAC[4], MIBLEsensors[i].MAC[5]);
+      if( MIBLEsensors[i].name == nullptr){
+        ResponseAppend_P(PSTR(",\"%s-%02x%02x%02x\":{"),
+          MI32getDeviceName(i),
+          MIBLEsensors[i].MAC[3], MIBLEsensors[i].MAC[4], MIBLEsensors[i].MAC[5]);
+      }
+      else{
+        ResponseAppend_P(PSTR(",\"%s\":{"),
+          MI32getDeviceName(i));
+      }
 
-      if((!MI32.mode.triggeredTele && !MI32.option.minimalSummary)||MI32.mode.triggeredTele){
+      if((MI32.mode.triggeredTele == 1 && MI32.option.minimalSummary == 0)||MI32.mode.triggeredTele == 1){
         bool tempHumSended = false;
         if(MIBLEsensors[i].feature.tempHum){
-          if(MIBLEsensors[i].eventType.tempHum || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate){
+          if(MIBLEsensors[i].eventType.tempHum || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1){
             if (!isnan(MIBLEsensors[i].hum) && !isnan(MIBLEsensors[i].temp)) {
               MI32ShowContinuation(&commaflg);
               ResponseAppendTHD(MIBLEsensors[i].temp, MIBLEsensors[i].hum);
@@ -2400,7 +2527,7 @@ void MI32Show(bool json)
           }
         }
         if(MIBLEsensors[i].feature.temp && !tempHumSended){
-          if(MIBLEsensors[i].eventType.temp || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate) {
+          if(MIBLEsensors[i].eventType.temp || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1) {
             if (!isnan(MIBLEsensors[i].temp)) {
               MI32ShowContinuation(&commaflg);
               ResponseAppend_P(PSTR("\"" D_JSON_TEMPERATURE "\":%*_f"),
@@ -2409,7 +2536,7 @@ void MI32Show(bool json)
           }
         }
         if(MIBLEsensors[i].feature.hum && !tempHumSended){
-          if(MIBLEsensors[i].eventType.hum || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate) {
+          if(MIBLEsensors[i].eventType.hum || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1) {
             if (!isnan(MIBLEsensors[i].hum)) {
               char hum[FLOATSZ];
               dtostrfd(MIBLEsensors[i].hum, Settings->flag2.humidity_resolution, hum);
@@ -2419,7 +2546,7 @@ void MI32Show(bool json)
           }
         }
         if (MIBLEsensors[i].feature.lux){
-          if(MIBLEsensors[i].eventType.lux || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate){
+          if(MIBLEsensors[i].eventType.lux || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1){
             if ((MIBLEsensors[i].lux != 0x0ffffff)) { // this is the error code -> no lux
               MI32ShowContinuation(&commaflg);
               ResponseAppend_P(PSTR("\"" D_JSON_ILLUMINANCE "\":%u"), MIBLEsensors[i].lux);
@@ -2427,7 +2554,7 @@ void MI32Show(bool json)
           }
         }
         if (MIBLEsensors[i].feature.moist){
-          if(MIBLEsensors[i].eventType.moist || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate){
+          if(MIBLEsensors[i].eventType.moist || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1){
             if ((MIBLEsensors[i].moisture != 0xff)) {
               MI32ShowContinuation(&commaflg);
               ResponseAppend_P(PSTR("\"" D_JSON_MOISTURE "\":%u"), MIBLEsensors[i].moisture);
@@ -2435,7 +2562,7 @@ void MI32Show(bool json)
           }
         }
         if (MIBLEsensors[i].feature.fert){
-          if(MIBLEsensors[i].eventType.fert || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate){
+          if(MIBLEsensors[i].eventType.fert || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1){
             if ((MIBLEsensors[i].fertility != 0xffff)) {
               MI32ShowContinuation(&commaflg);
               ResponseAppend_P(PSTR("\"Fertility\":%u"), MIBLEsensors[i].fertility);
@@ -2464,7 +2591,7 @@ void MI32Show(bool json)
         }
       } // minimal summary
       if (MIBLEsensors[i].feature.motion){
-        if(MIBLEsensors[i].eventType.motion || !MI32.mode.triggeredTele){
+        if(MIBLEsensors[i].eventType.motion || MI32.mode.triggeredTele == 0){
           if(MI32.mode.triggeredTele) {
             MI32ShowContinuation(&commaflg);
             ResponseAppend_P(PSTR("\"Motion\":1")); // only real-time
@@ -2479,7 +2606,7 @@ void MI32Show(bool json)
       }
 
       if (MIBLEsensors[i].feature.door){
-        if(MIBLEsensors[i].eventType.door || !MI32.mode.triggeredTele){
+        if(MIBLEsensors[i].eventType.door || MI32.mode.triggeredTele == 0){
           if(MI32.mode.triggeredTele) {
             MI32ShowContinuation(&commaflg);
             ResponseAppend_P(PSTR("\"Door\":%u"),MIBLEsensors[i].door);
@@ -2489,21 +2616,21 @@ void MI32Show(bool json)
         }
       }
 
-      if (MIBLEsensors[i].type == FLORA && !MI32.mode.triggeredTele) {
+      if (MIBLEsensors[i].type == FLORA && MI32.mode.triggeredTele == 0) {
         if (MIBLEsensors[i].firmware[0] != '\0') { // this is the error code -> no firmware
           MI32ShowContinuation(&commaflg);
           ResponseAppend_P(PSTR("\"Firmware\":\"%s\""), MIBLEsensors[i].firmware);
         }
       }
 
-      if (MIBLEsensors[i].feature.NMT || !MI32.mode.triggeredTele){
+      if (MIBLEsensors[i].feature.NMT || MI32.mode.triggeredTele == 0){
         if(MIBLEsensors[i].eventType.NMT){
           MI32ShowContinuation(&commaflg);
           ResponseAppend_P(PSTR("\"NMT\":%u"), MIBLEsensors[i].NMT);
         }
       }
       if (MIBLEsensors[i].feature.bat){
-        if(MIBLEsensors[i].eventType.bat || !MI32.mode.triggeredTele || MI32.option.allwaysAggregate){
+        if(MIBLEsensors[i].eventType.bat || MI32.mode.triggeredTele == 0 || MI32.option.allwaysAggregate == 1){
           if ((MIBLEsensors[i].bat != 0x00)) {
             MI32ShowContinuation(&commaflg);
             ResponseAppend_P(PSTR("\"Battery\":%u"), MIBLEsensors[i].bat);
@@ -2511,8 +2638,8 @@ void MI32Show(bool json)
         }
       }
       MI32ShowContinuation(&commaflg);
-      ResponseAppend_P(PSTR("\"RSSI\":%d"), MIBLEsensors[i].RSSI);
-
+      ResponseAppend_P(PSTR("\"RSSI\":%d,"), MIBLEsensors[i].RSSI);
+      ResponseAppend_P(PSTR("\"MAC\":\"%02X%02X%02X%02X%02X%02X\""),MIBLEsensors[i].MAC[0],MIBLEsensors[i].MAC[1],MIBLEsensors[i].MAC[2],MIBLEsensors[i].MAC[3],MIBLEsensors[i].MAC[4],MIBLEsensors[i].MAC[5]);
       ResponseJsonEnd();
 
       MIBLEsensors[i].eventType.raw = 0;
@@ -2534,11 +2661,7 @@ void MI32Show(bool json)
       MI32suspendScanTask();
 
       WSContentSend_P(HTTP_MI32, MIBLEsensors.size());
-#ifdef USE_MI_HOMEKIT
-      if(MI32.mode.didStartHAP){
-        WSContentSend_PD(PSTR("{s}HomeKit Code{m} %s{e}"),MI32.hk_setup_code);
-      }
-#endif //USE_MI_HOMEKIT
+
 #ifndef USE_MI_EXT_GUI
       for (uint32_t i = 0; i<MIBLEsensors.size(); i++) {
         WSContentSend_PD(HTTP_MI32_HL);
@@ -2597,17 +2720,11 @@ void MI32Show(bool json)
 int ExtStopBLE(){
       if(Settings->flag5.mi32_enable == 0) return 0;
       if (MI32.ScanTask != nullptr){
-        MI32Scan->stop();
         MI32.mode.deleteScanTask = 1;
+        MI32.role = 0;
         AddLog(LOG_LEVEL_INFO,PSTR("M32: stop BLE"));
-        while (MI32.mode.runningScan) yield();
+        while (MI32.mode.runningScan == 1) delay(5);
       }
-#ifdef USE_MI_HOMEKIT
-      if(MI32.mode.didStartHAP) {
-        AddLog(LOG_LEVEL_INFO,PSTR("M32: stop Homebridge"));
-        mi_homekit_stop();
-      }
-#endif //USE_MI_HOMEKIT
       return 0;
 }
 

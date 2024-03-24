@@ -1358,9 +1358,10 @@ void LightColorOffset(int32_t offset) {
   uint16_t hue;
   uint8_t sat;
   light_state.getHSB(&hue, &sat, nullptr);  // Allow user control over Saturation
-  hue += offset;
-  if (hue < 0) { hue += 359; }
-  if (hue > 359) { hue -= 359; }
+  int16_t hue_new = hue + offset;
+  if (hue_new < 0) { hue_new += 359; }
+  if (hue_new > 359) { hue_new -= 359; }
+  hue = hue_new;
   if (!Light.pwm_multi_channels) {
     light_state.setHS(hue, sat);
   } else {
@@ -1776,9 +1777,10 @@ void LightAnimate(void)
   // make sure we update CT range in case SetOption82 was changed
   Light.strip_timer_counter++;
 
-  // set sleep parameter: either settings,
-  // or set a maximum of PWM_MAX_SLEEP if light is on or Fade is running
-  if (Light.power || Light.fade_running) {
+  // Set a maximum sleep of PWM_MAX_SLEEP if Fade is running, or if light is on and
+  // a frequently updating light scheme is in use. This is to allow smooth transitions
+  // between light levels and colors.
+  if ((Settings->light_scheme > LS_POWER && Light.power) || Light.fade_running) {
     if (TasmotaGlobal.sleep > PWM_MAX_SLEEP) {
       sleep_previous = TasmotaGlobal.sleep;     // save previous value of sleep
       TasmotaGlobal.sleep = PWM_MAX_SLEEP;      // set a maximum value (in milliseconds) to sleep to ensure that animations are smooth
@@ -2080,7 +2082,7 @@ bool LightApplyFade(void) {   // did the value chanegd and needs to be applied
       Light.fade_duration = LightGetSpeedSetting() * 500;
       Light.speed_once_enabled = false; // The once off speed value has been read, reset it
       if (!Settings->flag5.fade_fixed_duration) {
-        Light.fade_duration = (distance * Light.fade_duration) / 1023;    // time is proportional to distance, except with SO117
+        Light.fade_duration = (distance * Light.fade_duration) / 1023 + 1 /* make sure value is not zero */;    // time is proportional to distance, except with SO117
       }
       if (Settings->save_data) {
         // Also postpone the save_data for the duration of the Fade (in seconds)
@@ -2188,8 +2190,10 @@ void LightSetOutputs(const uint16_t *cur_col_10) {
         TasmotaGlobal.pwm_value[i] = cur_col;   // mark the new expected value
         // AddLog(LOG_LEVEL_DEBUG_MORE, "analogWrite-%i 0x%03X", i, cur_col);
 #else // ESP32
-        analogWrite(Pin(GPIO_PWM1, i), bitRead(TasmotaGlobal.pwm_inverted, i) ? Settings->pwm_range - cur_col : cur_col);
-        // AddLog(LOG_LEVEL_DEBUG_MORE, "analogWrite-%i 0x%03X", bitRead(TasmotaGlobal.pwm_inverted, i) ? Settings->pwm_range - cur_col : cur_col);
+        if (!Settings->flag4.zerocross_dimmer) {
+          AnalogWrite(Pin(GPIO_PWM1, i), bitRead(TasmotaGlobal.pwm_inverted, i) ? Settings->pwm_range - cur_col : cur_col);
+          // AddLog(LOG_LEVEL_DEBUG_MORE, "analogWrite-%i 0x%03X", bitRead(TasmotaGlobal.pwm_inverted, i) ? Settings->pwm_range - cur_col : cur_col);
+        }
 #endif // ESP32
       }
     }
@@ -3456,17 +3460,20 @@ bool Xdrv04(uint32_t function)
         LightInit();
         break;
 #ifdef USE_LIGHT_ARTNET
-    case FUNC_JSON_APPEND:
-      ArtNetJSONAppend();
-      break;
-    case FUNC_NETWORK_UP:
-      ArtNetFuncNetworkUp();
-      break;
-    case FUNC_NETWORK_DOWN:
-      ArtNetFuncNetworkDown();
-      break;
+      case FUNC_JSON_APPEND:
+        ArtNetJSONAppend();
+        break;
+      case FUNC_NETWORK_UP:
+        ArtNetFuncNetworkUp();
+        break;
+      case FUNC_NETWORK_DOWN:
+        ArtNetFuncNetworkDown();
+        break;
 #endif // USE_LIGHT_ARTNET
-    }
+      case FUNC_ACTIVE:
+        result = true;
+        break;
+   }
   }
   return result;
 }

@@ -35,7 +35,8 @@
 void TasDiscoverMessage(void) {
   uint32_t ip_address = (uint32_t)WiFi.localIP();
   char* hostname = TasmotaGlobal.hostname;
-#if defined(ESP32) && CONFIG_IDF_TARGET_ESP32 && defined(USE_ETHERNET)
+//#if defined(ESP32) && CONFIG_IDF_TARGET_ESP32 && defined(USE_ETHERNET)
+#if defined(ESP32) && defined(USE_ETHERNET)
   if (static_cast<uint32_t>(EthernetLocalIP()) != 0) {
     ip_address = (uint32_t)EthernetLocalIP();
     hostname = EthernetHostname();
@@ -185,6 +186,8 @@ void TasDiscoverMessage(void) {
                                 "\"117\":%d},"
                         "\"lk\":%d,"                           // Light CTRGB linked
                         "\"lt_st\":%d,"                        // Light SubType
+                        "\"bat\":%d,"                          // Battery operates yes/no
+                        "\"dslp\":%d,"                         // Deepsleep configured yes/no
                         "\"sho\":["),                          // Shutter Options (start)
                         Settings->flag.mqtt_response,
                         Settings->flag.button_swap,
@@ -198,7 +201,10 @@ void TasDiscoverMessage(void) {
                         Settings->flag5.mqtt_switches,
                         Settings->flag5.fade_fixed_duration,
                         light_controller_isCTRGBLinked,
-                        light_subtype);
+                        light_subtype,
+                        (Settings->battery_level_percent == 101) ? 0 : 1,
+                        (Settings->deepsleep == 0) ? 0 : 1
+                        );
 
   for (uint32_t i = 0; i < TasmotaGlobal.shutters_present; i++) {
 #ifdef USE_SHUTTER
@@ -322,6 +328,9 @@ bool Xdrv12(uint32_t function) {
       break;
     case FUNC_MQTT_INIT:
       TasDiscoverInit();
+      break;
+    case FUNC_ACTIVE:
+      result = true;
       break;
     }
   }

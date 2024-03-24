@@ -54,13 +54,13 @@ void InfluxDbProcess(bool use_copy = false);
 #endif
 
 #ifdef ESP32
-#if CONFIG_IDF_TARGET_ESP32       // ESP32/PICO-D4
+//#if CONFIG_IDF_TARGET_ESP32       // ESP32/PICO-D4
 #ifdef USE_ETHERNET
 IPAddress EthernetLocalIP(void);
 char* EthernetHostname(void);
 String EthernetMacAddress(void);
 #endif  // USE_ETHERNET
-#endif  // CONFIG_IDF_TARGET_ESP32
+//#endif  // CONFIG_IDF_TARGET_ESP32
 #endif  // ESP32
 
 /*********************************************************************************************\
@@ -68,6 +68,25 @@ String EthernetMacAddress(void);
 \*********************************************************************************************/
 
 #include "include/tasmota_configurations.h"            // Preconfigured configurations
+
+/*-------------------------------------------------------------------------------------------*\
+ * ESP8266 and ESP32 build time definitions
+\*-------------------------------------------------------------------------------------------*/
+
+// created in pio-tools/pre_source_dir.py
+#if defined(CONFIG_TASMOTA_FLASHMODE_OPI)
+  #define D_TASMOTA_FLASHMODE "OPI"
+#elif (CONFIG_TASMOTA_FLASHMODE_QIO)
+  #define D_TASMOTA_FLASHMODE "QIO"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_QOUT)
+   #define D_TASMOTA_FLASHMODE "QOUT"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_DIO)
+  #define D_TASMOTA_FLASHMODE "DIO"
+#elif defined(CONFIG_TASMOTA_FLASHMODE_DOUT)
+  #define D_TASMOTA_FLASHMODE "DOUT"
+#else
+#error "Please add missing flashmode definition in the lines above!" // could be upcoming octal modes
+#endif // value check of CONFIG_TASMOTA_FLASHMODE
 
 /*********************************************************************************************\
  * ESP8266 specific parameters
@@ -110,24 +129,25 @@ String EthernetMacAddress(void);
 
 
 #else   // Disable features not present in other ESP32 like ESP32C3, ESP32S2, ESP32S3 etc.
-#ifdef USE_ETHERNET
-#undef USE_ETHERNET                                // All non-ESP32 do not support ethernet
-#endif
+//#ifdef USE_ETHERNET
+//#undef USE_ETHERNET                                // All non-ESP32 do not support ethernet
+//#endif
 #endif  // CONFIG_IDF_TARGET_ESP32
 
 /*-------------------------------------------------------------------------------------------*\
  * End ESP32 specific parameters
 \*-------------------------------------------------------------------------------------------*/
+
 /*-------------------------------------------------------------------------------------------*\
- * Start ESP32-C32 specific parameters - disable features not present in ESP32-C3
+ * Start ESP32-C3/C6 specific parameters - disable features not present in ESP32-C3/C6
 \*-------------------------------------------------------------------------------------------*/
 
-#if CONFIG_IDF_TARGET_ESP32C3                      // ESP32-C3
+#if CONFIG_IDF_TARGET_ESP32C3 || CONFIG_IDF_TARGET_ESP32C6  // ESP32-C3/C6
 //#ifdef USE_ETHERNET
-//#undef USE_ETHERNET                                // ESP32-C3 does not support ethernet
+//#undef USE_ETHERNET                                // ESP32-C3/C6 does not support ethernet
 //#endif
 
-#endif  // CONFIG_IDF_TARGET_ESP32C3
+#endif  // CONFIG_IDF_TARGET_ESP32C3/C6
 
 /*-------------------------------------------------------------------------------------------*\
  * End ESP32-C3 specific parameters
@@ -293,6 +313,9 @@ String EthernetMacAddress(void);
 #endif
 #ifndef MQTT_LWT_ONLINE
 #define MQTT_LWT_ONLINE             "Online"   // MQTT LWT online topic message
+#endif
+#ifndef MQTT_DISABLE_MODBUSRECEIVED
+#define MQTT_DISABLE_MODBUSRECEIVED 0         // 1 = Disable ModbusReceived mqtt messages, 0 = Enable ModbusReceived mqtt messages (default)
 #endif
 
 #ifndef MESSZ

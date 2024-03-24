@@ -57,7 +57,9 @@
 #define D_AP "AP"                    // Access Point
 #define D_AS "-כ"
 #define D_AUTO "אוטומטי"
+#define D_BATTERY "Battery"
 #define D_BATT "Batt"                // Short for Battery
+#define D_BATTERY_CHARGE "Charge"   // Battery charge in %
 #define D_BLINK "מהבהב"
 #define D_BLINKOFF "כיבוי היבהוב"
 #define D_BOOT_COUNT "מונה הפעלה מחדש"
@@ -117,6 +119,7 @@
 #define D_GROUP "קבוצה"
 #define D_HOST "מארח"
 #define D_HALL_EFFECT "Hall Effect"
+#define D_HEATINDEX "Heat index"
 #define D_HOSTNAME "שם מארח"
 #define D_HUMIDITY "לחות"
 #define D_ILLUMINANCE "רמת חשיפה"
@@ -151,6 +154,7 @@
 #define D_POWER_FACTOR "גורם כוח"
 #define D_POWERUSAGE "כוח"
 #define D_POWERUSAGE_ACTIVE "כוח פעיל"
+#define D_POWERUSAGE_ACTIVE_TOTAL "Active Power Total"
 #define D_POWERUSAGE_APPARENT "כוח לכאורה"
 #define D_POWERUSAGE_REACTIVE "כוח תגובתי"
 #define D_PRESSURE "לחץ"
@@ -164,7 +168,6 @@
 #define D_RESTART "איתחול"
 #define D_RESTARTING "הפעלה מחדש"
 #define D_RESTART_REASON "סיבת הפעלה מחדש"
-#define D_RESTORE "שחזור"
 #define D_RETAINED "שמור"
 #define D_RULE "חוק"
 #define D_SAVE "שמירה"
@@ -187,7 +190,9 @@
 #define D_TRANSMIT "עבר"
 #define D_TRUE "נכון"
 #define D_TVOC "TVOC"
-#define D_UPGRADE "שדרוג"
+#define D_TWILIGHT_ASTRONOMICAL "Astronomical"
+#define D_TWILIGHT_CIVIL "Civil"
+#define D_TWILIGHT_NAUTICAL "Nautical"
 #define D_UPLOAD "העלאה"
 #define D_UPTIME "זמן עליה"
 #define D_USED "used"
@@ -271,7 +276,8 @@
 #define D_CONFIGURATION "הגדרות"
 #define D_INFORMATION "מידע"
 #define D_FIRMWARE_UPGRADE "שדרוג קושחה"
-#define D_MANAGEMENT "Consoles"
+#define D_MANAGEMENT "Tools"
+#define D_GPIO_VIEWER "GPIO Viewer"
 #define D_CONSOLE "קונסול"
 #define D_CONFIRM_RESTART "אישור הפעלה מחדש"
 
@@ -285,6 +291,7 @@
 #define D_RESET_CONFIGURATION "אתחול הגדרות"
 #define D_BACKUP_CONFIGURATION "גיבוי הגדרות"
 #define D_RESTORE_CONFIGURATION "שחזור הגדרות"
+#define D_START_RESTORE "Start restore"
 #define D_MAIN_MENU "תפריט ראשי"
 
 #define D_MODULE_PARAMETERS "מודול פרמטרים"
@@ -302,6 +309,7 @@
 #define D_REFRESH_TO_SCAN_AGAIN "רענן כדי לסרוק שוב"
 #define D_DUPLICATE_ACCESSPOINT "נקודות גישה משוכפלות"
 #define D_SKIPPING_LOW_QUALITY "מדלג עקב איכות רשת נמוכה"
+#define D_MODE "Mode"
 #define D_RSSI "RSSI"
 #define D_WEP "WEP"
 #define D_WPA_PSK "WPA PSK"
@@ -528,6 +536,11 @@
 #define D_ENERGY_YESTERDAY "צריכה בעבר"
 #define D_ENERGY_TOTAL "צריכה כללית"
 
+// xsns_100_ina3221.ino
+#define  D_UNIT_CHARGE                    "Ah"
+#define  D_CHARGE                         "Charge"    
+#define  D_ENERGY                         "Energy"
+
 // xdrv_27_shutter.ino
 #define D_OPEN "Open"
 #define D_CLOSE "Close"
@@ -540,6 +553,23 @@
 #define D_DEVICE "Device"
 #define D_DEVICE_INPUT "Input"
 #define D_DEVICE_OUTPUT "Output"
+
+// xdrv_39_thermostat.ino, xdrv_85_esp32_ble_eq3_trv.ino
+#define D_THERMOSTAT                  "Thermostat"
+#define D_THERMOSTAT_SET_POINT        "Set Point Temperature"
+#define D_THERMOSTAT_SENSOR           "Current Temperature"
+#define D_THERMOSTAT_GRADIENT         "Gradient Temperature"
+#define D_THERMOSTAT_DUTY_CYCLE       "Duty cycle"
+#define D_THERMOSTAT_VALVE_POSITION   "Valve Position"
+#define D_THERMOSTAT_CYCLE_TIME       "Cycle time"
+#define D_THERMOSTAT_PI_AUTOTUNE      "PI Auto tuning"
+#define D_THERMOSTAT_CONTROL_METHOD   "Control method"
+#define D_THERMOSTAT_RAMP_UP          "Ramp up"
+#define D_THERMOSTAT_PI               "PI"
+#define D_THERMOSTAT_AUTOTUNE         "Autotune"
+#define D_THERMOSTAT_RAMP_UP_HYBRID   "Ramp up (Hybrid)"
+#define D_THERMOSTAT_PI_HYBRID        "PI (Hybrid)"
+#define D_THERMOSTAT_AUTOTUNE_HYBRID  "Autotune (Hybrid)"
 
 // xsns_05_ds18b20.ino
 #define D_SENSOR_BUSY "שרת עסוק"
@@ -651,6 +681,8 @@
 #define D_SENSOR_I2S_BCLK_IN   "I2S WS IN"
 #define D_SENSOR_I2S_DIN       "I2S DIN"
 #define D_SENSOR_I2S_DOUT      "I2S DOUT"
+#define D_SENSOR_I2S_DAC       "I2S DAC"
+#define D_SENSOR_HDMI_CEC      "HDMI CEC"
 #define D_SENSOR_WS2812        "WS2812"
 #define D_SENSOR_DFR562        "נגן מוזיקה"
 #define D_SENSOR_DFR562_BUSY   "MP3 Busy"
@@ -667,6 +699,7 @@
 #define D_SENSOR_IRRECV        "IRrecv"
 #define D_SENSOR_MHZ_RX        "MHZ Rx"
 #define D_SENSOR_MHZ_TX        "MHZ Tx"
+#define D_SENSOR_HC8_RX        "HC8 Rx"
 #define D_SENSOR_PZEM004_RX    "PZEM004 Rx"
 #define D_SENSOR_PZEM016_RX    "PZEM016 Rx"
 #define D_SENSOR_PZEM017_RX    "PZEM017 Rx"
@@ -749,6 +782,10 @@
 #define D_SENSOR_MAX31855_CLK  "MX31855 CLK"
 #define D_SENSOR_MAX31855_DO   "MX31855 DO"
 #define D_SENSOR_MAX31865_CS   "MX31865 CS"
+#define D_GPIO_LORA_CS         "LoRa CS"
+#define D_GPIO_LORA_RST        "LoRa Rst"
+#define D_GPIO_LORA_BUSY       "LoRa Busy"
+#define D_GPIO_LORA_DI         "LoRa DI"    // Suffix "0","1","2"
 #define D_SENSOR_NRG_SEL       "HLWBL SEL"  // Suffix "i"
 #define D_SENSOR_NRG_CF1       "HLWBL CF1"
 #define D_SENSOR_HLW_CF        "HLW8012 CF"
@@ -933,6 +970,7 @@
 #define D_SENSOR_BIOPDU_PZEM016_RX "BioPDU PZEM016 Rx"
 #define D_SENSOR_BIOPDU_BIT    "BioPDU Bit"
 #define D_SENSOR_LOX_O2_RX     "LoxO2 RX"
+#define D_GPIO_MAGIC_SWITCH "MagicSwitch"
 
 // Units
 #define D_UNIT_AMPERE "A"
@@ -1196,5 +1234,9 @@
 // xsns_106_gdk101.ino
 #define D_AVG_RAD_DOSE                    "מינון קרינה ממוצע"
 #define D_UNIT_US_H                       "µSv/h"
+
+// ixrv92_pipsolar.ino
+#define D_SENSOR_PIPSOLAR_TX             "Pipsolar TX"
+#define D_SENSOR_PIPSOLAR_RX             "Pipsolar RX"
 
 #endif  // _LANGUAGE_HE_HE_H_

@@ -57,7 +57,9 @@
 #define D_AP "Ponto de acesso"     	// Ponto de Acesso
 #define D_AS "como"
 #define D_AUTO "Auto"
+#define D_BATTERY "Battery"
 #define D_BATT "Bat"                // Short for Battery
+#define D_BATTERY_CHARGE "Charge"  // Battery charge in %
 #define D_BLINK "Piscar"
 #define D_BLINKOFF "Piscar desligado"
 #define D_BOOT_COUNT "Contagem de inicialização"
@@ -117,6 +119,7 @@
 #define D_GROUP "Grupo"
 #define D_HOST "Host"
 #define D_HALL_EFFECT "Efeito Hall"
+#define D_HEATINDEX "Heat index"
 #define D_HOSTNAME "Nome do Host"
 #define D_HUMIDITY "Umidade"
 #define D_ILLUMINANCE "Luminância"
@@ -151,6 +154,7 @@
 #define D_POWER_FACTOR "Fator de potência"
 #define D_POWERUSAGE "Potência"
 #define D_POWERUSAGE_ACTIVE "Potência ativa"
+#define D_POWERUSAGE_ACTIVE_TOTAL "Active Power Total"
 #define D_POWERUSAGE_APPARENT "Potência aparente"
 #define D_POWERUSAGE_REACTIVE "Potência reativa"
 #define D_PRESSURE "Pressão"
@@ -164,7 +168,6 @@
 #define D_RESTART "Reiniciar"
 #define D_RESTARTING "Reiniciando"
 #define D_RESTART_REASON "Motivo do reinício"
-#define D_RESTORE "Restauração"
 #define D_RETAINED "Manter"
 #define D_RULE "Regra"
 #define D_SAVE "Salvar"
@@ -187,7 +190,9 @@
 #define D_TRANSMIT "Transmitir"
 #define D_TRUE "Verdadeiro"
 #define D_TVOC "TVOC"
-#define D_UPGRADE "atualização"
+#define D_TWILIGHT_ASTRONOMICAL "Astronomical"
+#define D_TWILIGHT_CIVIL "Civil"
+#define D_TWILIGHT_NAUTICAL "Nautical"
 #define D_UPLOAD "Enviar"
 #define D_UPTIME "Tempo de atividade"
 #define D_USED "used"
@@ -271,7 +276,8 @@
 #define D_CONFIGURATION "Configuração"
 #define D_INFORMATION "Informação"
 #define D_FIRMWARE_UPGRADE "Atualização de firmware"
-#define D_MANAGEMENT "Consoles"
+#define D_MANAGEMENT "Tools"
+#define D_GPIO_VIEWER "GPIO Viewer"
 #define D_CONSOLE "Console"
 #define D_CONFIRM_RESTART "Confirmar o reinicio"
 
@@ -285,6 +291,7 @@
 #define D_RESET_CONFIGURATION "Apagar configuração"
 #define D_BACKUP_CONFIGURATION "Salvar configuração"
 #define D_RESTORE_CONFIGURATION "Repor configuração"
+#define D_START_RESTORE "Start restore"
 #define D_MAIN_MENU "Menu principal"
 
 #define D_MODULE_PARAMETERS "Parâmetros do módulo"
@@ -302,6 +309,7 @@
 #define D_REFRESH_TO_SCAN_AGAIN "Nova busca"
 #define D_DUPLICATE_ACCESSPOINT "Ponto de Acesso duplicado"
 #define D_SKIPPING_LOW_QUALITY "Ignorado devido à baixa qualidade do sinal"
+#define D_MODE "Mode"
 #define D_RSSI "RSSI"
 #define D_WEP "WEP"
 #define D_WPA_PSK "WPA PSK"
@@ -528,6 +536,11 @@
 #define D_ENERGY_YESTERDAY "Consumo energético de ontem"
 #define D_ENERGY_TOTAL "Consumo total de energia"
 
+// xsns_100_ina3221.ino
+#define  D_UNIT_CHARGE                    "Ah"
+#define  D_CHARGE                         "Charge"    
+#define  D_ENERGY                         "Energy"
+
 // xdrv_27_shutter.ino
 #define D_OPEN "Aberta"
 #define D_CLOSE "Fechada"
@@ -540,6 +553,23 @@
 #define D_DEVICE "Dispositivo"
 #define D_DEVICE_INPUT "Entrada"
 #define D_DEVICE_OUTPUT "Saída"
+
+// xdrv_39_thermostat.ino, xdrv_85_esp32_ble_eq3_trv.ino
+#define D_THERMOSTAT                  "Thermostat"
+#define D_THERMOSTAT_SET_POINT        "Set Point Temperature"
+#define D_THERMOSTAT_SENSOR           "Current Temperature"
+#define D_THERMOSTAT_GRADIENT         "Gradient Temperature"
+#define D_THERMOSTAT_DUTY_CYCLE       "Duty cycle"
+#define D_THERMOSTAT_VALVE_POSITION   "Valve Position"
+#define D_THERMOSTAT_CYCLE_TIME       "Cycle time"
+#define D_THERMOSTAT_PI_AUTOTUNE      "PI Auto tuning"
+#define D_THERMOSTAT_CONTROL_METHOD   "Control method"
+#define D_THERMOSTAT_RAMP_UP          "Ramp up"
+#define D_THERMOSTAT_PI               "PI"
+#define D_THERMOSTAT_AUTOTUNE         "Autotune"
+#define D_THERMOSTAT_RAMP_UP_HYBRID   "Ramp up (Hybrid)"
+#define D_THERMOSTAT_PI_HYBRID        "PI (Hybrid)"
+#define D_THERMOSTAT_AUTOTUNE_HYBRID  "Autotune (Hybrid)"
 
 // xsns_05_ds18b20.ino
 #define D_SENSOR_BUSY "Sensor ocupado"
@@ -651,6 +681,8 @@
 #define D_SENSOR_I2S_BCLK_IN   "I2S WS IN"
 #define D_SENSOR_I2S_DIN       "I2S DIN"
 #define D_SENSOR_I2S_DOUT      "I2S DOUT"
+#define D_SENSOR_I2S_DAC       "I2S DAC"
+#define D_SENSOR_HDMI_CEC      "HDMI CEC"
 #define D_SENSOR_WS2812        "WS2812"
 #define D_SENSOR_DFR562        "MP3 Player"
 #define D_SENSOR_DFR562_BUSY   "MP3 Busy"
@@ -667,6 +699,7 @@
 #define D_SENSOR_IRRECV        "IRrecv"
 #define D_SENSOR_MHZ_RX        "MHZ Rx"
 #define D_SENSOR_MHZ_TX        "MHZ Tx"
+#define D_SENSOR_HC8_RX        "HC8 Rx"
 #define D_SENSOR_PZEM004_RX    "PZEM004 Rx"
 #define D_SENSOR_PZEM016_RX    "PZEM016 Rx"
 #define D_SENSOR_PZEM017_RX    "PZEM017 Rx"
@@ -749,6 +782,10 @@
 #define D_SENSOR_MAX31855_CLK  "MX31855 CLK"
 #define D_SENSOR_MAX31855_DO   "MX31855 DO"
 #define D_SENSOR_MAX31865_CS   "MX31865 CS"
+#define D_GPIO_LORA_CS         "LoRa CS"
+#define D_GPIO_LORA_RST        "LoRa Rst"
+#define D_GPIO_LORA_BUSY       "LoRa Busy"
+#define D_GPIO_LORA_DI         "LoRa DI"    // Suffix "0","1","2"
 #define D_SENSOR_NRG_SEL       "HLWBL SEL"  // Suffix "i"
 #define D_SENSOR_NRG_CF1       "HLWBL CF1"
 #define D_SENSOR_HLW_CF        "HLW8012 CF"
@@ -933,6 +970,7 @@
 #define D_SENSOR_BIOPDU_PZEM016_RX "BioPDU PZEM016 Rx"
 #define D_SENSOR_BIOPDU_BIT    "BioPDU Bit"
 #define D_SENSOR_LOX_O2_RX     "LoxO2 RX"
+#define D_GPIO_MAGIC_SWITCH "MagicSwitch"
 
 // Units
 #define D_UNIT_AMPERE "A"
@@ -1196,5 +1234,9 @@
 // xsns_106_gdk101.ino
 #define D_AVG_RAD_DOSE                    "dose média de radiação"
 #define D_UNIT_US_H                       "µSv/h"
+
+// ixrv92_pipsolar.ino
+#define D_SENSOR_PIPSOLAR_TX             "Pipsolar TX"
+#define D_SENSOR_PIPSOLAR_RX             "Pipsolar RX"
 
 #endif  // _LANGUAGE_PT_BR_H_

@@ -197,6 +197,7 @@ static void begin_block(bfuncinfo *finfo, bblockinfo *binfo, int type)
     binfo->type = (bbyte)type;
     binfo->hasupval = 0;
     binfo->sideeffect = 0;
+    binfo->lastjmp = 0;
     binfo->beginpc = finfo->pc; /* set starting pc for this block */
     binfo->nactlocals = (bbyte)be_list_count(finfo->local); /* count number of local variables in previous block */
     if (type & BLOCK_LOOP) {
@@ -1566,7 +1567,21 @@ static void class_stmt(bparser *parser)
         new_var(parser, name, &e);
         be_code_class(parser->finfo, &e, c);
         class_inherit(parser, &e);
+
+        bblockinfo binfo;
+        begin_block(parser->finfo, &binfo, 0);
+
+        bstring *class_str = parser_newstr(parser, "_class");   /* we always define `_class` local variable */
+        bexpdesc e1;                        /* if inline class, we add a second local variable for _class */
+        init_exp(&e1, ETLOCAL, 0);
+        e1.v.idx = new_localvar(parser, class_str);
+        be_code_setvar(parser->finfo, &e1, &e, 1);
+
+        begin_varinfo(parser, class_str);
+
         class_block(parser, c, &e);
+        end_block(parser);
+        
         be_class_compress(parser->vm, c); /* compress class size */
         match_token(parser, KeyEnd); /* skip 'end' */
     } else {
