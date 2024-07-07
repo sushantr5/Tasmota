@@ -19,7 +19,7 @@ be_local_closure(ezie_cloud_configurator_page_part_mgr,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[13]) {     /* constants */
+    ( &(const bvalue[14]) {     /* constants */
     /* K0   */  be_nested_str(webserver),
     /* K1   */  be_nested_str(string),
     /* K2   */  be_nested_str(check_privileged_access),
@@ -32,11 +32,12 @@ be_local_closure(ezie_cloud_configurator_page_part_mgr,   /* name */
     /* K9   */  be_nested_str(show_mqtt_settings),
     /* K10  */  be_nested_str(content_button),
     /* K11  */  be_nested_str(BUTTON_CONFIGURATION),
-    /* K12  */  be_nested_str(content_stop),
+    /* K12  */  be_nested_str(BUTTON_MAIN),
+    /* K13  */  be_nested_str(content_stop),
     }),
     &be_const_str_page_part_mgr,
     &be_const_str_solidified,
-    ( &(const binstruction[29]) {  /* code */
+    ( &(const binstruction[32]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
       0xA40A0200,  //  0001  IMPORT	R2	K1
       0x8C0C0302,  //  0002  GETMET	R3	R1	K2
@@ -63,270 +64,12 @@ be_local_closure(ezie_cloud_configurator_page_part_mgr,   /* name */
       0x8C0C030A,  //  0017  GETMET	R3	R1	K10
       0x8814030B,  //  0018  GETMBR	R5	R1	K11
       0x7C0C0400,  //  0019  CALL	R3	2
-      0x8C0C030C,  //  001A  GETMET	R3	R1	K12
-      0x7C0C0200,  //  001B  CALL	R3	1
-      0x80000000,  //  001C  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: resetmqtt
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_resetmqtt,   /* name */
-  be_nested_proto(
-    23,                          /* nstack */
-    5,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[28]) {     /* constants */
-    /* K0   */  be_nested_str(string),
-    /* K1   */  be_nested_str(json),
-    /* K2   */  be_nested_str(format),
-    /* K3   */  be_nested_str(https_X3A_X2F_X2Fwqxpc1agpf_X2Eexecute_X2Dapi_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom_X2Flive_X3Faction_X3Dreset_mqtt_X26device_id_X3D_X25s),
-    /* K4   */  be_nested_str(client_id),
-    /* K5   */  be_nested_str(_X25s_X26_X25s),
-    /* K6   */  be_nested_str(webclient),
-    /* K7   */  be_nested_str(set_follow_redirects),
-    /* K8   */  be_nested_str(set_auth),
-    /* K9   */  be_nested_str(Sushant),
-    /* K10  */  be_nested_str(Vampire),
-    /* K11  */  be_nested_str(begin),
-    /* K12  */  be_nested_str(POST),
-    /* K13  */  be_nested_str(),
-    /* K14  */  be_nested_str(Location_X3A),
-    /* K15  */  be_nested_str(get_header),
-    /* K16  */  be_nested_str(Location),
-    /* K17  */  be_nested_str(load),
-    /* K18  */  be_nested_str(get_string),
-    /* K19  */  be_nested_str(find),
-    /* K20  */  be_nested_str(body),
-    /* K21  */  be_nested_str(new_username),
-    /* K22  */  be_nested_str(new_password),
-    /* K23  */  be_nested_str(authorizer_name),
-    /* K24  */  be_nested_str(tasmota),
-    /* K25  */  be_nested_str(cmd),
-    /* K26  */  be_nested_str(BackLog_X20SetOption3_X201_X3B_X20SetOption103_X201_X3B_X20MqttHost_X20a3bnjilp7tzxpg_X2Dats_X2Eiot_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom_X3B_X20MqttPort_X20443_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3D_X25s_X3B_X20MqttPassword_X20_X25s),
-    /* K27  */  be_nested_str(close),
-    }),
-    &be_const_str_resetmqtt,
-    &be_const_str_solidified,
-    ( &(const binstruction[80]) {  /* code */
-      0xA4160000,  //  0000  IMPORT	R5	K0
-      0xA41A0200,  //  0001  IMPORT	R6	K1
-      0x8C1C0B02,  //  0002  GETMET	R7	R5	K2
-      0x58240003,  //  0003  LDCONST	R9	K3
-      0x88280104,  //  0004  GETMBR	R10	R0	K4
-      0x7C1C0600,  //  0005  CALL	R7	3
-      0x4C200000,  //  0006  LDNIL	R8
-      0x20200608,  //  0007  NE	R8	R3	R8
-      0x78220008,  //  0008  JMPF	R8	#0012
-      0x8C200B02,  //  0009  GETMET	R8	R5	K2
-      0x58280005,  //  000A  LDCONST	R10	K5
-      0x5C2C0E00,  //  000B  MOVE	R11	R7
-      0x5C300600,  //  000C  MOVE	R12	R3
-      0x7C200800,  //  000D  CALL	R8	4
-      0x5C1C1000,  //  000E  MOVE	R7	R8
-      0x60200001,  //  000F  GETGBL	R8	G1
-      0x5C240E00,  //  0010  MOVE	R9	R7
-      0x7C200200,  //  0011  CALL	R8	1
-      0xB8220C00,  //  0012  GETNGBL	R8	K6
-      0x7C200000,  //  0013  CALL	R8	0
-      0x8C241107,  //  0014  GETMET	R9	R8	K7
-      0x502C0000,  //  0015  LDBOOL	R11	0	0
-      0x7C240400,  //  0016  CALL	R9	2
-      0x8C241108,  //  0017  GETMET	R9	R8	K8
-      0x582C0009,  //  0018  LDCONST	R11	K9
-      0x5830000A,  //  0019  LDCONST	R12	K10
-      0x7C240600,  //  001A  CALL	R9	3
-      0x8C24110B,  //  001B  GETMET	R9	R8	K11
-      0x5C2C0E00,  //  001C  MOVE	R11	R7
-      0x7C240400,  //  001D  CALL	R9	2
-      0x8C24110C,  //  001E  GETMET	R9	R8	K12
-      0x582C000D,  //  001F  LDCONST	R11	K13
-      0x7C240400,  //  0020  CALL	R9	2
-      0x542A012C,  //  0021  LDINT	R10	301
-      0x1C28120A,  //  0022  EQ	R10	R9	R10
-      0x742A0002,  //  0023  JMPT	R10	#0027
-      0x542A012D,  //  0024  LDINT	R10	302
-      0x1C28120A,  //  0025  EQ	R10	R9	R10
-      0x782A0006,  //  0026  JMPF	R10	#002E
-      0x60280001,  //  0027  GETGBL	R10	G1
-      0x582C000E,  //  0028  LDCONST	R11	K14
-      0x8C30110F,  //  0029  GETMET	R12	R8	K15
-      0x58380010,  //  002A  LDCONST	R14	K16
-      0x7C300400,  //  002B  CALL	R12	2
-      0x7C280400,  //  002C  CALL	R10	2
-      0x7002001E,  //  002D  JMP		#004D
-      0x542A00C7,  //  002E  LDINT	R10	200
-      0x1C28120A,  //  002F  EQ	R10	R9	R10
-      0x782A001B,  //  0030  JMPF	R10	#004D
-      0x8C280D11,  //  0031  GETMET	R10	R6	K17
-      0x8C301112,  //  0032  GETMET	R12	R8	K18
-      0x7C300200,  //  0033  CALL	R12	1
-      0x7C280400,  //  0034  CALL	R10	2
-      0x8C2C0D11,  //  0035  GETMET	R11	R6	K17
-      0x8C341513,  //  0036  GETMET	R13	R10	K19
-      0x583C0014,  //  0037  LDCONST	R15	K20
-      0x7C340400,  //  0038  CALL	R13	2
-      0x7C2C0400,  //  0039  CALL	R11	2
-      0x8C301713,  //  003A  GETMET	R12	R11	K19
-      0x58380015,  //  003B  LDCONST	R14	K21
-      0x7C300400,  //  003C  CALL	R12	2
-      0x8C341713,  //  003D  GETMET	R13	R11	K19
-      0x583C0016,  //  003E  LDCONST	R15	K22
-      0x7C340400,  //  003F  CALL	R13	2
-      0x8C381713,  //  0040  GETMET	R14	R11	K19
-      0x58400017,  //  0041  LDCONST	R16	K23
-      0x7C380400,  //  0042  CALL	R14	2
-      0xB83E3000,  //  0043  GETNGBL	R15	K24
-      0x8C3C1F19,  //  0044  GETMET	R15	R15	K25
-      0x8C440B02,  //  0045  GETMET	R17	R5	K2
-      0x584C001A,  //  0046  LDCONST	R19	K26
-      0x5C501800,  //  0047  MOVE	R20	R12
-      0x5C541C00,  //  0048  MOVE	R21	R14
-      0x5C581A00,  //  0049  MOVE	R22	R13
-      0x7C440A00,  //  004A  CALL	R17	5
-      0x50480200,  //  004B  LDBOOL	R18	1	0
-      0x7C3C0600,  //  004C  CALL	R15	3
-      0x8C28111B,  //  004D  GETMET	R10	R8	K27
-      0x7C280200,  //  004E  CALL	R10	1
-      0x80000000,  //  004F  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: show_mqtt_settings
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_show_mqtt_settings,   /* name */
-  be_nested_proto(
-    6,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 9]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(string),
-    /* K2   */  be_nested_str(content_send),
-    /* K3   */  be_nested_str(_X3Cform_X20action_X3D_X27_X2Feziecloudconf1_X27_X20method_X3D_X27post_X27_X20_X3E),
-    /* K4   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BMQTT_X20User_X20Settings_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str(show_mqtt_user_pass),
-    /* K6   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20type_X3D_X27submit_X27_X20name_X3D_X27action_X27_X20value_X3D_X27changemqttcredentials_X27_X20onsubmit_X3D_X27return_X20confirm_X28_X22This_X20will_X20cause_X20a_X20restart_X2E_X22_X29_X3B_X27_X3EChange_X20MQTT_X20Credentials_X3C_X2Fbutton_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K7   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K8   */  be_nested_str(_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
-    }),
-    &be_const_str_show_mqtt_settings,
-    &be_const_str_solidified,
-    ( &(const binstruction[20]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0xA40A0200,  //  0001  IMPORT	R2	K1
-      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
-      0x58140003,  //  0003  LDCONST	R5	K3
-      0x7C0C0400,  //  0004  CALL	R3	2
-      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
-      0x58140004,  //  0006  LDCONST	R5	K4
-      0x7C0C0400,  //  0007  CALL	R3	2
-      0x8C0C0105,  //  0008  GETMET	R3	R0	K5
-      0x7C0C0200,  //  0009  CALL	R3	1
-      0x8C0C0302,  //  000A  GETMET	R3	R1	K2
-      0x58140006,  //  000B  LDCONST	R5	K6
-      0x7C0C0400,  //  000C  CALL	R3	2
-      0x8C0C0302,  //  000D  GETMET	R3	R1	K2
-      0x58140007,  //  000E  LDCONST	R5	K7
-      0x7C0C0400,  //  000F  CALL	R3	2
-      0x8C0C0302,  //  0010  GETMET	R3	R1	K2
-      0x58140008,  //  0011  LDCONST	R5	K8
-      0x7C0C0400,  //  0012  CALL	R3	2
-      0x80000000,  //  0013  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: web_add_main_button
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_web_add_main_button,   /* name */
-  be_nested_proto(
-    5,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 3]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(content_send),
-    /* K2   */  be_nested_str(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziecloudconf_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20Cloud_X20Configuration_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
-    }),
-    &be_const_str_web_add_main_button,
-    &be_const_str_solidified,
-    ( &(const binstruction[ 5]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0x8C080301,  //  0001  GETMET	R2	R1	K1
-      0x58100002,  //  0002  LDCONST	R4	K2
-      0x7C080400,  //  0003  CALL	R2	2
-      0x80000000,  //  0004  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: show_mqtt_user_pass
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_show_mqtt_user_pass,   /* name */
-  be_nested_proto(
-    5,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 6]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(content_send),
-    /* K2   */  be_nested_str(_X3Cp_X3EMQTT_X20Username_X3A_X3C_X2Fp_X3E),
-    /* K3   */  be_nested_str(_X3Cinput_X20type_X3D_X27text_X27_X20name_X3D_X27mqtt_username_X27_X20placeholder_X3D_X27Enter_X20your_X20MQTT_X20username_X27_X20required_X2F_X3E),
-    /* K4   */  be_nested_str(_X3Cp_X3EMQTT_X20Password_X3A_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str(_X3Cinput_X20type_X3D_X27password_X27_X20name_X3D_X27mqtt_password_X27_X20placeholder_X3D_X27Enter_X20your_X20MQTT_X20password_X27_X20required_X2F_X3E),
-    }),
-    &be_const_str_show_mqtt_user_pass,
-    &be_const_str_solidified,
-    ( &(const binstruction[14]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0x8C080301,  //  0001  GETMET	R2	R1	K1
-      0x58100002,  //  0002  LDCONST	R4	K2
-      0x7C080400,  //  0003  CALL	R2	2
-      0x8C080301,  //  0004  GETMET	R2	R1	K1
-      0x58100003,  //  0005  LDCONST	R4	K3
-      0x7C080400,  //  0006  CALL	R2	2
-      0x8C080301,  //  0007  GETMET	R2	R1	K1
-      0x58100004,  //  0008  LDCONST	R4	K4
-      0x7C080400,  //  0009  CALL	R2	2
-      0x8C080301,  //  000A  GETMET	R2	R1	K1
-      0x58100005,  //  000B  LDCONST	R4	K5
-      0x7C080400,  //  000C  CALL	R2	2
-      0x80000000,  //  000D  RET	0
+      0x8C0C030A,  //  001A  GETMET	R3	R1	K10
+      0x8814030C,  //  001B  GETMBR	R5	R1	K12
+      0x7C0C0400,  //  001C  CALL	R3	2
+      0x8C0C030D,  //  001D  GETMET	R3	R1	K13
+      0x7C0C0200,  //  001E  CALL	R3	1
+      0x80000000,  //  001F  RET	0
     })
   )
 );
@@ -350,33 +93,6 @@ be_local_closure(ezie_cloud_configurator_get_owner_email,   /* name */
     /* K0   */  be_nested_str(owner_email),
     }),
     &be_const_str_get_owner_email,
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: get_mqtt_password
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_get_mqtt_password,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str(mqtt_password),
-    }),
-    &be_const_str_get_mqtt_password,
     &be_const_str_solidified,
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
@@ -486,69 +202,6 @@ be_local_closure(ezie_cloud_configurator_show_info,   /* name */
       0x5814000D,  //  003B  LDCONST	R5	K13
       0x7C0C0400,  //  003C  CALL	R3	2
       0x80000000,  //  003D  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: show_owner_settings
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_show_owner_settings,   /* name */
-  be_nested_proto(
-    9,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[12]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(string),
-    /* K2   */  be_nested_str(content_send),
-    /* K3   */  be_nested_str(_X3Cform_X20action_X3D_X27_X2Feziecloudconf_X27_X20method_X3D_X27post_X27_X20_X3E),
-    /* K4   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BDevice_X20Ownership_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K5   */  be_nested_str(_X3Cp_X3EEmail_X20Address_X3A_X3C_X2Fp_X3E),
-    /* K6   */  be_nested_str(format),
-    /* K7   */  be_nested_str(_X3Cinput_X20type_X3D_X27email_X27_X20name_X3D_X27email_X27_X20placeholder_X3D_X27Enter_X20your_X20email_X20address_X27_X20value_X3D_X27_X25s_X27_X20required_X2F_X3E),
-    /* K8   */  be_nested_str(owner_email),
-    /* K9   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20type_X3D_X27submit_X27_X20name_X3D_X27action_X27_X20value_X3D_X27ownership_X27_X3EConfirm_X20Email_X3C_X2Fbutton_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K10  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
-    /* K11  */  be_nested_str(_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
-    }),
-    &be_const_str_show_owner_settings,
-    &be_const_str_solidified,
-    ( &(const binstruction[27]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0xA40A0200,  //  0001  IMPORT	R2	K1
-      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
-      0x58140003,  //  0003  LDCONST	R5	K3
-      0x7C0C0400,  //  0004  CALL	R3	2
-      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
-      0x58140004,  //  0006  LDCONST	R5	K4
-      0x7C0C0400,  //  0007  CALL	R3	2
-      0x8C0C0302,  //  0008  GETMET	R3	R1	K2
-      0x58140005,  //  0009  LDCONST	R5	K5
-      0x7C0C0400,  //  000A  CALL	R3	2
-      0x8C0C0302,  //  000B  GETMET	R3	R1	K2
-      0x8C140506,  //  000C  GETMET	R5	R2	K6
-      0x581C0007,  //  000D  LDCONST	R7	K7
-      0x88200108,  //  000E  GETMBR	R8	R0	K8
-      0x7C140600,  //  000F  CALL	R5	3
-      0x7C0C0400,  //  0010  CALL	R3	2
-      0x8C0C0302,  //  0011  GETMET	R3	R1	K2
-      0x58140009,  //  0012  LDCONST	R5	K9
-      0x7C0C0400,  //  0013  CALL	R3	2
-      0x8C0C0302,  //  0014  GETMET	R3	R1	K2
-      0x5814000A,  //  0015  LDCONST	R5	K10
-      0x7C0C0400,  //  0016  CALL	R3	2
-      0x8C0C0302,  //  0017  GETMET	R3	R1	K2
-      0x5814000B,  //  0018  LDCONST	R5	K11
-      0x7C0C0400,  //  0019  CALL	R3	2
-      0x80000000,  //  001A  RET	0
     })
   )
 );
@@ -735,12 +388,428 @@ be_local_closure(ezie_cloud_configurator_web_add_handler,   /* name */
 
 
 /********************************************************************
+** Solidified function: page_part_ctl
+********************************************************************/
+be_local_closure(ezie_cloud_configurator_page_part_ctl,   /* name */
+  be_nested_proto(
+    18,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[43]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(check_privileged_access),
+    /* K2   */  be_nested_str(string),
+    /* K3   */  be_nested_str(partition_core),
+    /* K4   */  be_nested_str(persist),
+    /* K5   */  be_nested_str(Partition),
+    /* K6   */  be_nested_str(has_arg),
+    /* K7   */  be_nested_str(action),
+    /* K8   */  be_nested_str(arg),
+    /* K9   */  be_nested_str(ownership),
+    /* K10  */  be_nested_str(email),
+    /* K11  */  be_nested_str(owner_email),
+    /* K12  */  be_nested_str(save),
+    /* K13  */  be_nested_str(tasmota),
+    /* K14  */  be_nested_str(cmd),
+    /* K15  */  be_nested_str(format),
+    /* K16  */  be_nested_str(Publish_X20tele_X2F349454CC01D4_X2Fownership_X2Fclaim_X20_X7B_X22email_X22_X3A_X22_X25s_X22_X7D),
+    /* K17  */  be_nested_str(changemqttcredentials),
+    /* K18  */  be_nested_str(mqtt_username),
+    /* K19  */  be_nested_str(mqtt_password),
+    /* K20  */  be_nested_str(Publish_X20tele_X2F349454CC01D4_X2Fmqqt_X2Fchange_credentials_X20_X7B_X22username_X22_X3A_X22_X25s_X22_X2C_X22password_X22_X3A_X22_X25s_X22_X7D),
+    /* K21  */  be_nested_str(BackLog_X20SetOption3_X201_X3B_X20SetOption103_X201_X3B_X20MqttHost_X20_X25s_X3B_X20MqttPort_X20_X25s_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3DTasmotaAuth_X3B_X20MqttPassword_X20_X25s),
+    /* K22  */  be_nested_str(mqtt_host),
+    /* K23  */  be_nested_str(mqtt_port),
+    /* K24  */  be_nested_str(resetmqtt),
+    /* K25  */  be_nested_str(updatemqtt),
+    /* K26  */  be_nested_str(BackLog_X20MqttHost_X20_X25s_X3B_X20MqttPort_X20_X25s_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3DTasmotaAuth_X3B_X20MqttPassword_X20_X25s),
+    /* K27  */  be_nested_str(publish_result),
+    /* K28  */  be_nested_str(_X7B_X22EZIE_X22_X3A_X7B_X22cloud_settings_Updated_X22_X3A1_X7D_X7D),
+    /* K29  */  be_nested_str(EZIE),
+    /* K30  */  be_nested_str(redirect),
+    /* K31  */  be_nested_str(_X2F_X3F),
+    /* K32  */  be_nested_str(log),
+    /* K33  */  be_nested_str(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
+    /* K34  */  be_const_int(2),
+    /* K35  */  be_nested_str(content_start),
+    /* K36  */  be_nested_str(Parameter_X20error),
+    /* K37  */  be_nested_str(content_send_style),
+    /* K38  */  be_nested_str(content_send),
+    /* K39  */  be_nested_str(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
+    /* K40  */  be_nested_str(content_button),
+    /* K41  */  be_nested_str(BUTTON_MANAGEMENT),
+    /* K42  */  be_nested_str(content_stop),
+    }),
+    &be_const_str_page_part_ctl,
+    &be_const_str_solidified,
+    ( &(const binstruction[157]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0x8C080301,  //  0001  GETMET	R2	R1	K1
+      0x7C080200,  //  0002  CALL	R2	1
+      0x740A0001,  //  0003  JMPT	R2	#0006
+      0x4C080000,  //  0004  LDNIL	R2
+      0x80040400,  //  0005  RET	1	R2
+      0xA40A0400,  //  0006  IMPORT	R2	K2
+      0xA40E0600,  //  0007  IMPORT	R3	K3
+      0xA4120800,  //  0008  IMPORT	R4	K4
+      0x8C140705,  //  0009  GETMET	R5	R3	K5
+      0x7C140200,  //  000A  CALL	R5	1
+      0xA8020071,  //  000B  EXBLK	0	#007E
+      0x8C180306,  //  000C  GETMET	R6	R1	K6
+      0x58200007,  //  000D  LDCONST	R8	K7
+      0x7C180400,  //  000E  CALL	R6	2
+      0x781A0063,  //  000F  JMPF	R6	#0074
+      0x8C180308,  //  0010  GETMET	R6	R1	K8
+      0x58200007,  //  0011  LDCONST	R8	K7
+      0x7C180400,  //  0012  CALL	R6	2
+      0x1C1C0D09,  //  0013  EQ	R7	R6	K9
+      0x781E0014,  //  0014  JMPF	R7	#002A
+      0x8C1C0306,  //  0015  GETMET	R7	R1	K6
+      0x5824000A,  //  0016  LDCONST	R9	K10
+      0x7C1C0400,  //  0017  CALL	R7	2
+      0x781E000F,  //  0018  JMPF	R7	#0029
+      0x8C1C0308,  //  0019  GETMET	R7	R1	K8
+      0x5824000A,  //  001A  LDCONST	R9	K10
+      0x7C1C0400,  //  001B  CALL	R7	2
+      0x90021607,  //  001C  SETMBR	R0	K11	R7
+      0x881C010B,  //  001D  GETMBR	R7	R0	K11
+      0x90121607,  //  001E  SETMBR	R4	K11	R7
+      0x8C1C090C,  //  001F  GETMET	R7	R4	K12
+      0x7C1C0200,  //  0020  CALL	R7	1
+      0xB81E1A00,  //  0021  GETNGBL	R7	K13
+      0x8C1C0F0E,  //  0022  GETMET	R7	R7	K14
+      0x8C24050F,  //  0023  GETMET	R9	R2	K15
+      0x582C0010,  //  0024  LDCONST	R11	K16
+      0x8830010B,  //  0025  GETMBR	R12	R0	K11
+      0x7C240600,  //  0026  CALL	R9	3
+      0x50280200,  //  0027  LDBOOL	R10	1	0
+      0x7C1C0600,  //  0028  CALL	R7	3
+      0x70020049,  //  0029  JMP		#0074
+      0x1C1C0D11,  //  002A  EQ	R7	R6	K17
+      0x781E0022,  //  002B  JMPF	R7	#004F
+      0x8C1C0306,  //  002C  GETMET	R7	R1	K6
+      0x58240012,  //  002D  LDCONST	R9	K18
+      0x7C1C0400,  //  002E  CALL	R7	2
+      0x781E001D,  //  002F  JMPF	R7	#004E
+      0x8C1C0306,  //  0030  GETMET	R7	R1	K6
+      0x58240013,  //  0031  LDCONST	R9	K19
+      0x7C1C0400,  //  0032  CALL	R7	2
+      0x781E0019,  //  0033  JMPF	R7	#004E
+      0x8C1C0308,  //  0034  GETMET	R7	R1	K8
+      0x58240012,  //  0035  LDCONST	R9	K18
+      0x7C1C0400,  //  0036  CALL	R7	2
+      0x8C200308,  //  0037  GETMET	R8	R1	K8
+      0x58280013,  //  0038  LDCONST	R10	K19
+      0x7C200400,  //  0039  CALL	R8	2
+      0xB8261A00,  //  003A  GETNGBL	R9	K13
+      0x8C24130E,  //  003B  GETMET	R9	R9	K14
+      0x8C2C050F,  //  003C  GETMET	R11	R2	K15
+      0x58340014,  //  003D  LDCONST	R13	K20
+      0x5C380E00,  //  003E  MOVE	R14	R7
+      0x5C3C1000,  //  003F  MOVE	R15	R8
+      0x7C2C0800,  //  0040  CALL	R11	4
+      0x50300200,  //  0041  LDBOOL	R12	1	0
+      0x7C240600,  //  0042  CALL	R9	3
+      0xB8261A00,  //  0043  GETNGBL	R9	K13
+      0x8C24130E,  //  0044  GETMET	R9	R9	K14
+      0x8C2C050F,  //  0045  GETMET	R11	R2	K15
+      0x58340015,  //  0046  LDCONST	R13	K21
+      0x88380116,  //  0047  GETMBR	R14	R0	K22
+      0x883C0117,  //  0048  GETMBR	R15	R0	K23
+      0x5C400E00,  //  0049  MOVE	R16	R7
+      0x5C441000,  //  004A  MOVE	R17	R8
+      0x7C2C0C00,  //  004B  CALL	R11	6
+      0x50300200,  //  004C  LDBOOL	R12	1	0
+      0x7C240600,  //  004D  CALL	R9	3
+      0x70020024,  //  004E  JMP		#0074
+      0x1C1C0D18,  //  004F  EQ	R7	R6	K24
+      0x781E0007,  //  0050  JMPF	R7	#0059
+      0xB81E1A00,  //  0051  GETNGBL	R7	K13
+      0x8C1C0F0E,  //  0052  GETMET	R7	R7	K14
+      0x8C24050F,  //  0053  GETMET	R9	R2	K15
+      0x582C0018,  //  0054  LDCONST	R11	K24
+      0x7C240400,  //  0055  CALL	R9	2
+      0x50280200,  //  0056  LDBOOL	R10	1	0
+      0x7C1C0600,  //  0057  CALL	R7	3
+      0x7002001A,  //  0058  JMP		#0074
+      0x1C1C0D19,  //  0059  EQ	R7	R6	K25
+      0x781E0018,  //  005A  JMPF	R7	#0074
+      0x8C1C0306,  //  005B  GETMET	R7	R1	K6
+      0x58240012,  //  005C  LDCONST	R9	K18
+      0x7C1C0400,  //  005D  CALL	R7	2
+      0x781E0014,  //  005E  JMPF	R7	#0074
+      0x8C1C0306,  //  005F  GETMET	R7	R1	K6
+      0x58240013,  //  0060  LDCONST	R9	K19
+      0x7C1C0400,  //  0061  CALL	R7	2
+      0x781E0010,  //  0062  JMPF	R7	#0074
+      0x8C1C0308,  //  0063  GETMET	R7	R1	K8
+      0x58240012,  //  0064  LDCONST	R9	K18
+      0x7C1C0400,  //  0065  CALL	R7	2
+      0x8C200308,  //  0066  GETMET	R8	R1	K8
+      0x58280013,  //  0067  LDCONST	R10	K19
+      0x7C200400,  //  0068  CALL	R8	2
+      0xB8261A00,  //  0069  GETNGBL	R9	K13
+      0x8C24130E,  //  006A  GETMET	R9	R9	K14
+      0x8C2C050F,  //  006B  GETMET	R11	R2	K15
+      0x5834001A,  //  006C  LDCONST	R13	K26
+      0x88380116,  //  006D  GETMBR	R14	R0	K22
+      0x883C0117,  //  006E  GETMBR	R15	R0	K23
+      0x5C400E00,  //  006F  MOVE	R16	R7
+      0x5C441000,  //  0070  MOVE	R17	R8
+      0x7C2C0C00,  //  0071  CALL	R11	6
+      0x50300200,  //  0072  LDBOOL	R12	1	0
+      0x7C240600,  //  0073  CALL	R9	3
+      0xB81A1A00,  //  0074  GETNGBL	R6	K13
+      0x8C180D1B,  //  0075  GETMET	R6	R6	K27
+      0x5820001C,  //  0076  LDCONST	R8	K28
+      0x5824001D,  //  0077  LDCONST	R9	K29
+      0x7C180600,  //  0078  CALL	R6	3
+      0x8C18031E,  //  0079  GETMET	R6	R1	K30
+      0x5820001F,  //  007A  LDCONST	R8	K31
+      0x7C180400,  //  007B  CALL	R6	2
+      0xA8040001,  //  007C  EXBLK	1	1
+      0x7002001D,  //  007D  JMP		#009C
+      0xAC180002,  //  007E  CATCH	R6	0	2
+      0x7002001A,  //  007F  JMP		#009B
+      0xB8221A00,  //  0080  GETNGBL	R8	K13
+      0x8C201120,  //  0081  GETMET	R8	R8	K32
+      0x8C28050F,  //  0082  GETMET	R10	R2	K15
+      0x58300021,  //  0083  LDCONST	R12	K33
+      0x5C340C00,  //  0084  MOVE	R13	R6
+      0x5C380E00,  //  0085  MOVE	R14	R7
+      0x7C280800,  //  0086  CALL	R10	4
+      0x582C0022,  //  0087  LDCONST	R11	K34
+      0x7C200600,  //  0088  CALL	R8	3
+      0x8C200323,  //  0089  GETMET	R8	R1	K35
+      0x58280024,  //  008A  LDCONST	R10	K36
+      0x7C200400,  //  008B  CALL	R8	2
+      0x8C200325,  //  008C  GETMET	R8	R1	K37
+      0x7C200200,  //  008D  CALL	R8	1
+      0x8C200326,  //  008E  GETMET	R8	R1	K38
+      0x8C28050F,  //  008F  GETMET	R10	R2	K15
+      0x58300027,  //  0090  LDCONST	R12	K39
+      0x5C340C00,  //  0091  MOVE	R13	R6
+      0x5C380E00,  //  0092  MOVE	R14	R7
+      0x7C280800,  //  0093  CALL	R10	4
+      0x7C200400,  //  0094  CALL	R8	2
+      0x8C200328,  //  0095  GETMET	R8	R1	K40
+      0x88280329,  //  0096  GETMBR	R10	R1	K41
+      0x7C200400,  //  0097  CALL	R8	2
+      0x8C20032A,  //  0098  GETMET	R8	R1	K42
+      0x7C200200,  //  0099  CALL	R8	1
+      0x70020000,  //  009A  JMP		#009C
+      0xB0080000,  //  009B  RAISE	2	R0	R0
+      0x80000000,  //  009C  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: show_mqtt_settings
+********************************************************************/
+be_local_closure(ezie_cloud_configurator_show_mqtt_settings,   /* name */
+  be_nested_proto(
+    6,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 9]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(string),
+    /* K2   */  be_nested_str(content_send),
+    /* K3   */  be_nested_str(_X3Cform_X20action_X3D_X27_X2Feziecloudconf1_X27_X20method_X3D_X27post_X27_X20_X3E),
+    /* K4   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BMQTT_X20User_X20Settings_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str(show_mqtt_user_pass),
+    /* K6   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20type_X3D_X27submit_X27_X20name_X3D_X27action_X27_X20value_X3D_X27changemqttcredentials_X27_X20onsubmit_X3D_X27return_X20confirm_X28_X22This_X20will_X20cause_X20a_X20restart_X2E_X22_X29_X3B_X27_X3EChange_X20MQTT_X20Credentials_X3C_X2Fbutton_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K7   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K8   */  be_nested_str(_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    }),
+    &be_const_str_show_mqtt_settings,
+    &be_const_str_solidified,
+    ( &(const binstruction[20]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0xA40A0200,  //  0001  IMPORT	R2	K1
+      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
+      0x58140003,  //  0003  LDCONST	R5	K3
+      0x7C0C0400,  //  0004  CALL	R3	2
+      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
+      0x58140004,  //  0006  LDCONST	R5	K4
+      0x7C0C0400,  //  0007  CALL	R3	2
+      0x8C0C0105,  //  0008  GETMET	R3	R0	K5
+      0x7C0C0200,  //  0009  CALL	R3	1
+      0x8C0C0302,  //  000A  GETMET	R3	R1	K2
+      0x58140006,  //  000B  LDCONST	R5	K6
+      0x7C0C0400,  //  000C  CALL	R3	2
+      0x8C0C0302,  //  000D  GETMET	R3	R1	K2
+      0x58140007,  //  000E  LDCONST	R5	K7
+      0x7C0C0400,  //  000F  CALL	R3	2
+      0x8C0C0302,  //  0010  GETMET	R3	R1	K2
+      0x58140008,  //  0011  LDCONST	R5	K8
+      0x7C0C0400,  //  0012  CALL	R3	2
+      0x80000000,  //  0013  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: show_owner_settings
+********************************************************************/
+be_local_closure(ezie_cloud_configurator_show_owner_settings,   /* name */
+  be_nested_proto(
+    9,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[12]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(string),
+    /* K2   */  be_nested_str(content_send),
+    /* K3   */  be_nested_str(_X3Cform_X20action_X3D_X27_X2Feziecloudconf_X27_X20method_X3D_X27post_X27_X20_X3E),
+    /* K4   */  be_nested_str(_X3Cfieldset_X3E_X3Clegend_X3E_X3Cb_X3E_X26nbsp_X3BDevice_X20Ownership_X26nbsp_X3B_X3C_X2Fb_X3E_X3C_X2Flegend_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str(_X3Cp_X3EEmail_X20Address_X3A_X3C_X2Fp_X3E),
+    /* K6   */  be_nested_str(format),
+    /* K7   */  be_nested_str(_X3Cinput_X20type_X3D_X27email_X27_X20name_X3D_X27email_X27_X20placeholder_X3D_X27Enter_X20your_X20email_X20address_X27_X20value_X3D_X27_X25s_X27_X20required_X2F_X3E),
+    /* K8   */  be_nested_str(owner_email),
+    /* K9   */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20type_X3D_X27submit_X27_X20name_X3D_X27action_X27_X20value_X3D_X27ownership_X27_X3EConfirm_X20Email_X3C_X2Fbutton_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K10  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3C_X2Ffieldset_X3E_X3Cp_X3E_X3C_X2Fp_X3E),
+    /* K11  */  be_nested_str(_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    }),
+    &be_const_str_show_owner_settings,
+    &be_const_str_solidified,
+    ( &(const binstruction[27]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0xA40A0200,  //  0001  IMPORT	R2	K1
+      0x8C0C0302,  //  0002  GETMET	R3	R1	K2
+      0x58140003,  //  0003  LDCONST	R5	K3
+      0x7C0C0400,  //  0004  CALL	R3	2
+      0x8C0C0302,  //  0005  GETMET	R3	R1	K2
+      0x58140004,  //  0006  LDCONST	R5	K4
+      0x7C0C0400,  //  0007  CALL	R3	2
+      0x8C0C0302,  //  0008  GETMET	R3	R1	K2
+      0x58140005,  //  0009  LDCONST	R5	K5
+      0x7C0C0400,  //  000A  CALL	R3	2
+      0x8C0C0302,  //  000B  GETMET	R3	R1	K2
+      0x8C140506,  //  000C  GETMET	R5	R2	K6
+      0x581C0007,  //  000D  LDCONST	R7	K7
+      0x88200108,  //  000E  GETMBR	R8	R0	K8
+      0x7C140600,  //  000F  CALL	R5	3
+      0x7C0C0400,  //  0010  CALL	R3	2
+      0x8C0C0302,  //  0011  GETMET	R3	R1	K2
+      0x58140009,  //  0012  LDCONST	R5	K9
+      0x7C0C0400,  //  0013  CALL	R3	2
+      0x8C0C0302,  //  0014  GETMET	R3	R1	K2
+      0x5814000A,  //  0015  LDCONST	R5	K10
+      0x7C0C0400,  //  0016  CALL	R3	2
+      0x8C0C0302,  //  0017  GETMET	R3	R1	K2
+      0x5814000B,  //  0018  LDCONST	R5	K11
+      0x7C0C0400,  //  0019  CALL	R3	2
+      0x80000000,  //  001A  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: show_mqtt_user_pass
+********************************************************************/
+be_local_closure(ezie_cloud_configurator_show_mqtt_user_pass,   /* name */
+  be_nested_proto(
+    5,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 6]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(content_send),
+    /* K2   */  be_nested_str(_X3Cp_X3EMQTT_X20Username_X3A_X3C_X2Fp_X3E),
+    /* K3   */  be_nested_str(_X3Cinput_X20type_X3D_X27text_X27_X20name_X3D_X27mqtt_username_X27_X20placeholder_X3D_X27Enter_X20your_X20MQTT_X20username_X27_X20required_X2F_X3E),
+    /* K4   */  be_nested_str(_X3Cp_X3EMQTT_X20Password_X3A_X3C_X2Fp_X3E),
+    /* K5   */  be_nested_str(_X3Cinput_X20type_X3D_X27password_X27_X20name_X3D_X27mqtt_password_X27_X20placeholder_X3D_X27Enter_X20your_X20MQTT_X20password_X27_X20required_X2F_X3E),
+    }),
+    &be_const_str_show_mqtt_user_pass,
+    &be_const_str_solidified,
+    ( &(const binstruction[14]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0x8C080301,  //  0001  GETMET	R2	R1	K1
+      0x58100002,  //  0002  LDCONST	R4	K2
+      0x7C080400,  //  0003  CALL	R2	2
+      0x8C080301,  //  0004  GETMET	R2	R1	K1
+      0x58100003,  //  0005  LDCONST	R4	K3
+      0x7C080400,  //  0006  CALL	R2	2
+      0x8C080301,  //  0007  GETMET	R2	R1	K1
+      0x58100004,  //  0008  LDCONST	R4	K4
+      0x7C080400,  //  0009  CALL	R2	2
+      0x8C080301,  //  000A  GETMET	R2	R1	K1
+      0x58100005,  //  000B  LDCONST	R4	K5
+      0x7C080400,  //  000C  CALL	R2	2
+      0x80000000,  //  000D  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: web_add_main_button
+********************************************************************/
+be_local_closure(ezie_cloud_configurator_web_add_main_button,   /* name */
+  be_nested_proto(
+    5,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 3]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(content_send),
+    /* K2   */  be_nested_str(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziecloudconf_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20Cloud_X20Configuration_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    }),
+    &be_const_str_web_add_main_button,
+    &be_const_str_solidified,
+    ( &(const binstruction[ 5]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0x8C080301,  //  0001  GETMET	R2	R1	K1
+      0x58100002,  //  0002  LDCONST	R4	K2
+      0x7C080400,  //  0003  CALL	R2	2
+      0x80000000,  //  0004  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
 ** Solidified function: init
 ********************************************************************/
 be_local_closure(ezie_cloud_configurator_init,   /* name */
   be_nested_proto(
-    13,                          /* nstack */
-    3,                          /* argc */
+    12,                          /* nstack */
+    1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
     NULL,                       /* no upvals */
@@ -807,287 +876,115 @@ be_local_closure(ezie_cloud_configurator_init,   /* name */
       ),
     }),
     1,                          /* has constants */
-    ( &(const bvalue[21]) {     /* constants */
+    ( &(const bvalue[29]) {     /* constants */
     /* K0   */  be_nested_str(mqtt),
     /* K1   */  be_nested_str(json),
-    /* K2   */  be_nested_str(tasmota),
-    /* K3   */  be_nested_str(cmd),
-    /* K4   */  be_nested_str(Status_X206),
-    /* K5   */  be_nested_str(find),
-    /* K6   */  be_nested_str(StatusMQT),
-    /* K7   */  be_nested_str(MqttCount),
-    /* K8   */  be_nested_str(client_id),
-    /* K9   */  be_nested_str(MqttClient),
-    /* K10  */  be_const_int(0),
-    /* K11  */  be_nested_str(is_mqtt_connected),
-    /* K12  */  be_nested_str(owner_email),
-    /* K13  */  be_nested_str(mqtt_username),
-    /* K14  */  be_nested_str(add_rule),
-    /* K15  */  be_nested_str(Mqtt_X23Connected),
-    /* K16  */  be_nested_str(cloud_settings_enabled),
-    /* K17  */  be_nested_str(web_add_handler),
-    /* K18  */  be_nested_str(add_cmd),
-    /* K19  */  be_nested_str(resetmqtt),
-    /* K20  */  be_nested_str(add_driver),
+    /* K2   */  be_nested_str(persist),
+    /* K3   */  be_nested_str(tasmota),
+    /* K4   */  be_nested_str(cmd),
+    /* K5   */  be_nested_str(Status_X206),
+    /* K6   */  be_nested_str(find),
+    /* K7   */  be_nested_str(StatusMQT),
+    /* K8   */  be_nested_str(MqttCount),
+    /* K9   */  be_nested_str(client_id),
+    /* K10  */  be_nested_str(MqttClient),
+    /* K11  */  be_const_int(0),
+    /* K12  */  be_nested_str(is_mqtt_connected),
+    /* K13  */  be_nested_str(has),
+    /* K14  */  be_nested_str(mqtt_host),
+    /* K15  */  be_nested_str(a3bnjilp7tzxpg_X2Dats_X2Eiot_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom),
+    /* K16  */  be_nested_str(mqtt_port),
+    /* K17  */  be_nested_str(443),
+    /* K18  */  be_nested_str(owner_email),
+    /* K19  */  be_nested_str(kisusenterprises_X40gmail_X2Ecom),
+    /* K20  */  be_nested_str(authorizer_name),
+    /* K21  */  be_nested_str(TasmotaAuth),
+    /* K22  */  be_nested_str(add_rule),
+    /* K23  */  be_nested_str(Mqtt_X23Connected),
+    /* K24  */  be_nested_str(cloud_settings_enabled),
+    /* K25  */  be_nested_str(web_add_handler),
+    /* K26  */  be_nested_str(add_cmd),
+    /* K27  */  be_nested_str(resetmqtt),
+    /* K28  */  be_nested_str(add_driver),
     }),
     &be_const_str_init,
     &be_const_str_solidified,
-    ( &(const binstruction[44]) {  /* code */
-      0xA40E0000,  //  0000  IMPORT	R3	K0
-      0xA4120200,  //  0001  IMPORT	R4	K1
-      0xB8160400,  //  0002  GETNGBL	R5	K2
-      0x8C140B03,  //  0003  GETMET	R5	R5	K3
-      0x581C0004,  //  0004  LDCONST	R7	K4
-      0x7C140400,  //  0005  CALL	R5	2
-      0x8C180B05,  //  0006  GETMET	R6	R5	K5
-      0x58200006,  //  0007  LDCONST	R8	K6
-      0x7C180400,  //  0008  CALL	R6	2
-      0x8C1C0D05,  //  0009  GETMET	R7	R6	K5
-      0x58240007,  //  000A  LDCONST	R9	K7
-      0x7C1C0400,  //  000B  CALL	R7	2
-      0x8C200D05,  //  000C  GETMET	R8	R6	K5
-      0x58280009,  //  000D  LDCONST	R10	K9
-      0x7C200400,  //  000E  CALL	R8	2
-      0x90021008,  //  000F  SETMBR	R0	K8	R8
-      0x1C200F0A,  //  0010  EQ	R8	R7	K10
-      0x78220002,  //  0011  JMPF	R8	#0015
-      0x50200000,  //  0012  LDBOOL	R8	0	0
-      0x90021608,  //  0013  SETMBR	R0	K11	R8
-      0x70020001,  //  0014  JMP		#0017
-      0x50200200,  //  0015  LDBOOL	R8	1	0
-      0x90021608,  //  0016  SETMBR	R0	K11	R8
-      0x90021801,  //  0017  SETMBR	R0	K12	R1
-      0x90021A02,  //  0018  SETMBR	R0	K13	R2
-      0xB8220400,  //  0019  GETNGBL	R8	K2
-      0x8C20110E,  //  001A  GETMET	R8	R8	K14
-      0x5828000F,  //  001B  LDCONST	R10	K15
-      0x842C0000,  //  001C  CLOSURE	R11	P0
-      0x58300010,  //  001D  LDCONST	R12	K16
-      0x7C200800,  //  001E  CALL	R8	4
-      0x8C200111,  //  001F  GETMET	R8	R0	K17
-      0x7C200200,  //  0020  CALL	R8	1
-      0xB8220400,  //  0021  GETNGBL	R8	K2
-      0x8C201112,  //  0022  GETMET	R8	R8	K18
-      0x58280013,  //  0023  LDCONST	R10	K19
-      0x842C0001,  //  0024  CLOSURE	R11	P1
-      0x7C200600,  //  0025  CALL	R8	3
-      0xB8220400,  //  0026  GETNGBL	R8	K2
-      0x8C201114,  //  0027  GETMET	R8	R8	K20
-      0x5C280000,  //  0028  MOVE	R10	R0
-      0x7C200400,  //  0029  CALL	R8	2
-      0xA0000000,  //  002A  CLOSE	R0
-      0x80000000,  //  002B  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: page_part_ctl
-********************************************************************/
-be_local_closure(ezie_cloud_configurator_page_part_ctl,   /* name */
-  be_nested_proto(
-    16,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[39]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(check_privileged_access),
-    /* K2   */  be_nested_str(string),
-    /* K3   */  be_nested_str(partition_core),
-    /* K4   */  be_nested_str(persist),
-    /* K5   */  be_nested_str(Partition),
-    /* K6   */  be_nested_str(has_arg),
-    /* K7   */  be_nested_str(action),
-    /* K8   */  be_nested_str(arg),
-    /* K9   */  be_nested_str(ownership),
-    /* K10  */  be_nested_str(email),
-    /* K11  */  be_nested_str(tasmota),
-    /* K12  */  be_nested_str(cmd),
-    /* K13  */  be_nested_str(format),
-    /* K14  */  be_nested_str(Publish_X20tele_X2F349454CC01D4_X2Fownership_X2Fclaim_X20_X7B_X22email_X22_X3A_X22_X25s_X22_X7D),
-    /* K15  */  be_nested_str(changemqttcredentials),
-    /* K16  */  be_nested_str(mqtt_username),
-    /* K17  */  be_nested_str(mqtt_password),
-    /* K18  */  be_nested_str(Publish_X20tele_X2F349454CC01D4_X2Fmqqt_X2Fchange_credentials_X20_X7B_X22username_X22_X3A_X22_X25s_X22_X2C_X22password_X22_X3A_X22_X25s_X22_X7D),
-    /* K19  */  be_nested_str(BackLog_X20SetOption3_X201_X3B_X20SetOption103_X201_X3B_X20MqttHost_X20a3bnjilp7tzxpg_X2Dats_X2Eiot_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom_X3B_X20MqttPort_X20443_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3DTasmotaAuth_X3B_X20MqttPassword_X20_X25s),
-    /* K20  */  be_nested_str(resetmqtt),
-    /* K21  */  be_nested_str(updatemqtt),
-    /* K22  */  be_nested_str(BackLog_X20MqttHost_X20a3bnjilp7tzxpg_X2Dats_X2Eiot_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom_X3B_X20MqttPort_X20443_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3DTasmotaAuth_X3B_X20MqttPassword_X20_X25s),
-    /* K23  */  be_nested_str(publish_result),
-    /* K24  */  be_nested_str(_X7B_X22EZIE_X22_X3A_X7B_X22cloud_settings_Updated_X22_X3A1_X7D_X7D),
-    /* K25  */  be_nested_str(EZIE),
-    /* K26  */  be_nested_str(redirect),
-    /* K27  */  be_nested_str(_X2F_X3F),
-    /* K28  */  be_nested_str(log),
-    /* K29  */  be_nested_str(BRY_X3A_X20Exception_X3E_X20_X27_X25s_X27_X20_X2D_X20_X25s),
-    /* K30  */  be_const_int(2),
-    /* K31  */  be_nested_str(content_start),
-    /* K32  */  be_nested_str(Parameter_X20error),
-    /* K33  */  be_nested_str(content_send_style),
-    /* K34  */  be_nested_str(content_send),
-    /* K35  */  be_nested_str(_X3Cp_X20style_X3D_X27width_X3A340px_X3B_X27_X3E_X3Cb_X3EException_X3A_X3C_X2Fb_X3E_X3Cbr_X3E_X27_X25s_X27_X3Cbr_X3E_X25s_X3C_X2Fp_X3E),
-    /* K36  */  be_nested_str(content_button),
-    /* K37  */  be_nested_str(BUTTON_MANAGEMENT),
-    /* K38  */  be_nested_str(content_stop),
-    }),
-    &be_const_str_page_part_ctl,
-    &be_const_str_solidified,
-    ( &(const binstruction[148]) {  /* code */
+    ( &(const binstruction[75]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
-      0x8C080301,  //  0001  GETMET	R2	R1	K1
-      0x7C080200,  //  0002  CALL	R2	1
-      0x740A0001,  //  0003  JMPT	R2	#0006
-      0x4C080000,  //  0004  LDNIL	R2
-      0x80040400,  //  0005  RET	1	R2
-      0xA40A0400,  //  0006  IMPORT	R2	K2
-      0xA40E0600,  //  0007  IMPORT	R3	K3
-      0xA4120800,  //  0008  IMPORT	R4	K4
-      0x8C140705,  //  0009  GETMET	R5	R3	K5
-      0x7C140200,  //  000A  CALL	R5	1
-      0xA8020068,  //  000B  EXBLK	0	#0075
-      0x8C180306,  //  000C  GETMET	R6	R1	K6
-      0x58200007,  //  000D  LDCONST	R8	K7
-      0x7C180400,  //  000E  CALL	R6	2
-      0x781A005A,  //  000F  JMPF	R6	#006B
-      0x8C180308,  //  0010  GETMET	R6	R1	K8
-      0x58200007,  //  0011  LDCONST	R8	K7
-      0x7C180400,  //  0012  CALL	R6	2
-      0x1C1C0D09,  //  0013  EQ	R7	R6	K9
-      0x781E000F,  //  0014  JMPF	R7	#0025
-      0x8C1C0306,  //  0015  GETMET	R7	R1	K6
-      0x5824000A,  //  0016  LDCONST	R9	K10
-      0x7C1C0400,  //  0017  CALL	R7	2
-      0x781E000A,  //  0018  JMPF	R7	#0024
-      0x8C1C0308,  //  0019  GETMET	R7	R1	K8
-      0x5824000A,  //  001A  LDCONST	R9	K10
-      0x7C1C0400,  //  001B  CALL	R7	2
-      0xB8221600,  //  001C  GETNGBL	R8	K11
-      0x8C20110C,  //  001D  GETMET	R8	R8	K12
-      0x8C28050D,  //  001E  GETMET	R10	R2	K13
-      0x5830000E,  //  001F  LDCONST	R12	K14
-      0x5C340E00,  //  0020  MOVE	R13	R7
-      0x7C280600,  //  0021  CALL	R10	3
-      0x502C0200,  //  0022  LDBOOL	R11	1	0
-      0x7C200600,  //  0023  CALL	R8	3
-      0x70020045,  //  0024  JMP		#006B
-      0x1C1C0D0F,  //  0025  EQ	R7	R6	K15
-      0x781E0020,  //  0026  JMPF	R7	#0048
-      0x8C1C0306,  //  0027  GETMET	R7	R1	K6
-      0x58240010,  //  0028  LDCONST	R9	K16
-      0x7C1C0400,  //  0029  CALL	R7	2
-      0x781E001B,  //  002A  JMPF	R7	#0047
-      0x8C1C0306,  //  002B  GETMET	R7	R1	K6
-      0x58240011,  //  002C  LDCONST	R9	K17
-      0x7C1C0400,  //  002D  CALL	R7	2
-      0x781E0017,  //  002E  JMPF	R7	#0047
-      0x8C1C0308,  //  002F  GETMET	R7	R1	K8
-      0x58240010,  //  0030  LDCONST	R9	K16
-      0x7C1C0400,  //  0031  CALL	R7	2
-      0x8C200308,  //  0032  GETMET	R8	R1	K8
-      0x58280011,  //  0033  LDCONST	R10	K17
-      0x7C200400,  //  0034  CALL	R8	2
-      0xB8261600,  //  0035  GETNGBL	R9	K11
-      0x8C24130C,  //  0036  GETMET	R9	R9	K12
-      0x8C2C050D,  //  0037  GETMET	R11	R2	K13
-      0x58340012,  //  0038  LDCONST	R13	K18
-      0x5C380E00,  //  0039  MOVE	R14	R7
-      0x5C3C1000,  //  003A  MOVE	R15	R8
-      0x7C2C0800,  //  003B  CALL	R11	4
-      0x50300200,  //  003C  LDBOOL	R12	1	0
-      0x7C240600,  //  003D  CALL	R9	3
-      0xB8261600,  //  003E  GETNGBL	R9	K11
-      0x8C24130C,  //  003F  GETMET	R9	R9	K12
-      0x8C2C050D,  //  0040  GETMET	R11	R2	K13
-      0x58340013,  //  0041  LDCONST	R13	K19
-      0x5C380E00,  //  0042  MOVE	R14	R7
-      0x5C3C1000,  //  0043  MOVE	R15	R8
-      0x7C2C0800,  //  0044  CALL	R11	4
-      0x50300200,  //  0045  LDBOOL	R12	1	0
-      0x7C240600,  //  0046  CALL	R9	3
-      0x70020022,  //  0047  JMP		#006B
-      0x1C1C0D14,  //  0048  EQ	R7	R6	K20
-      0x781E0007,  //  0049  JMPF	R7	#0052
-      0xB81E1600,  //  004A  GETNGBL	R7	K11
-      0x8C1C0F0C,  //  004B  GETMET	R7	R7	K12
-      0x8C24050D,  //  004C  GETMET	R9	R2	K13
-      0x582C0014,  //  004D  LDCONST	R11	K20
-      0x7C240400,  //  004E  CALL	R9	2
-      0x50280200,  //  004F  LDBOOL	R10	1	0
-      0x7C1C0600,  //  0050  CALL	R7	3
-      0x70020018,  //  0051  JMP		#006B
-      0x1C1C0D15,  //  0052  EQ	R7	R6	K21
-      0x781E0016,  //  0053  JMPF	R7	#006B
-      0x8C1C0306,  //  0054  GETMET	R7	R1	K6
-      0x58240010,  //  0055  LDCONST	R9	K16
-      0x7C1C0400,  //  0056  CALL	R7	2
-      0x781E0012,  //  0057  JMPF	R7	#006B
-      0x8C1C0306,  //  0058  GETMET	R7	R1	K6
-      0x58240011,  //  0059  LDCONST	R9	K17
-      0x7C1C0400,  //  005A  CALL	R7	2
-      0x781E000E,  //  005B  JMPF	R7	#006B
-      0x8C1C0308,  //  005C  GETMET	R7	R1	K8
-      0x58240010,  //  005D  LDCONST	R9	K16
-      0x7C1C0400,  //  005E  CALL	R7	2
-      0x8C200308,  //  005F  GETMET	R8	R1	K8
-      0x58280011,  //  0060  LDCONST	R10	K17
-      0x7C200400,  //  0061  CALL	R8	2
-      0xB8261600,  //  0062  GETNGBL	R9	K11
-      0x8C24130C,  //  0063  GETMET	R9	R9	K12
-      0x8C2C050D,  //  0064  GETMET	R11	R2	K13
-      0x58340016,  //  0065  LDCONST	R13	K22
-      0x5C380E00,  //  0066  MOVE	R14	R7
-      0x5C3C1000,  //  0067  MOVE	R15	R8
-      0x7C2C0800,  //  0068  CALL	R11	4
-      0x50300200,  //  0069  LDBOOL	R12	1	0
-      0x7C240600,  //  006A  CALL	R9	3
-      0xB81A1600,  //  006B  GETNGBL	R6	K11
-      0x8C180D17,  //  006C  GETMET	R6	R6	K23
-      0x58200018,  //  006D  LDCONST	R8	K24
-      0x58240019,  //  006E  LDCONST	R9	K25
-      0x7C180600,  //  006F  CALL	R6	3
-      0x8C18031A,  //  0070  GETMET	R6	R1	K26
-      0x5820001B,  //  0071  LDCONST	R8	K27
-      0x7C180400,  //  0072  CALL	R6	2
-      0xA8040001,  //  0073  EXBLK	1	1
-      0x7002001D,  //  0074  JMP		#0093
-      0xAC180002,  //  0075  CATCH	R6	0	2
-      0x7002001A,  //  0076  JMP		#0092
-      0xB8221600,  //  0077  GETNGBL	R8	K11
-      0x8C20111C,  //  0078  GETMET	R8	R8	K28
-      0x8C28050D,  //  0079  GETMET	R10	R2	K13
-      0x5830001D,  //  007A  LDCONST	R12	K29
-      0x5C340C00,  //  007B  MOVE	R13	R6
-      0x5C380E00,  //  007C  MOVE	R14	R7
-      0x7C280800,  //  007D  CALL	R10	4
-      0x582C001E,  //  007E  LDCONST	R11	K30
-      0x7C200600,  //  007F  CALL	R8	3
-      0x8C20031F,  //  0080  GETMET	R8	R1	K31
-      0x58280020,  //  0081  LDCONST	R10	K32
-      0x7C200400,  //  0082  CALL	R8	2
-      0x8C200321,  //  0083  GETMET	R8	R1	K33
-      0x7C200200,  //  0084  CALL	R8	1
-      0x8C200322,  //  0085  GETMET	R8	R1	K34
-      0x8C28050D,  //  0086  GETMET	R10	R2	K13
-      0x58300023,  //  0087  LDCONST	R12	K35
-      0x5C340C00,  //  0088  MOVE	R13	R6
-      0x5C380E00,  //  0089  MOVE	R14	R7
-      0x7C280800,  //  008A  CALL	R10	4
-      0x7C200400,  //  008B  CALL	R8	2
-      0x8C200324,  //  008C  GETMET	R8	R1	K36
-      0x88280325,  //  008D  GETMBR	R10	R1	K37
-      0x7C200400,  //  008E  CALL	R8	2
-      0x8C200326,  //  008F  GETMET	R8	R1	K38
-      0x7C200200,  //  0090  CALL	R8	1
-      0x70020000,  //  0091  JMP		#0093
-      0xB0080000,  //  0092  RAISE	2	R0	R0
-      0x80000000,  //  0093  RET	0
+      0xA40A0200,  //  0001  IMPORT	R2	K1
+      0xA40E0400,  //  0002  IMPORT	R3	K2
+      0xB8120600,  //  0003  GETNGBL	R4	K3
+      0x8C100904,  //  0004  GETMET	R4	R4	K4
+      0x58180005,  //  0005  LDCONST	R6	K5
+      0x7C100400,  //  0006  CALL	R4	2
+      0x8C140906,  //  0007  GETMET	R5	R4	K6
+      0x581C0007,  //  0008  LDCONST	R7	K7
+      0x7C140400,  //  0009  CALL	R5	2
+      0x8C180B06,  //  000A  GETMET	R6	R5	K6
+      0x58200008,  //  000B  LDCONST	R8	K8
+      0x7C180400,  //  000C  CALL	R6	2
+      0x8C1C0B06,  //  000D  GETMET	R7	R5	K6
+      0x5824000A,  //  000E  LDCONST	R9	K10
+      0x7C1C0400,  //  000F  CALL	R7	2
+      0x90021207,  //  0010  SETMBR	R0	K9	R7
+      0x1C1C0D0B,  //  0011  EQ	R7	R6	K11
+      0x781E0002,  //  0012  JMPF	R7	#0016
+      0x501C0000,  //  0013  LDBOOL	R7	0	0
+      0x90021807,  //  0014  SETMBR	R0	K12	R7
+      0x70020001,  //  0015  JMP		#0018
+      0x501C0200,  //  0016  LDBOOL	R7	1	0
+      0x90021807,  //  0017  SETMBR	R0	K12	R7
+      0x8C1C070D,  //  0018  GETMET	R7	R3	K13
+      0x5824000E,  //  0019  LDCONST	R9	K14
+      0x7C1C0400,  //  001A  CALL	R7	2
+      0x781E0002,  //  001B  JMPF	R7	#001F
+      0x881C070E,  //  001C  GETMBR	R7	R3	K14
+      0x90021C07,  //  001D  SETMBR	R0	K14	R7
+      0x70020000,  //  001E  JMP		#0020
+      0x90021D0F,  //  001F  SETMBR	R0	K14	K15
+      0x8C1C070D,  //  0020  GETMET	R7	R3	K13
+      0x58240010,  //  0021  LDCONST	R9	K16
+      0x7C1C0400,  //  0022  CALL	R7	2
+      0x781E0002,  //  0023  JMPF	R7	#0027
+      0x881C0710,  //  0024  GETMBR	R7	R3	K16
+      0x90022007,  //  0025  SETMBR	R0	K16	R7
+      0x70020000,  //  0026  JMP		#0028
+      0x90022111,  //  0027  SETMBR	R0	K16	K17
+      0x8C1C070D,  //  0028  GETMET	R7	R3	K13
+      0x58240012,  //  0029  LDCONST	R9	K18
+      0x7C1C0400,  //  002A  CALL	R7	2
+      0x781E0002,  //  002B  JMPF	R7	#002F
+      0x881C0712,  //  002C  GETMBR	R7	R3	K18
+      0x90022407,  //  002D  SETMBR	R0	K18	R7
+      0x70020000,  //  002E  JMP		#0030
+      0x90022513,  //  002F  SETMBR	R0	K18	K19
+      0x8C1C070D,  //  0030  GETMET	R7	R3	K13
+      0x58240014,  //  0031  LDCONST	R9	K20
+      0x7C1C0400,  //  0032  CALL	R7	2
+      0x781E0002,  //  0033  JMPF	R7	#0037
+      0x881C0714,  //  0034  GETMBR	R7	R3	K20
+      0x90022807,  //  0035  SETMBR	R0	K20	R7
+      0x70020000,  //  0036  JMP		#0038
+      0x90022915,  //  0037  SETMBR	R0	K20	K21
+      0xB81E0600,  //  0038  GETNGBL	R7	K3
+      0x8C1C0F16,  //  0039  GETMET	R7	R7	K22
+      0x58240017,  //  003A  LDCONST	R9	K23
+      0x84280000,  //  003B  CLOSURE	R10	P0
+      0x582C0018,  //  003C  LDCONST	R11	K24
+      0x7C1C0800,  //  003D  CALL	R7	4
+      0x8C1C0119,  //  003E  GETMET	R7	R0	K25
+      0x7C1C0200,  //  003F  CALL	R7	1
+      0xB81E0600,  //  0040  GETNGBL	R7	K3
+      0x8C1C0F1A,  //  0041  GETMET	R7	R7	K26
+      0x5824001B,  //  0042  LDCONST	R9	K27
+      0x84280001,  //  0043  CLOSURE	R10	P1
+      0x7C1C0600,  //  0044  CALL	R7	3
+      0xB81E0600,  //  0045  GETNGBL	R7	K3
+      0x8C1C0F1C,  //  0046  GETMET	R7	R7	K28
+      0x5C240000,  //  0047  MOVE	R9	R0
+      0x7C1C0400,  //  0048  CALL	R7	2
+      0xA0000000,  //  0049  CLOSE	R0
+      0x80000000,  //  004A  RET	0
     })
   )
 );
@@ -1095,26 +992,155 @@ be_local_closure(ezie_cloud_configurator_page_part_ctl,   /* name */
 
 
 /********************************************************************
-** Solidified function: get_mqtt_username
+** Solidified function: resetmqtt
 ********************************************************************/
-be_local_closure(ezie_cloud_configurator_get_mqtt_username,   /* name */
+be_local_closure(ezie_cloud_configurator_resetmqtt,   /* name */
   be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
+    25,                          /* nstack */
+    5,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
     NULL,                       /* no upvals */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str(mqtt_username),
+    ( &(const bvalue[32]) {     /* constants */
+    /* K0   */  be_nested_str(string),
+    /* K1   */  be_nested_str(json),
+    /* K2   */  be_nested_str(persist),
+    /* K3   */  be_nested_str(format),
+    /* K4   */  be_nested_str(https_X3A_X2F_X2Fwqxpc1agpf_X2Eexecute_X2Dapi_X2Eeu_X2Dwest_X2D1_X2Eamazonaws_X2Ecom_X2Flive_X3Faction_X3Dreset_mqtt_X26device_id_X3D_X25s),
+    /* K5   */  be_nested_str(client_id),
+    /* K6   */  be_nested_str(_X25s_X26_X25s),
+    /* K7   */  be_nested_str(webclient),
+    /* K8   */  be_nested_str(set_follow_redirects),
+    /* K9   */  be_nested_str(set_auth),
+    /* K10  */  be_nested_str(3RDPwETN),
+    /* K11  */  be_nested_str(TzVUaWhQTW01WWpw),
+    /* K12  */  be_nested_str(begin),
+    /* K13  */  be_nested_str(POST),
+    /* K14  */  be_nested_str(),
+    /* K15  */  be_nested_str(Location_X3A),
+    /* K16  */  be_nested_str(get_header),
+    /* K17  */  be_nested_str(Location),
+    /* K18  */  be_nested_str(load),
+    /* K19  */  be_nested_str(get_string),
+    /* K20  */  be_nested_str(find),
+    /* K21  */  be_nested_str(body),
+    /* K22  */  be_nested_str(new_username),
+    /* K23  */  be_nested_str(new_password),
+    /* K24  */  be_nested_str(authorizer_name),
+    /* K25  */  be_nested_str(mqtt_host),
+    /* K26  */  be_nested_str(mqtt_port),
+    /* K27  */  be_nested_str(save),
+    /* K28  */  be_nested_str(tasmota),
+    /* K29  */  be_nested_str(cmd),
+    /* K30  */  be_nested_str(BackLog_X20MqttClient_X20_X25_X2512X_X3B_X20Topic_X20_X25_X2512X_X3B_X20FullTopic_X20_X25_X25prefix_X25_X25_X2F_X25_X25topic_X25_X25_X2F_X3B_X20SetOption3_X201_X3B_X20SetOption103_X201_X3B_X20MqttHost_X20_X25s_X3B_X20MqttPort_X20_X25s_X3B_X20MqttUser_X20_X25s_X3Fx_X2Damz_X2Dcustomauthorizer_X2Dname_X3D_X25s_X3B_X20MqttPassword_X20_X25s),
+    /* K31  */  be_nested_str(close),
     }),
-    &be_const_str_get_mqtt_username,
+    &be_const_str_resetmqtt,
     &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
+    ( &(const binstruction[100]) {  /* code */
+      0xA4160000,  //  0000  IMPORT	R5	K0
+      0xA41A0200,  //  0001  IMPORT	R6	K1
+      0xA41E0400,  //  0002  IMPORT	R7	K2
+      0x8C200B03,  //  0003  GETMET	R8	R5	K3
+      0x58280004,  //  0004  LDCONST	R10	K4
+      0x882C0105,  //  0005  GETMBR	R11	R0	K5
+      0x7C200600,  //  0006  CALL	R8	3
+      0x4C240000,  //  0007  LDNIL	R9
+      0x20240609,  //  0008  NE	R9	R3	R9
+      0x78260008,  //  0009  JMPF	R9	#0013
+      0x8C240B03,  //  000A  GETMET	R9	R5	K3
+      0x582C0006,  //  000B  LDCONST	R11	K6
+      0x5C301000,  //  000C  MOVE	R12	R8
+      0x5C340600,  //  000D  MOVE	R13	R3
+      0x7C240800,  //  000E  CALL	R9	4
+      0x5C201200,  //  000F  MOVE	R8	R9
+      0x60240001,  //  0010  GETGBL	R9	G1
+      0x5C281000,  //  0011  MOVE	R10	R8
+      0x7C240200,  //  0012  CALL	R9	1
+      0xB8260E00,  //  0013  GETNGBL	R9	K7
+      0x7C240000,  //  0014  CALL	R9	0
+      0x8C281308,  //  0015  GETMET	R10	R9	K8
+      0x50300000,  //  0016  LDBOOL	R12	0	0
+      0x7C280400,  //  0017  CALL	R10	2
+      0x8C281309,  //  0018  GETMET	R10	R9	K9
+      0x5830000A,  //  0019  LDCONST	R12	K10
+      0x5834000B,  //  001A  LDCONST	R13	K11
+      0x7C280600,  //  001B  CALL	R10	3
+      0x8C28130C,  //  001C  GETMET	R10	R9	K12
+      0x5C301000,  //  001D  MOVE	R12	R8
+      0x7C280400,  //  001E  CALL	R10	2
+      0x8C28130D,  //  001F  GETMET	R10	R9	K13
+      0x5830000E,  //  0020  LDCONST	R12	K14
+      0x7C280400,  //  0021  CALL	R10	2
+      0x542E012C,  //  0022  LDINT	R11	301
+      0x1C2C140B,  //  0023  EQ	R11	R10	R11
+      0x742E0002,  //  0024  JMPT	R11	#0028
+      0x542E012D,  //  0025  LDINT	R11	302
+      0x1C2C140B,  //  0026  EQ	R11	R10	R11
+      0x782E0006,  //  0027  JMPF	R11	#002F
+      0x602C0001,  //  0028  GETGBL	R11	G1
+      0x5830000F,  //  0029  LDCONST	R12	K15
+      0x8C341310,  //  002A  GETMET	R13	R9	K16
+      0x583C0011,  //  002B  LDCONST	R15	K17
+      0x7C340400,  //  002C  CALL	R13	2
+      0x7C2C0400,  //  002D  CALL	R11	2
+      0x70020031,  //  002E  JMP		#0061
+      0x542E00C7,  //  002F  LDINT	R11	200
+      0x1C2C140B,  //  0030  EQ	R11	R10	R11
+      0x782E002E,  //  0031  JMPF	R11	#0061
+      0x8C2C0D12,  //  0032  GETMET	R11	R6	K18
+      0x8C341313,  //  0033  GETMET	R13	R9	K19
+      0x7C340200,  //  0034  CALL	R13	1
+      0x7C2C0400,  //  0035  CALL	R11	2
+      0x8C300D12,  //  0036  GETMET	R12	R6	K18
+      0x8C381714,  //  0037  GETMET	R14	R11	K20
+      0x58400015,  //  0038  LDCONST	R16	K21
+      0x7C380400,  //  0039  CALL	R14	2
+      0x7C300400,  //  003A  CALL	R12	2
+      0x8C341914,  //  003B  GETMET	R13	R12	K20
+      0x583C0016,  //  003C  LDCONST	R15	K22
+      0x7C340400,  //  003D  CALL	R13	2
+      0x8C381914,  //  003E  GETMET	R14	R12	K20
+      0x58400017,  //  003F  LDCONST	R16	K23
+      0x7C380400,  //  0040  CALL	R14	2
+      0x8C3C1914,  //  0041  GETMET	R15	R12	K20
+      0x58440018,  //  0042  LDCONST	R17	K24
+      0x7C3C0400,  //  0043  CALL	R15	2
+      0x9002300F,  //  0044  SETMBR	R0	K24	R15
+      0x8C3C1914,  //  0045  GETMET	R15	R12	K20
+      0x58440019,  //  0046  LDCONST	R17	K25
+      0x7C3C0400,  //  0047  CALL	R15	2
+      0x9002320F,  //  0048  SETMBR	R0	K25	R15
+      0x8C3C1914,  //  0049  GETMET	R15	R12	K20
+      0x5844001A,  //  004A  LDCONST	R17	K26
+      0x7C3C0400,  //  004B  CALL	R15	2
+      0x9002340F,  //  004C  SETMBR	R0	K26	R15
+      0x883C0118,  //  004D  GETMBR	R15	R0	K24
+      0x901E300F,  //  004E  SETMBR	R7	K24	R15
+      0x883C0119,  //  004F  GETMBR	R15	R0	K25
+      0x901E320F,  //  0050  SETMBR	R7	K25	R15
+      0x883C011A,  //  0051  GETMBR	R15	R0	K26
+      0x901E340F,  //  0052  SETMBR	R7	K26	R15
+      0x8C3C0F1B,  //  0053  GETMET	R15	R7	K27
+      0x7C3C0200,  //  0054  CALL	R15	1
+      0xB83E3800,  //  0055  GETNGBL	R15	K28
+      0x8C3C1F1D,  //  0056  GETMET	R15	R15	K29
+      0x8C440B03,  //  0057  GETMET	R17	R5	K3
+      0x584C001E,  //  0058  LDCONST	R19	K30
+      0x88500119,  //  0059  GETMBR	R20	R0	K25
+      0x8854011A,  //  005A  GETMBR	R21	R0	K26
+      0x5C581A00,  //  005B  MOVE	R22	R13
+      0x885C0118,  //  005C  GETMBR	R23	R0	K24
+      0x5C601C00,  //  005D  MOVE	R24	R14
+      0x7C440E00,  //  005E  CALL	R17	7
+      0x50480200,  //  005F  LDBOOL	R18	1	0
+      0x7C3C0600,  //  0060  CALL	R15	3
+      0x8C2C131F,  //  0061  GETMET	R11	R9	K31
+      0x7C2C0200,  //  0062  CALL	R11	1
+      0x80000000,  //  0063  RET	0
     })
   )
 );
@@ -1126,28 +1152,27 @@ be_local_closure(ezie_cloud_configurator_get_mqtt_username,   /* name */
 ********************************************************************/
 extern const bclass be_class_Driver;
 be_local_class(ezie_cloud_configurator,
-    5,
+    6,
     &be_class_Driver,
-    be_nested_map(18,
+    be_nested_map(17,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key(get_mqtt_username, -1), be_const_closure(ezie_cloud_configurator_get_mqtt_username_closure) },
-        { be_const_key(web_add_main_button, -1), be_const_closure(ezie_cloud_configurator_web_add_main_button_closure) },
-        { be_const_key(resetmqtt, -1), be_const_closure(ezie_cloud_configurator_resetmqtt_closure) },
-        { be_const_key(get_owner_email, 1), be_const_closure(ezie_cloud_configurator_get_owner_email_closure) },
-        { be_const_key(web_add_handler, 6), be_const_closure(ezie_cloud_configurator_web_add_handler_closure) },
-        { be_const_key(show_mqtt_user_pass, -1), be_const_closure(ezie_cloud_configurator_show_mqtt_user_pass_closure) },
-        { be_const_key(mqtt_username, 3), be_const_var(1) },
-        { be_const_key(show_mqtt_settings, 10), be_const_closure(ezie_cloud_configurator_show_mqtt_settings_closure) },
-        { be_const_key(is_mqtt_connected, 9), be_const_var(3) },
-        { be_const_key(get_mqtt_password, -1), be_const_closure(ezie_cloud_configurator_get_mqtt_password_closure) },
-        { be_const_key(show_info, 13), be_const_closure(ezie_cloud_configurator_show_info_closure) },
-        { be_const_key(mqtt_password, -1), be_const_var(2) },
-        { be_const_key(show_owner_settings, -1), be_const_closure(ezie_cloud_configurator_show_owner_settings_closure) },
-        { be_const_key(owner_email, -1), be_const_var(0) },
-        { be_const_key(client_id, 4), be_const_var(4) },
+        { be_const_key(resetmqtt, 14), be_const_closure(ezie_cloud_configurator_resetmqtt_closure) },
+        { be_const_key(get_owner_email, 5), be_const_closure(ezie_cloud_configurator_get_owner_email_closure) },
         { be_const_key(init, -1), be_const_closure(ezie_cloud_configurator_init_closure) },
-        { be_const_key(page_part_ctl, -1), be_const_closure(ezie_cloud_configurator_page_part_ctl_closure) },
-        { be_const_key(page_part_mgr, 0), be_const_closure(ezie_cloud_configurator_page_part_mgr_closure) },
+        { be_const_key(show_info, -1), be_const_closure(ezie_cloud_configurator_show_info_closure) },
+        { be_const_key(web_add_handler, -1), be_const_closure(ezie_cloud_configurator_web_add_handler_closure) },
+        { be_const_key(authorizer_name, -1), be_const_var(3) },
+        { be_const_key(mqtt_host, -1), be_const_var(1) },
+        { be_const_key(show_mqtt_settings, -1), be_const_closure(ezie_cloud_configurator_show_mqtt_settings_closure) },
+        { be_const_key(web_add_main_button, -1), be_const_closure(ezie_cloud_configurator_web_add_main_button_closure) },
+        { be_const_key(page_part_ctl, 0), be_const_closure(ezie_cloud_configurator_page_part_ctl_closure) },
+        { be_const_key(is_mqtt_connected, -1), be_const_var(4) },
+        { be_const_key(owner_email, -1), be_const_var(0) },
+        { be_const_key(show_mqtt_user_pass, -1), be_const_closure(ezie_cloud_configurator_show_mqtt_user_pass_closure) },
+        { be_const_key(client_id, 8), be_const_var(5) },
+        { be_const_key(show_owner_settings, 16), be_const_closure(ezie_cloud_configurator_show_owner_settings_closure) },
+        { be_const_key(page_part_mgr, 2), be_const_closure(ezie_cloud_configurator_page_part_mgr_closure) },
+        { be_const_key(mqtt_port, -1), be_const_var(2) },
     })),
     (bstring*) &be_const_str_ezie_cloud_configurator
 );

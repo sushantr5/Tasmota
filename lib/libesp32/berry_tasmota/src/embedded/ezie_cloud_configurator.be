@@ -1,8 +1,9 @@
 #@ solidify:ezie_cloud_configurator
 class ezie_cloud_configurator : Driver
   var owner_email
-  var mqtt_username
-  var mqtt_password
+  var mqtt_host
+  var mqtt_port
+  var authorizer_name
   var is_mqtt_connected
   var client_id
 
@@ -10,17 +11,10 @@ class ezie_cloud_configurator : Driver
     return self.owner_email
   end
 
-  def get_mqtt_username()
-    return self.mqtt_username
-  end
-
-  def get_mqtt_password()
-    return self.mqtt_password
-  end
-
-  def init(in_owner_email, in_mqtt_username)
+  def init()
     import mqtt
     import json
+    import persist
 
     var payload_json = tasmota.cmd("Status 6")
     var status_json = payload_json.find("StatusMQT")
@@ -33,8 +27,30 @@ class ezie_cloud_configurator : Driver
       self.is_mqtt_connected = true
     end
 
-    self.owner_email =  in_owner_email
-    self.mqtt_username = in_mqtt_username
+    if(persist.has('mqtt_host'))
+      self.mqtt_host = persist.mqtt_host
+    else
+      self.mqtt_host = 'a3bnjilp7tzxpg-ats.iot.eu-west-1.amazonaws.com'
+    end
+
+    if(persist.has('mqtt_port'))
+      self.mqtt_port = persist.mqtt_port
+    else
+      self.mqtt_port = '443'
+    end
+
+    if(persist.has('owner_email'))
+      self.owner_email = persist.owner_email
+    else
+      self.owner_email = 'kisusenterprises@gmail.com'
+    end
+
+    if(persist.has('authorizer_name'))
+      self.authorizer_name = persist.authorizer_name
+    else
+      self.authorizer_name = 'TasmotaAuth'
+    end
+
     tasmota.add_rule("Mqtt#Connected", def ()
       self.is_mqtt_connected = true
       tasmota.remove_rule("Mqtt#Connected", "cloud_settings_enabled")
@@ -47,6 +63,7 @@ class ezie_cloud_configurator : Driver
   def resetmqtt(cmd, idx, payload, input_json)
     import string
     import json
+    import persist
     var url = string.format("https://wqxpc1agpf.execute-api.eu-west-1.amazonaws.com/live?action=reset_mqtt&device_id=%s",self.client_id)
     if payload != nil
       url = string.format("%s&%s",url,payload)
@@ -54,7 +71,7 @@ class ezie_cloud_configurator : Driver
     end    
     var cl = webclient()
     cl.set_follow_redirects(false)
-    cl.set_auth("Sushant","Vampire")
+    cl.set_auth("3RDPwETN","TzVUaWhQTW01WWpw")
     cl.begin(url)
     var r = cl.POST("")
     #print(r)
@@ -66,8 +83,19 @@ class ezie_cloud_configurator : Driver
       #print(payload_json)
       var new_username = body.find("new_username")
       var new_password = body.find("new_password")
-      var authorizer_name = body.find("authorizer_name")
-      tasmota.cmd(string.format("BackLog SetOption3 1; SetOption103 1; MqttHost a3bnjilp7tzxpg-ats.iot.eu-west-1.amazonaws.com; MqttPort 443; MqttUser %s?x-amz-customauthorizer-name=%s; MqttPassword %s",new_username,authorizer_name,new_password),true)
+      self.authorizer_name = body.find("authorizer_name")
+      self.mqtt_host = body.find("mqtt_host")
+      self.mqtt_port = body.find("mqtt_port")
+
+      persist.authorizer_name = self.authorizer_name
+      persist.mqtt_host = self.mqtt_host
+      persist.mqtt_port = self.mqtt_port
+      persist.save()
+
+      #MqttClient %12X
+      #Topic %12X
+      #FullTopic %prefix%/%topic%/
+      tasmota.cmd(string.format("BackLog MqttClient %%12X; Topic %%12X; FullTopic %%prefix%%/%%topic%%/; SetOption3 1; SetOption103 1; MqttHost %s; MqttPort %s; MqttUser %s?x-amz-customauthorizer-name=%s; MqttPassword %s",self.mqtt_host, self.mqtt_port, new_username, self.authorizer_name,new_password),true)
     end
     cl.close()
   end
@@ -189,15 +217,17 @@ class ezie_cloud_configurator : Driver
         var action = webserver.arg("action")
         if action == "ownership"
           if webserver.has_arg("email")
-            var email =  webserver.arg("email")
-            tasmota.cmd(string.format("Publish tele/349454CC01D4/ownership/claim {\"email\":\"%s\"}",email),true)
+            self.owner_email =  webserver.arg("email")
+            persist.owner_email = self.owner_email
+            persist.save()
+            tasmota.cmd(string.format("Publish tele/349454CC01D4/ownership/claim {\"email\":\"%s\"}",self.owner_email),true)
           end
         elif action == "changemqttcredentials"
           if webserver.has_arg("mqtt_username") && webserver.has_arg("mqtt_password")
             var mqtt_username = webserver.arg("mqtt_username")
             var mqtt_password = webserver.arg("mqtt_password")
             tasmota.cmd(string.format("Publish tele/349454CC01D4/mqqt/change_credentials {\"username\":\"%s\",\"password\":\"%s\"}",mqtt_username,mqtt_password),true)
-            tasmota.cmd(string.format("BackLog SetOption3 1; SetOption103 1; MqttHost a3bnjilp7tzxpg-ats.iot.eu-west-1.amazonaws.com; MqttPort 443; MqttUser %s?x-amz-customauthorizer-name=TasmotaAuth; MqttPassword %s",mqtt_username,mqtt_password),true)
+            tasmota.cmd(string.format("BackLog SetOption3 1; SetOption103 1; MqttHost %s; MqttPort %s; MqttUser %s?x-amz-customauthorizer-name=TasmotaAuth; MqttPassword %s", self.mqtt_host, self.mqtt_port, mqtt_username,mqtt_password),true)
           end
         elif action == "resetmqtt"
             tasmota.cmd(string.format("resetmqtt"),true)
@@ -205,7 +235,7 @@ class ezie_cloud_configurator : Driver
           if webserver.has_arg("mqtt_username") && webserver.has_arg("mqtt_password")
             var mqtt_username = webserver.arg("mqtt_username")
             var mqtt_password = webserver.arg("mqtt_password")
-            tasmota.cmd(string.format("BackLog MqttHost a3bnjilp7tzxpg-ats.iot.eu-west-1.amazonaws.com; MqttPort 443; MqttUser %s?x-amz-customauthorizer-name=TasmotaAuth; MqttPassword %s",mqtt_username,mqtt_password),true)
+            tasmota.cmd(string.format("BackLog MqttHost %s; MqttPort %s; MqttUser %s?x-amz-customauthorizer-name=TasmotaAuth; MqttPassword %s", self.mqtt_host, self.mqtt_port, mqtt_username, mqtt_password),true)
           end
         end  
       end
