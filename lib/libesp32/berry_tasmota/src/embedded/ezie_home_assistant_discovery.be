@@ -96,7 +96,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('payload_off', 'OFF')
         discovery_msg_map.setitem('payload_on', 'ON')
 
-        mqtt.publish('homeassistant/switch/' + unique_id + "_1" + '/config', json.dump(discovery_msg_map,['format']), true )
+        mqtt.publish('homeassistant/switch/' + unique_id + '/' + unique_id + "_1" + '/config', json.dump(discovery_msg_map,['format']), true )
         
         if friendly_names[1] != nil
             discovery_msg_map.setitem('name', friendly_names[1])
@@ -106,7 +106,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('unique_id',unique_id + "_2")
         discovery_msg_map.setitem('command_topic','cmnd/'+unique_id+'/POWER2')
         discovery_msg_map.setitem('state_topic','stat/'+unique_id+'/POWER2')
-        mqtt.publish('homeassistant/switch/' + unique_id + "_2" + '/config', json.dump(discovery_msg_map,['format']), true )
+        mqtt.publish('homeassistant/switch/' + unique_id + '/' + unique_id + "_2" + '/config', json.dump(discovery_msg_map,['format']), true )
 
         if friendly_names[2] != nil
             discovery_msg_map.setitem('name', friendly_names[2])
@@ -116,7 +116,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('unique_id',unique_id + "_3")
         discovery_msg_map.setitem('command_topic','cmnd/'+unique_id+'/POWER3')
         discovery_msg_map.setitem('state_topic','stat/'+unique_id+'/POWER3')
-        mqtt.publish('homeassistant/switch/' + unique_id + "_3" + '/config', json.dump(discovery_msg_map,['format']), true )
+        mqtt.publish('homeassistant/switch/' + unique_id + '/' + unique_id + "_3" + '/config', json.dump(discovery_msg_map,['format']), true )
 
         if friendly_names[3] != nil
             discovery_msg_map.setitem('name', friendly_names[3])
@@ -126,7 +126,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('unique_id',unique_id + "_4")
         discovery_msg_map.setitem('command_topic','cmnd/'+unique_id+'/POWER4')
         discovery_msg_map.setitem('state_topic','stat/'+unique_id+'/POWER4')
-        mqtt.publish('homeassistant/switch/' + unique_id + "_4" + '/config', json.dump(discovery_msg_map,['format']), true )
+        mqtt.publish('homeassistant/switch/' + unique_id + '/' + unique_id + "_4" + '/config', json.dump(discovery_msg_map,['format']), true )
         self.ha_discovery_sent = true
     end
 

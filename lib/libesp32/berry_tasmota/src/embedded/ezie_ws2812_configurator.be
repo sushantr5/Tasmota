@@ -40,10 +40,10 @@ class ezie_ws2812_configurator
   # Init web handlers
   # ####################################################################################################
   # Displays a "Configure EZIE" button on the configuration page
-  def web_add_config_button()
+  def web_add_main_button()
     import webserver
     # webserver.content_send("<p><form id=ac action='matterc' style='display: block;' method='get'><button>Configure Matter</button></form></p>")
-    webserver.content_send("<p><form id=ac action='eziec' style='display: block;' method='get'><button>EZIE device</button></form></p>")
+    webserver.content_send("<p><form id=ac action='eziec' style='display: block;' method='get'><button>EZIE Device Settings</button></form></p>")
   end
 
   def show_color_settings()
@@ -97,6 +97,7 @@ class ezie_ws2812_configurator
     
     webserver.content_send("<p></p><button name='ezieconfchange' class='button bgrn'>Change</button></form></p>")
     webserver.content_button(webserver.BUTTON_CONFIGURATION)
+    webserver.content_button(webserver.BUTTON_MAIN)
     webserver.content_stop()                        #- end of web page -#
   end
 

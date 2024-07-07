@@ -111,7 +111,7 @@ be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[14]) {     /* constants */
+    ( &(const bvalue[15]) {     /* constants */
     /* K0   */  be_nested_str(webserver),
     /* K1   */  be_nested_str(string),
     /* K2   */  be_nested_str(check_privileged_access),
@@ -125,11 +125,12 @@ be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
     /* K10  */  be_nested_str(_X3Cp_X3E_X3C_X2Fp_X3E_X3Cbutton_X20name_X3D_X27ezieconfchange_X27_X20class_X3D_X27button_X20bgrn_X27_X3EChange_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
     /* K11  */  be_nested_str(content_button),
     /* K12  */  be_nested_str(BUTTON_CONFIGURATION),
-    /* K13  */  be_nested_str(content_stop),
+    /* K13  */  be_nested_str(BUTTON_MAIN),
+    /* K14  */  be_nested_str(content_stop),
     }),
     &be_const_str_page_part_mgr,
     &be_const_str_solidified,
-    ( &(const binstruction[28]) {  /* code */
+    ( &(const binstruction[31]) {  /* code */
       0xA4060000,  //  0000  IMPORT	R1	K0
       0xA40A0200,  //  0001  IMPORT	R2	K1
       0x8C0C0302,  //  0002  GETMET	R3	R1	K2
@@ -155,9 +156,12 @@ be_local_closure(ezie_ws2812_configurator_page_part_mgr,   /* name */
       0x8C0C030B,  //  0016  GETMET	R3	R1	K11
       0x8814030C,  //  0017  GETMBR	R5	R1	K12
       0x7C0C0400,  //  0018  CALL	R3	2
-      0x8C0C030D,  //  0019  GETMET	R3	R1	K13
-      0x7C0C0200,  //  001A  CALL	R3	1
-      0x80000000,  //  001B  RET	0
+      0x8C0C030B,  //  0019  GETMET	R3	R1	K11
+      0x8814030D,  //  001A  GETMBR	R5	R1	K13
+      0x7C0C0400,  //  001B  CALL	R3	2
+      0x8C0C030E,  //  001C  GETMET	R3	R1	K14
+      0x7C0C0200,  //  001D  CALL	R3	1
+      0x80000000,  //  001E  RET	0
     })
   )
 );
@@ -247,60 +251,6 @@ be_local_closure(ezie_ws2812_configurator_web_add_handler,   /* name */
       0x7C080800,  //  000A  CALL	R2	4
       0xA0000000,  //  000B  CLOSE	R0
       0x80000000,  //  000C  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: get_NORMAL_or_OFF_state_color
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str(normal_off_state_col),
-    }),
-    &be_const_str_get_NORMAL_or_OFF_state_color,
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
-** Solidified function: get_LIGHTS_dim_percentage
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_get_LIGHTS_dim_percentage,   /* name */
-  be_nested_proto(
-    2,                          /* nstack */
-    1,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 1]) {     /* constants */
-    /* K0   */  be_nested_str(lights_dim_factor),
-    }),
-    &be_const_str_get_LIGHTS_dim_percentage,
-    &be_const_str_solidified,
-    ( &(const binstruction[ 2]) {  /* code */
-      0x88040100,  //  0000  GETMBR	R1	R0	K0
-      0x80040200,  //  0001  RET	1	R1
     })
   )
 );
@@ -484,11 +434,55 @@ be_local_closure(ezie_ws2812_configurator_page_part_ctl,   /* name */
 
 
 /********************************************************************
-** Solidified function: web_add_config_button
+** Solidified function: init
 ********************************************************************/
-be_local_closure(ezie_ws2812_configurator_web_add_config_button,   /* name */
+be_local_closure(ezie_ws2812_configurator_init,   /* name */
   be_nested_proto(
-    5,                          /* nstack */
+    9,                          /* nstack */
+    6,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 8]) {     /* constants */
+    /* K0   */  be_nested_str(action_on_state_col),
+    /* K1   */  be_nested_str(normal_off_state_col),
+    /* K2   */  be_nested_str(speed_bar_col),
+    /* K3   */  be_nested_str(lights_timeout),
+    /* K4   */  be_nested_str(lights_dim_factor),
+    /* K5   */  be_nested_str(web_add_handler),
+    /* K6   */  be_nested_str(tasmota),
+    /* K7   */  be_nested_str(add_driver),
+    }),
+    &be_const_str_init,
+    &be_const_str_solidified,
+    ( &(const binstruction[12]) {  /* code */
+      0x90020001,  //  0000  SETMBR	R0	K0	R1
+      0x90020202,  //  0001  SETMBR	R0	K1	R2
+      0x90020403,  //  0002  SETMBR	R0	K2	R3
+      0x90020604,  //  0003  SETMBR	R0	K3	R4
+      0x90020805,  //  0004  SETMBR	R0	K4	R5
+      0x8C180105,  //  0005  GETMET	R6	R0	K5
+      0x7C180200,  //  0006  CALL	R6	1
+      0xB81A0C00,  //  0007  GETNGBL	R6	K6
+      0x8C180D07,  //  0008  GETMET	R6	R6	K7
+      0x5C200000,  //  0009  MOVE	R8	R0
+      0x7C180400,  //  000A  CALL	R6	2
+      0x80000000,  //  000B  RET	0
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_NORMAL_or_OFF_state_color
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
     1,                          /* argc */
     2,                          /* varg */
     0,                          /* has upvals */
@@ -496,19 +490,41 @@ be_local_closure(ezie_ws2812_configurator_web_add_config_button,   /* name */
     0,                          /* has sup protos */
     NULL,                       /* no sub protos */
     1,                          /* has constants */
-    ( &(const bvalue[ 3]) {     /* constants */
-    /* K0   */  be_nested_str(webserver),
-    /* K1   */  be_nested_str(content_send),
-    /* K2   */  be_nested_str(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziec_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20device_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str(normal_off_state_col),
     }),
-    &be_const_str_web_add_config_button,
+    &be_const_str_get_NORMAL_or_OFF_state_color,
     &be_const_str_solidified,
-    ( &(const binstruction[ 5]) {  /* code */
-      0xA4060000,  //  0000  IMPORT	R1	K0
-      0x8C080301,  //  0001  GETMET	R2	R1	K1
-      0x58100002,  //  0002  LDCONST	R4	K2
-      0x7C080400,  //  0003  CALL	R2	2
-      0x80000000,  //  0004  RET	0
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: get_LIGHTS_dim_percentage
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_get_LIGHTS_dim_percentage,   /* name */
+  be_nested_proto(
+    2,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 1]) {     /* constants */
+    /* K0   */  be_nested_str(lights_dim_factor),
+    }),
+    &be_const_str_get_LIGHTS_dim_percentage,
+    &be_const_str_solidified,
+    ( &(const binstruction[ 2]) {  /* code */
+      0x88040100,  //  0000  GETMBR	R1	R0	K0
+      0x80040200,  //  0001  RET	1	R1
     })
   )
 );
@@ -605,50 +621,6 @@ be_local_closure(ezie_ws2812_configurator_show_color_settings,   /* name */
 
 
 /********************************************************************
-** Solidified function: init
-********************************************************************/
-be_local_closure(ezie_ws2812_configurator_init,   /* name */
-  be_nested_proto(
-    9,                          /* nstack */
-    6,                          /* argc */
-    2,                          /* varg */
-    0,                          /* has upvals */
-    NULL,                       /* no upvals */
-    0,                          /* has sup protos */
-    NULL,                       /* no sub protos */
-    1,                          /* has constants */
-    ( &(const bvalue[ 8]) {     /* constants */
-    /* K0   */  be_nested_str(action_on_state_col),
-    /* K1   */  be_nested_str(normal_off_state_col),
-    /* K2   */  be_nested_str(speed_bar_col),
-    /* K3   */  be_nested_str(lights_timeout),
-    /* K4   */  be_nested_str(lights_dim_factor),
-    /* K5   */  be_nested_str(web_add_handler),
-    /* K6   */  be_nested_str(tasmota),
-    /* K7   */  be_nested_str(add_driver),
-    }),
-    &be_const_str_init,
-    &be_const_str_solidified,
-    ( &(const binstruction[12]) {  /* code */
-      0x90020001,  //  0000  SETMBR	R0	K0	R1
-      0x90020202,  //  0001  SETMBR	R0	K1	R2
-      0x90020403,  //  0002  SETMBR	R0	K2	R3
-      0x90020604,  //  0003  SETMBR	R0	K3	R4
-      0x90020805,  //  0004  SETMBR	R0	K4	R5
-      0x8C180105,  //  0005  GETMET	R6	R0	K5
-      0x7C180200,  //  0006  CALL	R6	1
-      0xB81A0C00,  //  0007  GETNGBL	R6	K6
-      0x8C180D07,  //  0008  GETMET	R6	R6	K7
-      0x5C200000,  //  0009  MOVE	R8	R0
-      0x7C180400,  //  000A  CALL	R6	2
-      0x80000000,  //  000B  RET	0
-    })
-  )
-);
-/*******************************************************************/
-
-
-/********************************************************************
 ** Solidified function: get_SPEED_indicator_bar_color
 ********************************************************************/
 be_local_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color,   /* name */
@@ -669,6 +641,38 @@ be_local_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color,   /* na
     ( &(const binstruction[ 2]) {  /* code */
       0x88040100,  //  0000  GETMBR	R1	R0	K0
       0x80040200,  //  0001  RET	1	R1
+    })
+  )
+);
+/*******************************************************************/
+
+
+/********************************************************************
+** Solidified function: web_add_main_button
+********************************************************************/
+be_local_closure(ezie_ws2812_configurator_web_add_main_button,   /* name */
+  be_nested_proto(
+    5,                          /* nstack */
+    1,                          /* argc */
+    2,                          /* varg */
+    0,                          /* has upvals */
+    NULL,                       /* no upvals */
+    0,                          /* has sup protos */
+    NULL,                       /* no sub protos */
+    1,                          /* has constants */
+    ( &(const bvalue[ 3]) {     /* constants */
+    /* K0   */  be_nested_str(webserver),
+    /* K1   */  be_nested_str(content_send),
+    /* K2   */  be_nested_str(_X3Cp_X3E_X3Cform_X20id_X3Dac_X20action_X3D_X27eziec_X27_X20style_X3D_X27display_X3A_X20block_X3B_X27_X20method_X3D_X27get_X27_X3E_X3Cbutton_X3EEZIE_X20Device_X20Settings_X3C_X2Fbutton_X3E_X3C_X2Fform_X3E_X3C_X2Fp_X3E),
+    }),
+    &be_const_str_web_add_main_button,
+    &be_const_str_solidified,
+    ( &(const binstruction[ 5]) {  /* code */
+      0xA4060000,  //  0000  IMPORT	R1	K0
+      0x8C080301,  //  0001  GETMET	R2	R1	K1
+      0x58100002,  //  0002  LDCONST	R4	K2
+      0x7C080400,  //  0003  CALL	R2	2
+      0x80000000,  //  0004  RET	0
     })
   )
 );
@@ -710,23 +714,23 @@ be_local_class(ezie_ws2812_configurator,
     NULL,
     be_nested_map(17,
     ( (struct bmapnode*) &(const bmapnode[]) {
-        { be_const_key(show_timeout_settings, 3), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
-        { be_const_key(lights_dim_factor, 11), be_const_var(4) },
+        { be_const_key(show_timeout_settings, 6), be_const_closure(ezie_ws2812_configurator_show_timeout_settings_closure) },
+        { be_const_key(action_on_state_col, 16), be_const_var(0) },
         { be_const_key(get_ACTION_or_ON_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_ACTION_or_ON_state_color_closure) },
-        { be_const_key(speed_bar_col, -1), be_const_var(2) },
-        { be_const_key(web_add_handler, -1), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
-        { be_const_key(normal_off_state_col, 10), be_const_var(1) },
-        { be_const_key(page_part_ctl, -1), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
-        { be_const_key(show_color_settings, 6), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
-        { be_const_key(web_add_config_button, -1), be_const_closure(ezie_ws2812_configurator_web_add_config_button_closure) },
-        { be_const_key(get_NORMAL_or_OFF_state_color, 7), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
-        { be_const_key(init, 16), be_const_closure(ezie_ws2812_configurator_init_closure) },
-        { be_const_key(action_on_state_col, -1), be_const_var(0) },
-        { be_const_key(get_SPEED_indicator_bar_color, -1), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
         { be_const_key(get_LIGHTS_timeout, -1), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_timeout_closure) },
+        { be_const_key(web_add_handler, -1), be_const_closure(ezie_ws2812_configurator_web_add_handler_closure) },
+        { be_const_key(normal_off_state_col, 11), be_const_var(1) },
+        { be_const_key(speed_bar_col, -1), be_const_var(2) },
+        { be_const_key(init, -1), be_const_closure(ezie_ws2812_configurator_init_closure) },
+        { be_const_key(get_NORMAL_or_OFF_state_color, -1), be_const_closure(ezie_ws2812_configurator_get_NORMAL_or_OFF_state_color_closure) },
+        { be_const_key(page_part_ctl, 10), be_const_closure(ezie_ws2812_configurator_page_part_ctl_closure) },
+        { be_const_key(show_color_settings, 8), be_const_closure(ezie_ws2812_configurator_show_color_settings_closure) },
+        { be_const_key(get_LIGHTS_dim_percentage, 7), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_dim_percentage_closure) },
+        { be_const_key(get_SPEED_indicator_bar_color, -1), be_const_closure(ezie_ws2812_configurator_get_SPEED_indicator_bar_color_closure) },
+        { be_const_key(web_add_main_button, 3), be_const_closure(ezie_ws2812_configurator_web_add_main_button_closure) },
         { be_const_key(lights_timeout, -1), be_const_var(3) },
         { be_const_key(page_part_mgr, 5), be_const_closure(ezie_ws2812_configurator_page_part_mgr_closure) },
-        { be_const_key(get_LIGHTS_dim_percentage, -1), be_const_closure(ezie_ws2812_configurator_get_LIGHTS_dim_percentage_closure) },
+        { be_const_key(lights_dim_factor, -1), be_const_var(4) },
     })),
     (bstring*) &be_const_str_ezie_ws2812_configurator
 );
