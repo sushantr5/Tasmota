@@ -11,21 +11,23 @@ class ezie_cloud_configurator : Driver
     return self.owner_email
   end
 
-  def init()
-    import mqtt
-    import json
-    import persist
-
-    var payload_json = tasmota.cmd("Status 6")
+  def check_mqtt()
+    var payload_json = tasmota.cmd("Status 6",true)
     var status_json = payload_json.find("StatusMQT")
     var count = status_json.find("MqttCount")
-    self.client_id = status_json.find("MqttClient")
+    self.client_id=status_json.find("MqttClient")
     
     if count == 0
       self.is_mqtt_connected = false
     else
       self.is_mqtt_connected = true
     end
+  end
+
+  def init()
+    import mqtt
+    import json
+    import persist
 
     if(persist.has('mqtt_host'))
       self.mqtt_host = persist.mqtt_host
@@ -64,10 +66,10 @@ class ezie_cloud_configurator : Driver
     import string
     import json
     import persist
+    self.check_mqtt()
     var url = string.format("https://wqxpc1agpf.execute-api.eu-west-1.amazonaws.com/live?action=reset_mqtt&device_id=%s",self.client_id)
     if payload != nil
       url = string.format("%s&%s",url,payload)
-      print(url) #do not print in production versoin
     end    
     var cl = webclient()
     cl.set_follow_redirects(false)
@@ -181,6 +183,7 @@ class ezie_cloud_configurator : Driver
   def page_part_mgr()
     import webserver
     import string
+    self.check_mqtt()
     if !webserver.check_privileged_access() return nil end
     webserver.content_start("EZIE Cloud")           #- title of the web page -#
     webserver.content_send_style()                  #- send standard Tasmota styles -#
@@ -220,13 +223,13 @@ class ezie_cloud_configurator : Driver
             self.owner_email =  webserver.arg("email")
             persist.owner_email = self.owner_email
             persist.save()
-            tasmota.cmd(string.format("Publish tele/349454CC01D4/ownership/claim {\"email\":\"%s\"}",self.owner_email),true)
+            tasmota.cmd(string.format("Publish tele/%s/ownership/claim {\"email\":\"%s\"}", self.client_id, self.owner_email),true)
           end
         elif action == "changemqttcredentials"
           if webserver.has_arg("mqtt_username") && webserver.has_arg("mqtt_password")
             var mqtt_username = webserver.arg("mqtt_username")
             var mqtt_password = webserver.arg("mqtt_password")
-            tasmota.cmd(string.format("Publish tele/349454CC01D4/mqqt/change_credentials {\"username\":\"%s\",\"password\":\"%s\"}",mqtt_username,mqtt_password),true)
+            tasmota.cmd(string.format("Publish tele/%s/mqqt/change_credentials {\"username\":\"%s\",\"password\":\"%s\"}",self.client_id, mqtt_username,mqtt_password),true)
             tasmota.cmd(string.format("BackLog SetOption3 1; SetOption103 1; MqttHost %s; MqttPort %s; MqttUser %s?x-amz-customauthorizer-name=TasmotaAuth; MqttPassword %s", self.mqtt_host, self.mqtt_port, mqtt_username,mqtt_password),true)
           end
         elif action == "resetmqtt"
@@ -264,17 +267,6 @@ class ezie_cloud_configurator : Driver
     import webserver
     import mqtt
     import json
-
-    var payload_json = tasmota.cmd("Status 6")
-    var status_json = payload_json.find("StatusMQT")
-    var count = status_json.find("MqttCount")
-    var client_id=status_json.find("MqttClient")
-    
-    if count == 0
-      self.is_mqtt_connected = false
-    else
-      self.is_mqtt_connected = true
-    end
 
     #- we need to register a closure, not just a function, that captures the current instance -#
     webserver.on("/eziecloudconf", / -> self.page_part_mgr(), webserver.HTTP_GET)

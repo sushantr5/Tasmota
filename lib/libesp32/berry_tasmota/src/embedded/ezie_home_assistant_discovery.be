@@ -43,7 +43,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('unique_id',unique_id)
         discovery_msg_map.setitem('command_topic','cmnd/'+unique_id+'/FanSpeed')
         discovery_msg_map.setitem('state_topic','stat/'+unique_id+'/RESULT')
-        discovery_msg_map.setitem('state_value_template', "{% if value_json.FanSpeed == 0 -%}0{%- elif value_json.FanSpeed != 0 -%}1{%- endif %}")
+        discovery_msg_map.setitem('state_value_template', "{% if value_json.FanSpeed == 0 -%} 0 {%- elif value_json.FanSpeed != 0 -%} 1 {%- endif %}")
         discovery_msg_map.setitem('availability_topic', 'tele/'+unique_id+'/LWT')
         discovery_msg_map.setitem('payload_available', 'Online')
         discovery_msg_map.setitem('payload_not_available', 'Offline')
@@ -51,7 +51,7 @@ class ezie_home_assistant_discovery : Driver
         discovery_msg_map.setitem('payload_on', '1')
         discovery_msg_map.setitem('preset_modes', ['off', 'low','medium','high','full'])
         discovery_msg_map.setitem('preset_mode_command_topic', 'cmnd/'+unique_id+'/FanSpeed')
-        var s1 = "{% if value=='low' %}1{% elif value=='medium' %}2{% elif value=='high' %}3{% elif value=='full'%}4{% else %}0{% endif %}"
+        var s1 = "{% if value=='low' %} 1 {% elif value=='medium'%} 2 {% elif value=='high' %}3{% elif value=='full'%} 4 {% else %}0{% endif %}"
         #following is manual replacement in the truncated solidifcation
         #_X7B_X25_X20if_X20value_X20_X3D_X3D_X20_X27low_X27_X20_X25_X7D_X201_X20_X7B_X25_X20elif_X20value_X20_X3D_X3D_X20_X27medium_X27_X20_X25_X7D_X202_X20_X7B_X25_X20elif_X20value_X20_X3D_X3D_X20_X27high_X27_X20_X25_X7D_X203_X20_X7B_X25_X20elif_X20value_X20_X3D_X3D_X20_X27full_X27_X25_X7D_X204_X20_X7B_X25_X20else_X20_X25_X7D_X200
         #define INST_BUF_SIZE   288 in berry code to compile
